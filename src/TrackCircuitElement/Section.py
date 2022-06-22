@@ -3,6 +3,7 @@ from src.Module.OutsideElement import TB
 from src.TrackCircuitElement.Joint import *
 import numpy as np
 
+
 # 区段
 class Section(ElePack):
     new_table = {
@@ -68,7 +69,7 @@ class Section_ZPW2000A(Section):
         # posi_mid1 = c_pst.pop(1)
 
         self.config_c(c_pst)
-        #
+
         # pst1 = list(np.linspace(offset, (m_len + offset), c_num + 1))
         # pst1 = pst1[1:-1]
         # self.config_c(pst1)
@@ -81,31 +82,8 @@ class Section_ZPW2000A(Section):
         #              z=self.parameter['TB'][self.m_freq.value])
         #     self.add_child(c_name, ele)
 
-        flag = self.parameter['TB模式']
-        if flag == '左':
-            self.element.pop('C1')
-            self.change_tb(c_name='C1', tb_name='TB1', posi=18)
-        elif flag == '右':
-            c_name = 'C' + str(c_num)
-            posi_t = self.s_length - 18
-            self.element.pop(c_name)
-            self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
-        elif flag == '双':
-            if c_num == 0:
-                raise KeyboardInterrupt("TB模式错误：'电容数量(含TB)'与'TB模式'矛盾")
-            elif c_num == 1:
-                raise KeyboardInterrupt("TB模式错误：'电容数量(含TB)'与'TB模式'矛盾")
-            else:
-                self.element.pop('C1')
-                self.change_tb(c_name='C1', tb_name='TB1', posi=18)
-                c_name = 'C' + str(c_num)
-                posi_t = self.s_length - 18
-                self.element.pop(c_name)
-                self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
-        elif flag == '无':
-            pass
-        else:
-            raise KeyboardInterrupt('TB模式错误')
+        # self.load_TB_mode(flag=self.parameter['TB模式'])
+        # self.load_TB_mode(flag=self.parameter['TB模式'])
 
         # z_tb = self.parameter['TB'][self.m_freq.value]
         # z_tb = z_tb + self.parameter['TB_引接线_有砟']
@@ -124,14 +102,51 @@ class Section_ZPW2000A(Section):
 
         j_clss, tcsr_clss = self.config_class(j_typs=j_typs)
 
-
-
         self.config_joint_tcsr(j_clss=j_clss,
                                tcsr_clss=tcsr_clss,
                                j_lens=j_lens,
                                j_typs=j_typs,
                                sr_mods=sr_mods,
                                send_lv=send_lv)
+
+    def load_TB_mode(self, flag):
+        c_num = 0
+        for ele in self.element.values():
+            if isinstance(ele, CapC):
+                c_num += 1
+
+        # if flag == '左':
+        if flag == '左端单TB':
+            self.element.pop('C1')
+            self.change_tb(c_name='C1', tb_name='TB1', posi=18)
+
+        # elif flag == '右':
+        elif flag == '右端单TB':
+            c_name = 'C' + str(c_num)
+            posi_t = self.s_length - 18
+            self.element.pop(c_name)
+            self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
+
+        # elif flag == '双':
+        elif flag == '双端TB':
+            if c_num == 0:
+                raise KeyboardInterrupt("TB模式错误：'电容数量(含TB)'与'TB模式'矛盾")
+            elif c_num == 1:
+                raise KeyboardInterrupt("TB模式错误：'电容数量(含TB)'与'TB模式'矛盾")
+            else:
+                self.element.pop('C1')
+                self.change_tb(c_name='C1', tb_name='TB1', posi=18)
+                c_name = 'C' + str(c_num)
+                posi_t = self.s_length - 18
+                self.element.pop(c_name)
+                self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
+
+        # elif flag == '无':
+        elif flag == '无TB':
+            pass
+
+        else:
+            raise KeyboardInterrupt('TB模式错误')
 
     def change_tb(self, c_name, tb_name, posi):
         # self.element.pop(c_name)
@@ -167,7 +182,6 @@ class Section_ZPW2000A(Section):
             name_new = name_c + '2TB'
             self.change_tb(c_name=name_c, tb_name=name_new, posi=posi)
             self[name_new].set_posi_abs(0)
-
 
     # 配置电容
     def config_c(self, c_pst):
@@ -223,6 +237,7 @@ class Section_ZPW2000A(Section):
                       mode=sr_mods[num],
                       level=level)
             self.add_child(tcsr_name, ele)
+
 
 # 2000A移频脉冲配置
 class Section_ZPW2000A_YPMC(Section_ZPW2000A):

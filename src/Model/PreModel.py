@@ -102,6 +102,13 @@ class PreModel:
 
         pass
 
+    @staticmethod
+    def get_m_typs(main_type):
+        if main_type == "PT+SVA'":
+            return '2000A'
+        elif main_type == "BPLN":
+            return '2000A_BPLN'
+
     def check_C2TB(self):
         para = self.parameter
 
@@ -489,7 +496,6 @@ class PreModel_25Hz_coding(PreModel):
 
         self.lg.special_point = para['special_point']
         self.lg.refresh()
-
 
 
 class PreModel_EeMe(PreModel):
@@ -972,12 +978,13 @@ class PreModel_V001(PreModel):
         # 轨道电路初始化
         send_level = para['send_level']
         m_frqs = generate_frqs(Freq(para['freq_主']), 1)
-
+        m_typs = self.get_m_typs(para['主串区段类型'])
         sg3 = SectionGroup(name_base='地面', posi=para['offset_zhu'], m_num=1,
                            m_frqs=m_frqs,
                            m_lens=[para['主串区段长度']],
                            j_lens=[0, 0],
-                           m_typs=['2000A'],
+                           # m_typs=['2000A'],
+                           m_typs=[m_typs],
                            c_nums=[para['主串电容数']],
                            sr_mods=[para['sr_mod_主']],
                            send_lvs=[send_level],
@@ -990,17 +997,22 @@ class PreModel_V001(PreModel):
             sg3['区段1']['右调谐单元'].set_power_voltage(flg)
 
         m_frqs = generate_frqs(Freq(para['freq_被']), 1)
+        m_typs = self.get_m_typs(para['被串区段类型'])
         sg4 = SectionGroup(name_base='地面', posi=para['offset_bei'], m_num=1,
                            m_frqs=m_frqs,
                            m_lens=[para['被串区段长度']],
-                           # j_lens=[0, 0],
-                           # m_typs=['2000A_25Hz_Coding'],
                            j_lens=[0, 0],
-                           m_typs=['2000A'],
+                           # m_typs=['2000A'],
+                           m_typs=[m_typs],
                            c_nums=[para['被串电容数']],
                            sr_mods=[para['sr_mod_被']],
                            send_lvs=[send_level],
                            parameter=parameter)
+
+        sg3['区段1'].load_TB_mode(para['主串TB模式'])
+        sg4['区段1'].load_TB_mode(para['被串TB模式'])
+        sg3.refresh()
+        sg4.refresh()
 
         # m_frqs = generate_frqs(Freq(para['freq_被']), 2)
         # sg4 = SectionGroup(name_base='地面', posi=para['offset_bei'], m_num=2,

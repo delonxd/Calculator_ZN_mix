@@ -416,10 +416,17 @@ class RowData:
 
         # pd_read_flag = False
 
+        # if pd_read_flag:
+        #     data['TB模式'] = flag_tb = df_input['TB模式']
+        # else:
+        #     data['TB模式'] = flag_tb = tb_mode
+
         if pd_read_flag:
-            data['TB模式'] = flag_tb = df_input['TB模式']
-        else:
-            data['TB模式'] = flag_tb = tb_mode
+            data['主串TB模式'] = para['主串TB模式'] = df_input['主串TB模式']
+            data['被串TB模式'] = para['被串TB模式'] = df_input['被串TB模式']
+
+            data['主串区段类型'] = para['主串区段类型'] = df_input['主串区段类型']
+            data['被串区段类型'] = para['被串区段类型'] = df_input['被串区段类型']
 
         # if flag_tb == '双端TB':
         #     para['TB模式'] = '双'
@@ -432,16 +439,16 @@ class RowData:
         # else:
         #     raise KeyboardInterrupt('TB模式错误')
 
-        if flag_tb == '双端TB':
-            para['TB模式'] = '双'
-        elif flag_tb == '右端单TB':
-            para['TB模式'] = '右'
-        elif flag_tb == '左端单TB':
-            para['TB模式'] = '左'
-        elif flag_tb == '无TB':
-            para['TB模式'] = '无'
-        else:
-            raise KeyboardInterrupt('TB模式错误')
+        # if flag_tb == '双端TB':
+        #     para['TB模式'] = '双'
+        # elif flag_tb == '右端单TB':
+        #     para['TB模式'] = '右'
+        # elif flag_tb == '左端单TB':
+        #     para['TB模式'] = '左'
+        # elif flag_tb == '无TB':
+        #     para['TB模式'] = '无'
+        # else:
+        #     raise KeyboardInterrupt('TB模式错误')
 
     #################################################################################
 

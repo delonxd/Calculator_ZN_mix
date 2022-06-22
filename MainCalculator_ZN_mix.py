@@ -42,7 +42,7 @@ def main_cal(path1, path2, path3):
     num_len = len(list(df_input['序号']))
 
     # 检查输入格式
-    check_input(df_input)
+    # check_input(df_input)
 
     #################################################################################
 
@@ -115,7 +115,8 @@ def main_cal(path1, path2, path3):
     # head_list = config_headlist_inhibitor_c()
     # head_list = config_headlist_hanjialing()
     # head_list = config_headlist_20200730()
-    head_list = config_headlist_V001()
+    # head_list = config_headlist_V001()
+    head_list = config_headlist_ZN_mix()
 
     #################################################################################
 
@@ -126,75 +127,7 @@ def main_cal(path1, path2, path3):
 
     #################################################################################
 
-    # 故障状态表
-    # temp_list = ['正常']
-                 # '主串PT开路', '被串PT开路', '主被串PT开路',
-                 # '主串PT短路', '被串PT短路', '主被串PT短路',
-                 # '主串SVA1开路', '被串SVA1开路', '主被串SVA1开路',
-                 # '主串SVA1短路', '被串SVA1短路', '主被串SVA1短路',
-                 # '主串TB开路', '被串TB开路', '主被串TB开路',
-                 # '主串TB短路', '被串TB短路', '主被串TB短路']
-
-    #################################################################################
-
     # 获取循环变量
-    freq_list = [1700, 2000, 2300, 2600]
-    l_list = [(300, '双端TB', 2),
-              (300, '双端TB', 3),
-              (350, '双端TB', 3),
-              (400, '双端TB', 4),
-              (450, '双端TB', 5),
-              (500, '双端TB', 5),
-              (550, '双端TB', 6),
-              (600, '双端TB', 6),
-              (650, '双端TB', 7)]
-
-    list_1 = [1700, 1700, 2000, 2000, 2300, 2300, 2600, 2600]
-    list_2 = [2000, 2600, 1700, 2300, 2000, 2600, 1700, 2300]
-    clist3 = list(zip(list_1, list_2))
-    clist2 = ['左发', '右发']
-    clist1 = [500, 550, 600]
-    clist4 = list(np.arange(-300,350,50))
-    # clist3 = freq_list
-    # clist4 = freq_list
-    C_7_1 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 1))
-    C_7_2 = list(itertools.combinations([1, 2, 3, 4, 5, 6, 7], 2))
-
-    clist5 = [[]]
-    clist6 = [[]]
-    # clist5.extend(C_7_1)
-    # clist6.extend(C_7_1)
-    # clist6.extend(C_7_2)
-    # clist5 = [[],[1],[2],[3],[1,2],[1,2,3]]
-    # clist6 = [[],[1],[2],[3],[1,2],[1,2,3]]
-    # clist5 = [[],[11],[10],[9],[11,10],[11,10,9]]
-    # clist6 = [[],[11],[10],[9],[11,10],[11,10,9]]
-
-
-    # 干扰抑制电容
-    clist1 = clist2 = clist3 = clist4 = clist5 = clist6 = [[]]
-    list_1 = [1700, 1700, 2000, 2000, 2300, 2300, 2600, 2600]
-    list_2 = [1700, 2300, 2000, 2600, 2300, 1700, 2600, 2000]
-    list_1 = [2600]
-    list_2 = [2600]
-
-
-    # clist1 = list(zip(list_1, list_2))
-    # clist2 = ['全开路', '电感故障']
-    # clist2 = ['全开路']
-    # clist3 = [[],[2],[3],[4],[5],[6]]
-
-    # clist1 = freq_list
-    # clist2 = freq_list
-    # clist3 = l_list
-
-    clist1 = list(zip(list_1, list_2))
-    # clist3 = C_7_2
-    # clist3 = C_7_1
-    # clist3 = [(1, 2), (1, 3)]
-    # clist4 = ['全开路', '电感短路', '电感开路']
-    # clist5 = ['无', '全开路', '电感短路', '电感开路']
-    # clist2 = ['全开路']
 
     clist1 = clist2 = clist3 = clist4 = clist5 = clist6 = [[]]
 
@@ -206,17 +139,16 @@ def main_cal(path1, path2, path3):
     columns_max = 0
     counter = 1
 
-    temp_temp = 0
-    cv1, cv2, cv3, cv4, cv5, cv6 = [0] * 6
+    # temp_temp = 0
+    # cv1, cv2, cv3, cv4, cv5, cv6 = [0] * 6
 
     pd_read_flag = True
     # pd_read_flag = False
 
     # num_len = 1
 
-    for temp_temp in range(num_len):
     # for cv1, cv2, cv3, cv4, cv5, cv6 in clist:
-
+    for temp_temp in range(num_len):
 
         #################################################################################
 
@@ -344,8 +276,6 @@ def main_cal(path1, path2, path3):
         # rca = uca/ica
         # rca1 = abs(uca/ica)
 
-
-
         # name_list = md.section_group3['区段1'].get_C_TB_names()
         # name_list.reverse()
         # for _, name in name_list:
@@ -359,7 +289,6 @@ def main_cal(path1, path2, path3):
         #     v_tb_bei = md.lg['线路4']['地面']['区段1'][name]['U'].value_c
         #     data2excel.add_data(sheet_name="被串TB电流", data1=i_tb_bei)
         #     data2excel.add_data(sheet_name="被串TB电压", data1=v_tb_bei)
-
 
         #################################################################################
 
@@ -402,7 +331,6 @@ def main_cal(path1, path2, path3):
         # data['主串TB2电流(A)'] = md.lg['线路3']['地面']['区段1']['TB2']['I'].value_c
         # data['被串TB1电流(A)'] = md.lg['线路4']['地面']['区段1']['TB1']['I'].value_c
         # data['被串TB2电流(A)'] = md.lg['线路4']['地面']['区段1']['TB2']['I'].value_c
-
 
         #################################################################################
 
@@ -544,7 +472,6 @@ def main_cal(path1, path2, path3):
             # data2excel.add_data(sheet_name="阻抗模值", data1=z_mm_abs)
             # data2excel.add_data(sheet_name="耦合系数", data1=co_mutal)
 
-
         # if (length+1) > columns_max:
         #     columns_max = length + 1
         if len_posi > columns_max:
@@ -561,22 +488,25 @@ def main_cal(path1, path2, path3):
         data['被串最大干扰位置(m)'] = round(i_trk_list.index(max(i_trk_list))*interval)
         max_i = data['被串最大干扰电流(A)'] * 1000
         MAX_I = para['MAX_CURRENT'][data['主串频率(Hz)']]
-        if max_i > MAX_I:
-            text = '干扰频率：' + str(data['主串频率(Hz)']) + 'Hz，'\
-                   + '干扰电流上限' + str(MAX_I) + 'mA；第' \
-                   + str(counter) \
-                   + '行数据干扰电流超上限：最大干扰电流为' \
-                   + str(round(max_i, 1)) \
-                   + 'mA，位于距离被串发送端' \
-                   + str(round(data['被串最大干扰位置(m)'], 0)) \
-                   + 'm处'
-            for key in head_list:
-                data[key] = None
 
-            data2excel.refresh_row()
+        print(max_i)
 
-            # data['备注'] = text
-            raise KeyboardInterrupt(text)
+        # if max_i > MAX_I:
+        #     text = '干扰频率：' + str(data['主串频率(Hz)']) + 'Hz，'\
+        #            + '干扰电流上限' + str(MAX_I) + 'mA；第' \
+        #            + str(counter) \
+        #            + '行数据干扰电流超上限：最大干扰电流为' \
+        #            + str(round(max_i, 1)) \
+        #            + 'mA，位于距离被串发送端' \
+        #            + str(round(data['被串最大干扰位置(m)'], 0)) \
+        #            + 'm处'
+        #     for key in head_list:
+        #         data[key] = None
+        #
+        #     data2excel.refresh_row()
+        #
+        #     # data['备注'] = text
+        #     raise KeyboardInterrupt(text)
 
         # v_rcv_bei_list = data2excel.data_dict["被串轨入电压"][-1]
         # data['被串最大轨入电压(主被串同时分路状态)'] = max(v_rcv_bei_list)
