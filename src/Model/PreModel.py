@@ -104,7 +104,8 @@ class PreModel:
 
     @staticmethod
     def get_m_typs(main_type):
-        if main_type == "PT+SVA'":
+        # if main_type == "PT+SVA'":
+        if main_type == "PT":
             return '2000A'
         elif main_type == "BPLN":
             return '2000A_BPLN'

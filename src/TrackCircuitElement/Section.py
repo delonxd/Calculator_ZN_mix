@@ -117,11 +117,17 @@ class Section_ZPW2000A(Section):
 
         # if flag == '左':
         if flag == '左端单TB':
+            if c_num == 0:
+                raise KeyboardInterrupt("TB模式错误：'电容数量(含TB)'与'TB模式'矛盾")
+
             self.element.pop('C1')
             self.change_tb(c_name='C1', tb_name='TB1', posi=18)
 
         # elif flag == '右':
         elif flag == '右端单TB':
+            if c_num == 0:
+                raise KeyboardInterrupt("TB模式错误：'电容数量(含TB)'与'TB模式'矛盾")
+
             c_name = 'C' + str(c_num)
             posi_t = self.s_length - 18
             self.element.pop(c_name)
@@ -129,17 +135,15 @@ class Section_ZPW2000A(Section):
 
         # elif flag == '双':
         elif flag == '双端TB':
-            if c_num == 0:
+            if c_num == 0 or c_num == 1:
                 raise KeyboardInterrupt("TB模式错误：'电容数量(含TB)'与'TB模式'矛盾")
-            elif c_num == 1:
-                raise KeyboardInterrupt("TB模式错误：'电容数量(含TB)'与'TB模式'矛盾")
-            else:
-                self.element.pop('C1')
-                self.change_tb(c_name='C1', tb_name='TB1', posi=18)
-                c_name = 'C' + str(c_num)
-                posi_t = self.s_length - 18
-                self.element.pop(c_name)
-                self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
+
+            self.element.pop('C1')
+            self.change_tb(c_name='C1', tb_name='TB1', posi=18)
+            c_name = 'C' + str(c_num)
+            posi_t = self.s_length - 18
+            self.element.pop(c_name)
+            self.change_tb(c_name=c_name, tb_name='TB2', posi=posi_t)
 
         # elif flag == '无':
         elif flag == '无TB':

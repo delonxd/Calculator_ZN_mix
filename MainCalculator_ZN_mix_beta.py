@@ -15,7 +15,12 @@ import os
 import sys
 
 
-def main_cal(path1, path2, path3):
+if __name__ == '__main__':
+    path1 = '邻线干扰计算_站内混合_配置输入_v1.0.xlsx'
+    path2 = '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx'
+    path3 = os.getcwd()
+
+
     pd.set_option('display.max_columns', None)
     pd.set_option('display.expand_frame_repr', True)
     pd.set_option('display.unicode.ambiguous_as_wide', True)
@@ -39,6 +44,10 @@ def main_cal(path1, path2, path3):
 
     df_input = pd.read_excel(path1)
     df_input = df_input.where(df_input.notnull(), None)
+
+    df_input = regular_input(df_input)
+    # print(df_input)
+    # print(list(df_input['序号']))
     num_len = len(list(df_input['序号']))
 
     # 检查输入格式
@@ -586,18 +595,10 @@ def main_cal(path1, path2, path3):
     data2excel.write2excel(sheet_names=names, writer=writer)
 
     writer.save()
-    return 1
-
-
-# def write_to_excel(df, writer, sheet_name, hfmt):
-#     df.to_excel(writer, sheet_name=sheet_name, index=False)
-#     worksheet = writer.sheets[sheet_name]
-#     for col_num, value in enumerate(df.columns.values):
-#         worksheet.write(0, col_num, value, hfmt)
-
-
-if __name__ == '__main__':
-    main_cal('邻线干扰参数输入_V002.xlsx',
-             '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx',
-             os.getcwd())
-    # main(sys.argv[1], sys.argv[2], sys.argv[3])
+    # return 1
+    #
+    #
+    #
+    #
+    #
+    # # main(sys.argv[1], sys.argv[2], sys.argv[3])

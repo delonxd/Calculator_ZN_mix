@@ -2,6 +2,7 @@ from src.AbstractClass.ElePack import *
 from src.Module.JumperWire import *
 from src.Model.SingleLineModel import *
 import numpy as np
+import pandas as pd
 
 
 #################################################################################
@@ -426,6 +427,135 @@ def cal_zl(zpt, zin):
     zca = (0.006459333+0.030996667j)
     z1 = (zpt * zin) / (zpt + zin) + zca
     return (z1 * zj) / (z1 + zj)
+
+
+def regular_input(df_input):
+    ret = pd.DataFrame(columns=columns_header())
+    counter = 1
+    index = 1
+
+    mode_dict = {
+        'PT': '双端TB',
+        'BPLN': '无TB',
+    }
+
+    for _, row in df_input.iterrows():
+        if row['频率'] is None:
+            break
+
+        if counter % 2 == 1:
+            ret.loc[index, '序号'] = index
+            ret.loc[index, '线路名称'] = row['线路名称']
+            ret.loc[index, '车站名称'] = row['车站名称']
+            ret.loc[index, '主串区段'] = row['区段名称']
+            ret.loc[index, '主串区段类型'] = row['配置']
+            ret.loc[index, '主串区段长度(m)'] = row['区段长度']
+            ret.loc[index, '线间距(m)'] = row['线间距']
+            ret.loc[index, '主串频率(Hz)'] = row['频率']
+            ret.loc[index, '主串电平级'] = int(row['发送电平级'])
+            ret.loc[index, '主串电缆长度(km)'] = 10
+            ret.loc[index, '主串电容值(μF)'] = 25
+            ret.loc[index, '主串道床电阻(Ω·km)'] = 10000
+            ret.loc[index, '并行长度(m)'] = row['并行长度']
+            ret.loc[index, '被串相对位置(m)'] = row['区段长度'] - row['并行长度']
+            ret.loc[index, '主串电容数(含TB)'] = int(-(-row['区段长度'] // 100))
+            ret.loc[index, '主串TB模式'] = mode_dict[row['配置']]
+            ret.loc[index, '主串方向'] = '左发'
+
+        else:
+            ret.loc[index, '被串区段'] = row['区段名称']
+            ret.loc[index, '被串区段类型'] = row['配置']
+            ret.loc[index, '被串区段长度(m)'] = row['区段长度']
+            ret.loc[index, '被串频率(Hz)'] = row['频率']
+            ret.loc[index, '被串电平级'] = int(row['发送电平级'])
+            ret.loc[index, '被串电缆长度(km)'] = 10
+            ret.loc[index, '被串电容值(μF)'] = 25
+            ret.loc[index, '被串道床电阻(Ω·km)'] = 10000
+            ret.loc[index, '被串电容数(含TB)'] = int(-(-row['区段长度'] // 100))
+            ret.loc[index, '被串TB模式'] = mode_dict[row['配置']]
+            ret.loc[index, '被串方向'] = '左发'
+
+            index += 1
+
+        counter += 1
+
+    for _, row in ret.copy().iterrows():
+        ret.loc[index] = row
+        ret.loc[index, '序号'] = index
+        ret.loc[index, '主串方向'] = '右发'
+        ret.loc[index, '被串方向'] = '右发'
+        index += 1
+
+    for _, row in ret.copy().iterrows():
+
+        ret.loc[index] = row
+        ret.loc[index, '序号'] = index
+        ret.loc[index, '主串区段'] = row['被串区段']
+        ret.loc[index, '被串区段'] = row['主串区段']
+        ret.loc[index, '主串区段类型'] = row['被串区段类型']
+        ret.loc[index, '被串区段类型'] = row['主串区段类型']
+        ret.loc[index, '主串区段长度(m)'] = row['被串区段长度(m)']
+        ret.loc[index, '被串区段长度(m)'] = row['主串区段长度(m)']
+        ret.loc[index, '被串相对位置(m)'] = -row['被串相对位置(m)']
+        ret.loc[index, '主串电平级'] = row['被串电平级']
+        ret.loc[index, '被串电平级'] = row['主串电平级']
+        ret.loc[index, '主串频率(Hz)'] = row['被串频率(Hz)']
+        ret.loc[index, '被串频率(Hz)'] = row['主串频率(Hz)']
+        ret.loc[index, '主串电容数(含TB)'] = row['被串电容数(含TB)']
+        ret.loc[index, '被串电容数(含TB)'] = row['主串电容数(含TB)']
+        ret.loc[index, '主串TB模式'] = row['被串TB模式']
+        ret.loc[index, '被串TB模式'] = row['主串TB模式']
+
+        index += 1
+
+    return ret
+
+
+def get_c_num_mix(length):
+    return -(-length // 100)
+
+
+def columns_header():
+
+    index = [
+        '序号',
+        '线路名称',
+        '车站名称',
+        '主串区段',
+        '被串区段',
+        '主串方向',
+        '被串方向',
+        '主串区段类型',
+        '被串区段类型',
+        '主串区段长度(m)',
+        '被串区段长度(m)',
+        '并行长度(m)',
+        '被串相对位置(m)',
+        '线间距(m)',
+        '主串电平级',
+        '被串电平级',
+        '主串频率(Hz)',
+        '被串频率(Hz)',
+        '主串电缆长度(km)',
+        '被串电缆长度(km)',
+        '主串电容数(含TB)',
+        '被串电容数(含TB)',
+        '主串电容值(μF)',
+        '被串电容值(μF)',
+        '主串道床电阻(Ω·km)',
+        '被串道床电阻(Ω·km)',
+        '主串TB模式',
+        '被串TB模式',
+    ]
+
+    return index
+
+
+def write_to_excel(df, writer, sheet_name, hfmt):
+    df.to_excel(writer, sheet_name=sheet_name, index=False)
+    worksheet = writer.sheets[sheet_name]
+    for col_num, value in enumerate(df.columns.values):
+        worksheet.write(0, col_num, value, hfmt)
 
 
 if __name__ == '__main__':
