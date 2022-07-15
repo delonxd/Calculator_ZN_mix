@@ -15,11 +15,10 @@ import os
 import sys
 
 
-if __name__ == '__main__':
-    path1 = '邻线干扰计算_站内混合_配置输入_v1.0.xlsx'
-    path2 = '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx'
+def main_cal(path1, path2, event):
+    # path1 = '邻线干扰计算_站内混合_配置输入_v1.0.xlsx'
+    # path2 = '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx'
     path3 = os.getcwd()
-
 
     pd.set_option('display.max_columns', None)
     pd.set_option('display.expand_frame_repr', True)
@@ -360,7 +359,7 @@ if __name__ == '__main__':
         # md = PreModel_YPMC(parameter=para)
         # md = PreModel_EeMe(parameter=para)
         # md = PreModel_25Hz_coding(parameter=para)
-        # md = PreModel_QJ_25Hz_coding(parameter=para)
+        md = PreModel_QJ_25Hz_coding(parameter=para)
         # md = PreModel_20200730(parameter=para)
         md = PreModel_V001(parameter=para)
 
@@ -401,6 +400,11 @@ if __name__ == '__main__':
         len_posi = max(len(posi_list), len_posi)
 
         for posi_bei in posi_list:
+
+            if event.is_set():
+                print('calculate stopped')
+                return
+
             para['分路位置'] = posi_bei
 
             md.train1.posi_rlt = posi_bei
