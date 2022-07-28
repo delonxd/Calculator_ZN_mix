@@ -34,6 +34,7 @@ class RowData:
 
         if pd_read_flag:
             # data['备注'] = para['备注'] = df_input['备注']
+            data['备注'] = para['备注'] = remarks
             data['线路名称'] = para['线路名称'] = df_input['线路名称']
             data['车站名称'] = para['车站名称'] = df_input['车站名称']
         else:
@@ -93,11 +94,17 @@ class RowData:
         #     data['被串左端里程标'] = para['offset_bei'] = offset
 
         if pd_read_flag:
-            data['被串相对位置(m)'] = df_input['被串相对位置(m)']
+            # data['被串相对位置(m)'] = df_input['被串相对位置(m)']
+            offset = df_input['被串坐标'] - df_input['主串坐标']
+
+            data['主串左端坐标'] = df_input['主串坐标']
+            data['被串左端坐标'] = df_input['被串坐标']
+
+            data['被串相对位置(m)'] = offset
             data['并行长度(m)'] = df_input['并行长度(m)']
 
             data['主串左端里程标'] = para['offset_zhu'] = 0
-            data['被串左端里程标'] = para['offset_bei'] = df_input['被串相对位置(m)']
+            data['被串左端里程标'] = para['offset_bei'] = offset
         else:
             data['主串左端里程标'] = para['offset_zhu'] = 0
             data['被串左端里程标'] = para['offset_bei'] = offset
@@ -111,18 +118,9 @@ class RowData:
         df_input, para, data = self.read_parameters()
 
         if pd_read_flag:
-            data['线间距(m)'] = para['线间距'] = df_input['线间距(m)']
 
-            tmp_table = {
-                4.5: 26.2,
-                5: 21.0,
-                5.5: 17.2,
-                6: 14.4,
-                6.5: 12.2,
-                7: 10.5,
-            }
-
-            data['耦合系数(μH/km)'] = para['耦合系数'] = tmp_table[para['线间距']]
+            data['线间距(m)'] = para['线间距'] = df_input['线间距']
+            data['耦合系数(μH/km)'] = para['耦合系数'] = df_input['耦合系数']
             # data['耦合系数(μH/km)'] = para['耦合系数'] = df_input['耦合系数(μH/km)']
         else:
             data['耦合系数'] = para['耦合系数'] = coeff

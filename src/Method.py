@@ -429,62 +429,76 @@ def cal_zl(zpt, zin):
     return (z1 * zj) / (z1 + zj)
 
 
-def regular_input(df_input):
+def regular_input(df_input, calc_type):
+    df_input = df_input.dropna(how='all', axis=0)
+
+    if calc_type == '1对1':
+        group = 2
+    elif calc_type == '2对1':
+        group = 4
+    else:
+        raise KeyboardInterrupt('calc_type错误')
+
+    df_input.columns = map(lambda x: x.split('\n')[0], df_input.columns)
+    check_input_v01(df_input, group)
+
+    # print(df_input)
+
     ret = pd.DataFrame(columns=columns_header())
     counter = 1
     index = 1
-
-    mode_dict = {
-        'PT': '双端TB',
-        'BPLN': '无TB',
-    }
 
     for _, row in df_input.iterrows():
         if row['频率'] is None:
             break
 
+        if counter % group == 1:
+            name1 = row['线路名称']
+            name2 = row['车站名称']
+
         if counter % 2 == 1:
             ret.loc[index, '序号'] = index
-            ret.loc[index, '线路名称'] = row['线路名称']
-            ret.loc[index, '车站名称'] = row['车站名称']
+            ret.loc[index, '线路名称'] = name1
+            ret.loc[index, '车站名称'] = name2
+
+            ret.loc[index, '线间距'] = row['线间距']
+            ret.loc[index, '耦合系数'] = row['耦合系数']
+            ret.loc[index, '并行长度(m)'] = row['并行长度']
+
             ret.loc[index, '主串区段'] = row['区段名称']
             ret.loc[index, '主串区段类型'] = row['配置']
             ret.loc[index, '主串区段长度(m)'] = row['区段长度']
-            ret.loc[index, '线间距(m)'] = row['线间距']
+            ret.loc[index, '主串坐标'] = row['左端坐标']
+
             ret.loc[index, '主串频率(Hz)'] = row['频率']
             ret.loc[index, '主串电平级'] = int(row['发送电平级'])
             ret.loc[index, '主串电缆长度(km)'] = 10
             ret.loc[index, '主串电容值(μF)'] = 25
             ret.loc[index, '主串道床电阻(Ω·km)'] = 10000
-            ret.loc[index, '并行长度(m)'] = row['并行长度']
-            ret.loc[index, '被串相对位置(m)'] = row['区段长度'] - row['并行长度']
-            ret.loc[index, '主串电容数(含TB)'] = int(-(-row['区段长度'] // 100))
-            ret.loc[index, '主串TB模式'] = mode_dict[row['配置']]
+            # ret.loc[index, '被串相对位置(m)'] = row['区段长度'] - row['并行长度']
+            # ret.loc[index, '主串电容数(含TB)'] = int(-(-row['区段长度'] // 100))
+            ret.loc[index, '主串电容数(含TB)'] = int(row['电容个数（包含TB）'])
+            ret.loc[index, '主串TB模式'] = get_tb_mode(row['左端是否有TB'], row['右端是否有TB'])
             ret.loc[index, '主串方向'] = '左发'
 
         else:
             ret.loc[index, '被串区段'] = row['区段名称']
             ret.loc[index, '被串区段类型'] = row['配置']
             ret.loc[index, '被串区段长度(m)'] = row['区段长度']
+            ret.loc[index, '被串坐标'] = row['左端坐标']
+
             ret.loc[index, '被串频率(Hz)'] = row['频率']
             ret.loc[index, '被串电平级'] = int(row['发送电平级'])
             ret.loc[index, '被串电缆长度(km)'] = 10
             ret.loc[index, '被串电容值(μF)'] = 25
             ret.loc[index, '被串道床电阻(Ω·km)'] = 10000
-            ret.loc[index, '被串电容数(含TB)'] = int(-(-row['区段长度'] // 100))
-            ret.loc[index, '被串TB模式'] = mode_dict[row['配置']]
+            ret.loc[index, '被串电容数(含TB)'] = int(row['电容个数（包含TB）'])
+            ret.loc[index, '被串TB模式'] = get_tb_mode(row['左端是否有TB'], row['右端是否有TB'])
             ret.loc[index, '被串方向'] = '左发'
 
             index += 1
 
         counter += 1
-
-    for _, row in ret.copy().iterrows():
-        ret.loc[index] = row
-        ret.loc[index, '序号'] = index
-        ret.loc[index, '主串方向'] = '右发'
-        ret.loc[index, '被串方向'] = '右发'
-        index += 1
 
     for _, row in ret.copy().iterrows():
 
@@ -496,7 +510,11 @@ def regular_input(df_input):
         ret.loc[index, '被串区段类型'] = row['主串区段类型']
         ret.loc[index, '主串区段长度(m)'] = row['被串区段长度(m)']
         ret.loc[index, '被串区段长度(m)'] = row['主串区段长度(m)']
-        ret.loc[index, '被串相对位置(m)'] = -row['被串相对位置(m)']
+        # ret.loc[index, '被串相对位置(m)'] = -row['被串相对位置(m)']
+
+        ret.loc[index, '主串坐标'] = row['被串坐标']
+        ret.loc[index, '被串坐标'] = row['主串坐标']
+
         ret.loc[index, '主串电平级'] = row['被串电平级']
         ret.loc[index, '被串电平级'] = row['主串电平级']
         ret.loc[index, '主串频率(Hz)'] = row['被串频率(Hz)']
@@ -508,7 +526,149 @@ def regular_input(df_input):
 
         index += 1
 
+    for _, row in ret.copy().iterrows():
+        ret.loc[index] = row
+        ret.loc[index, '序号'] = index
+        ret.loc[index, '主串方向'] = '右发'
+        ret.loc[index, '被串方向'] = '右发'
+        index += 1
+
     return ret
+
+
+def get_tb_mode(val1, val2):
+    if val1 == '有':
+        val1 = True
+    elif val1 == '无':
+        val1 = False
+
+    if val2 == '有':
+        val2 = True
+    elif val2 == '无':
+        val2 = False
+
+    if val1 is True and val2 is False:
+        return '左端单TB'
+
+    elif val1 is False and val2 is True:
+        return '右端单TB'
+
+    elif val1 is True and val2 is True:
+        return '双端TB'
+
+    elif val1 is False and val2 is False:
+        return '无TB'
+
+
+def check_input_v01(df_input, group):
+    counter = 1
+    data1 = [0] * 3
+
+    mutual_dict = {
+        4.5: 26.2,
+        5: 21.0,
+        5.5: 17.2,
+        6: 14.4,
+        6.5: 12.2,
+        7: 10.5,
+        7.5: 9.1,
+        8: 8.0,
+        8.5: 7.0,
+        9: 6.3,
+        9.5: 5.6,
+        10: 5.1,
+    }
+
+    for _, row in df_input.iterrows():
+        if row['频率'] is None:
+            break
+
+        check_data(
+            read=row['区段长度'],
+            calc=row['右端坐标'] - row['左端坐标'],
+            error_type='区段长度错误',
+        )
+
+        if counter % group != 1:
+            if not pd.isnull(row['线路名称']):
+                raise KeyboardInterrupt('线路名称错误: 表格应合并')
+
+            if not pd.isnull(row['车站名称']):
+                raise KeyboardInterrupt('车站名称错误: 表格应合并')
+
+        if counter % 2 == 0:
+
+            if not pd.isnull(row['线间距']):
+                raise KeyboardInterrupt('线间距错误: 表格应合并')
+
+            if not pd.isnull(row['耦合系数']):
+                raise KeyboardInterrupt('耦合系数错误: 表格应合并')
+
+            data2 = [row['并行长度'], row['左端坐标'], row['右端坐标']]
+
+            if data2[0] != data1[0]:
+                raise KeyboardInterrupt('并行长度错误: 主被串并行长度不相等')
+
+            length = min(data1[2], data2[2]) - max(data1[1], data2[1])
+
+            check_data(
+                read=data1[0],
+                calc=length,
+                error_type='并行长度错误',
+            )
+
+        else:
+            data1 = [row['并行长度'], row['左端坐标'], row['右端坐标']]
+
+            d0 = row['线间距']
+
+            if d0 < 4.5:
+                raise KeyboardInterrupt('线间距错误: 线间距应不小于4.5m')
+
+            m1 = 0
+            for key, value in mutual_dict.items():
+                if d0 < key:
+                    break
+                m1 = value
+
+            check_data(
+                read=row['耦合系数'],
+                calc=m1,
+                error_type='耦合系数错误',
+            )
+
+        counter += 1
+
+    row0 = pd.Series()
+    freq = 0
+    if group == 4:
+        counter = 1
+
+        for _, row in df_input.iterrows():
+            if row['频率'] is None:
+                break
+
+            if counter % 4 == 2:
+                row0 = row.copy().drop('并行长度')
+            elif counter % 4 == 0:
+                row1 = row.copy().drop('并行长度')
+                if not row1.eq(row0).all():
+                    raise KeyboardInterrupt('2对1数据错误: 被串区段数据不符')
+            elif counter % 4 == 1:
+                freq = row['频率']
+            elif counter % 4 == 3:
+                if freq != row['频率']:
+                    raise KeyboardInterrupt('2对1数据错误: 主串区段频率不符')
+
+            counter += 1
+
+
+def check_data(read, calc, error_type):
+    if read != calc:
+        raise KeyboardInterrupt(
+            '%s: 读取的数据为%s；应填写%.1f' %
+            (error_type, read, calc)
+        )
 
 
 def get_c_num_mix(length):
@@ -521,17 +681,24 @@ def columns_header():
         '序号',
         '线路名称',
         '车站名称',
+
         '主串区段',
         '被串区段',
+
+        '线间距',
+        '耦合系数',
+        '并行长度(m)',
+        # '被串相对位置(m)',
+
         '主串方向',
         '被串方向',
         '主串区段类型',
         '被串区段类型',
         '主串区段长度(m)',
         '被串区段长度(m)',
-        '并行长度(m)',
-        '被串相对位置(m)',
-        '线间距(m)',
+        '主串坐标',
+        '被串坐标',
+
         '主串电平级',
         '被串电平级',
         '主串频率(Hz)',
