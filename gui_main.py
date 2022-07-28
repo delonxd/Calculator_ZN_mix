@@ -3,7 +3,8 @@ import tkinter.filedialog
 import hashlib
 import time
 import os
-from MainCalculator_ZN_mix_beta import main_cal
+# from MainCalculator_ZN_mix_beta import main_cal
+from MainCalculator_ZN_mix_beta_v01 import main_cal
 import threading
 
 
@@ -34,7 +35,8 @@ class MainWindow:
         self.frame2 = tk.Frame(self.main_frame)
         self.frame2.pack(padx=8, pady=2, side=tk.TOP)
 
-        path = 'C:/Users/李继隆/PycharmProjects/Calculator_ZN_mix/邻线干扰计算_站内混合_配置输入_v1.0.xlsx'
+        # path = 'C:/Users/李继隆/PycharmProjects/Calculator_ZN_mix/邻线干扰计算_站内混合_配置输入_v1.0.xlsx'
+        path = 'C:/Users/李继隆/PycharmProjects/Calculator_ZN_mix/邻线干扰单独核算区段输入模板-V1.0.xlsx'
         self.entry1 = tk.Entry(self.frame1, width=90)
         self.entry1.insert(0, path)
         self.entry1.config(state=tk.DISABLED)
