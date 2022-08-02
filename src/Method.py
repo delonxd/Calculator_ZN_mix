@@ -631,6 +631,7 @@ def check_input_v01(df_input, group):
                     break
                 m1 = value
 
+            row['耦合系数'] = round(row['耦合系数'], 1)
             check_data(
                 read=row['耦合系数'],
                 calc=m1,
