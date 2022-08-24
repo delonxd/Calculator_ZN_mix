@@ -6,9 +6,7 @@ from src.RowData import RowData
 
 import pandas as pd
 import time
-import itertools
 import os
-import sys
 
 from functools import wraps
 
@@ -21,7 +19,7 @@ def try_calc(time0):
                 func(*args, **kwargs)
             except BaseException as e:
                 print(e)
-            input("按任意键关闭窗口...")
+            print("按任意键继续...")
 
         return wrapped_function
     return logging_decorator
@@ -35,9 +33,7 @@ def log_timestamp(val: str):
 
 
 @try_calc(None)
-def main_cal(path1, path2, event):
-    # path1 = '邻线干扰计算_站内混合_配置输入_v1.0.xlsx'
-    # path2 = '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx'
+def main_cal(path1, path2, window):
     path3 = os.getcwd()
 
     pd.set_option('display.max_columns', None)
@@ -52,6 +48,7 @@ def main_cal(path1, path2, event):
     # calc_types = ["2对1"]
 
     input_dict = dict()
+
     for calc_type in calc_types:
         # 参数输入
 
@@ -63,9 +60,7 @@ def main_cal(path1, path2, event):
         df_input = regular_input(df_input, calc_type)
         input_dict[calc_type] = df_input
 
-    log_timestamp('检查完成')
-
-    for calc_type in calc_types:
+        log_timestamp('检查完成')
 
         log_timestamp('计算%s干扰值 ...' % calc_type)
 
@@ -279,9 +274,11 @@ def main_cal(path1, path2, event):
 
             for posi_bei in posi_list:
 
-                if event.is_set():
-                    print('calculate stopped')
-                    return
+                if window is not None:
+                    if window.event.is_set():
+                        log_timestamp('计算中止')
+                        # print('calculate stopped')
+                        return
 
                 para['分路位置'] = posi_bei
 
@@ -490,9 +487,18 @@ def main_cal(path1, path2, event):
     log_timestamp('计算完成')
 
 
+def main_test():
+    path1 = '邻线干扰单独核算区段输入模板-V1.0.xlsx'
+    path2 = '仿真输出_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx'
+
+    main_cal(path1, path2, None)
+
+
 if __name__ == '__main__':
-    import threading
-    main_cal('邻线干扰单独核算区段输入模板-V1.0.xlsx',
-             '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx',
-             threading.Event())
+    # import threading
+    # main_cal('邻线干扰单独核算区段输入模板-V1.0.xlsx',
+    #          '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx',
+    #          threading.Event())
     # main(sys.argv[1], sys.argv[2], sys.argv[3])
+
+    main_test()

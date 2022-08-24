@@ -46,6 +46,9 @@ class MainWindow:
         self.button1 = tk.Button(self.frame1, text="导入路径", width=8, command=self.open_file)
         self.button2 = tk.Button(self.frame2, text="打开文件", width=8, command=self.get_path)
 
+        self.button1.config(state=tk.NORMAL)
+        self.button2.config(state=tk.DISABLED)
+
         self.label1 = tk.Label(self.frame1, text='配置路径:')
         self.label2 = tk.Label(self.frame2, text='结果路径:')
 
@@ -59,6 +62,9 @@ class MainWindow:
 
         self.button3 = tk.Button(self.button_frame, text="计算", width=12, command=self.calculate)
         self.button4 = tk.Button(self.button_frame, text="停止", width=12, command=self.stop_thread2)
+
+        self.button3.config(state=tk.NORMAL)
+        self.button4.config(state=tk.DISABLED)
 
         self.button3.pack(padx=2, pady=2, side=tk.LEFT)
         self.button4.pack(padx=2, pady=2, side=tk.LEFT)
@@ -105,16 +111,25 @@ class MainWindow:
         self.entry2.config(state=tk.DISABLED)
 
         self.event.clear()
-        self.thread2 = threading.Thread(name='t2', target=main_cal, args=(path1, path2, self.event))
+        self.thread2 = threading.Thread(name='t2', target=self.wrap_calc, args=(path1, path2))
         self.thread2.setDaemon(True)
-        self.thread2.start()
 
-        self.button3.config(state=tk.NORMAL)
+        self.button3.config(state=tk.DISABLED)
+        self.button4.config(state=tk.NORMAL)
+
+        self.thread2.start()
 
     @property
     def current_time(self):
         current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         return current_time
+
+    def wrap_calc(self, path1, path2):
+        main_cal(path1, path2, self)
+        self.event.clear()
+
+        self.button3.config(state=tk.NORMAL)
+        self.button4.config(state=tk.DISABLED)
 
 
 if __name__ == '__main__':
