@@ -430,6 +430,7 @@ def cal_zl(zpt, zin):
 
 
 def regular_input(df_input, calc_type):
+    df_input = df_input.replace(r'^\s*$', np.nan, regex=True)
     df_input = df_input.dropna(how='all', axis=0)
 
     if calc_type == '1对1':
