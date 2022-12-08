@@ -8,7 +8,7 @@ resources = [("src\parameter_pkl", "src\parameter_pkl")]
 block_cipher = None
 
 
-a = Analysis(['MainCalculator_ZN_mix_beta.py'],
+a = Analysis(['MainCalculator_ZN_mix_beta_v01.py'],
              pathex=['D:\\PycharmProjects\\Calculator_ZN_mix'],
              binaries=[],
              datas=resources,
@@ -28,11 +28,11 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='邻线干扰计算_站内混合_v1.0',
+          name='邻线干扰单独核算-normal-V1.0',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=True )
+          console=True)

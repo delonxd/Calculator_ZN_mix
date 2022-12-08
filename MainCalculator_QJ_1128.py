@@ -8,6 +8,7 @@ from src.logMethod import *
 from src.ConfigHeadList import *
 from src.Data2Excel import *
 from src.RowData import RowData
+from src.ConfigRowData import *
 
 import pandas as pd
 import time
@@ -48,7 +49,7 @@ def main_cal(path1, path2):
     # df_input = regular_input(df_input)
 
     MainLog.add_log_accurate('init input')
-    df_input = init_input_1125()
+    df_input = init_input_1128()
     # print(df_input)
     # print(list(df_input['序号']))
     num_len = len(list(df_input['序号']))
@@ -129,7 +130,8 @@ def main_cal(path1, path2):
     # head_list = config_headlist_20200730()
     # head_list = config_headlist_V001()
     # head_list = config_headlist_ZN_mix()
-    head_list = config_headlist_1125()
+    # head_list = config_headlist_1125()
+    head_list = config_headlist_1128()
 
     #################################################################################
 
@@ -192,181 +194,15 @@ def main_cal(path1, path2):
 
         # 打包行数据
         df_input_row = df_input.iloc[temp_temp]
-        row_data = RowData(df_input_row, para, data, pd_read_flag)
 
-        #################################################################################
+        # 配置数据
+        config_row_data_1128(df_input_row, para, data)
 
-        # 载入数据
-        flag = pd_read_flag
+        interval = data['分路间隔(m)']
 
-        # 序号
-        row_data.config_number(counter, pd_read_flag=flag)
-
-        # 备注
-        # row_data.config_remarks('主分路被调整', pd_read_flag=False)
-        row_data.config_remarks('无', pd_read_flag=flag)
-
-        row_data.config_sec_name('235G', 'XWG', pd_read_flag=flag)
-
-        row_data.config_sec_length(1342, 665, pd_read_flag=flag)
-        # row_data.config_offset(0, pd_read_flag=False)
-        row_data.config_offset(0, pd_read_flag=True)
-
-        row_data.config_mutual_coeff(24, pd_read_flag=flag)
-        row_data.config_freq(2300, 2300, pd_read_flag=flag)
-        # row_data.config_freq(cv1, cv2, pd_read_flag=flag)
-        row_data.config_c_num(7, 7, pd_read_flag=flag)
-        row_data.config_c_posi(None, None, pd_read_flag=False)
-        # if temp_temp == 4:
-        #     row_data.config_c_posi(None, [514/2], pd_read_flag=False)
-        row_data.config_c2TB(False)
-
-        row_data.config_c_value(25, 25, pd_read_flag=flag)
-        # row_data.config_c_inhibitor(pd_read_flag=flag)
-
-        # row_data.config_c_fault_mode('无', cv2, pd_read_flag=flag)
-        # row_data.config_c_fault_num([], cv3, pd_read_flag=flag)
-
-        # row_data.config_c_fault_mode(['无'], ['无'], pd_read_flag=flag)
-        # row_data.config_c_fault_num([], [], pd_read_flag=flag)
-        # row_data.config_c_fault_mode(['无'], ['无'], pd_read_flag=False)
-        # row_data.config_c_fault_num([], [], pd_read_flag=False)
-        row_data.config_c_error(pd_read_flag=flag)
-
-        row_data.config_rd(10000, 10000, pd_read_flag=flag, respectively=True)
-
-        # row_data.config_trk_z(pd_read_flag=flag, respectively=False)
-        # row_data.config_trk_z(pd_read_flag=flag, respectively=True)
-        # row_data.config_trk_z(pd_read_flag=False, respectively=True)
-        row_data.config_trk_z(pd_read_flag=False, respectively=False)
-
-        # TB模式
-        # row_data.config_TB_mode('无TB', pd_read_flag=False)
-        row_data.config_TB_mode('无TB', pd_read_flag=flag)
-        # row_data.config_TB_mode('双端TB', pd_read_flag=False)
-
-        # 区段类型
-        row_data.config_sec_type(pd_read_flag=flag)
-
-        # row_data.config_sr_mode('右发', '右发', pd_read_flag=False)
-        # row_data.config_sr_mode('右发', '左发', pd_read_flag=False)
-        row_data.config_sr_mode('', '', pd_read_flag=True)
-
-        row_data.config_pop([], [], pd_read_flag=False)
-        # if temp_temp == 1:
-        #     row_data.config_pop([], [2,4,5], pd_read_flag=False)
-        # elif temp_temp == 3:
-        #     row_data.config_pop([2,4,5], [], pd_read_flag=False)
-
-        row_data.config_cable_para()
-        row_data.config_cable_length(10, 10, pd_read_flag=flag, respectively=True)
-        # row_data.config_r_sht(1e-7, 1e-7, pd_read_flag=flag, respectively=True)
-        row_data.config_r_sht(1e-7, 1e-7, pd_read_flag=False, respectively=True)
-        row_data.config_power(5, '最大', pd_read_flag=flag)
-
-        row_data.config_sp_posi()
-        row_data.config_train_signal()
-        row_data.config_error()
-
-        # interval = row_data.config_interval(1, pd_read_flag=flag)
-        interval = row_data.config_interval(10, pd_read_flag=False)
-
-        # if data['被串故障模式'] is None:
-        #     print(para['freq_被'], para['被串故障模式'])
-        #     continue
         data2excel.add_new_row()
 
-        # 移频脉冲
-        # row_data.config_ypmc_EL(pd_read_flag=flag)
-
-        # 电码化
-        # row_data.config_25Hz_coding_device(pd_read_flag=False)
-
         len_posi = 0
-        #################################################################################
-
-        # # 调整计算
-        # md = PreModel(parameter=para)
-        # # md.lg = LineGroup(md.l3, name_base='线路组')
-        # # md.lg.special_point = para['special_point']
-        # # md.lg.refresh()
-        # m1 = MainModel(md.lg, md=md)
-        #
-        # # data['主串轨入电压(调整状态)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
-        # # data['被串轨入电压(调整状态)'] = md.lg['线路4']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
-        # data['被串轨入电压(调整状态)'] = md.lg['线路4']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
-        # uca = md.lg['线路3']['地面']['区段1']['左调谐单元']['7CA']['U2'].value
-        # ica = md.lg['线路3']['地面']['区段1']['左调谐单元']['7CA']['I2'].value
-        # rca = uca/ica
-        # rca1 = abs(uca/ica)
-
-        # name_list = md.section_group3['区段1'].get_C_TB_names()
-        # name_list.reverse()
-        # for _, name in name_list:
-        #     i_tb_zhu = md.lg['线路3']['地面']['区段1'][name]['I'].value_c
-        #     v_tb_zhu = md.lg['线路3']['地面']['区段1'][name]['U'].value_c
-        #
-        #     data2excel.add_data(sheet_name="主串TB电流", data1=i_tb_zhu)
-        #     data2excel.add_data(sheet_name="主串TB电压", data1=v_tb_zhu)
-        #
-        #     i_tb_bei = md.lg['线路4']['地面']['区段1'][name]['I'].value_c
-        #     v_tb_bei = md.lg['线路4']['地面']['区段1'][name]['U'].value_c
-        #     data2excel.add_data(sheet_name="被串TB电流", data1=i_tb_bei)
-        #     data2excel.add_data(sheet_name="被串TB电压", data1=v_tb_bei)
-
-        #################################################################################
-
-        # # 轨面电压计算
-        # # md = PreModel_25Hz_coding(parameter=para)
-        # # md = PreModel_YPMC(parameter=para)
-        # md = PreModel(parameter=para)
-        # # md.lg = LineGroup(md.l3, name_base='线路组')
-        # md.lg = LineGroup(md.l3, md.l4, name_base='线路组')
-        # md.lg.special_point = para['special_point']
-        # md.lg.refresh()
-        #
-        #
-        # # flag_r = data['被串区段长度(m)'] - data['被串相对主串位置']
-        # # flag_l = flag_r - data['主串区段长度(m)'] - 0.00001
-        #
-        #
-        # posi_list = np.arange(data['主串区段长度(m)'], -0.00001, -interval)
-        # # posi_list = np.arange(flag_r, flag_l, -interval)
-        #
-        # len_posi = max(len(posi_list), len_posi)
-        #
-        # for posi_zhu in posi_list:
-        #     md.jumper.posi_rlt = posi_zhu
-        #     md.jumper.set_posi_abs(0)
-        #     m1 = MainModel(md.lg, md=md)
-        #
-        #     v_rail_zhu = md.lg['线路3']['地面']['区段1']['跳线']['U'].value_c
-        #     data2excel.add_data(sheet_name="主串轨面电压", data1=v_rail_zhu)
-        #
-        # # 移频脉冲
-        # # data['主串功出电压(V)'] = md.lg['线路3']['地面']['区段1']['右调谐单元']['1发送器']['2内阻']['U2'].value_c
-        # # data['主串轨入电压(V)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['0接收器']['U'].value_c
-        #
-        # # 一体化
-        # data['主串功出电压(V)'] = md.lg['线路3']['地面']['区段1']['右调谐单元']['1发送器']['2内阻']['U2'].value_c
-        # data['主串轨入电压(V)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
-        #
-        # data['主串TB1电流(A)'] = md.lg['线路3']['地面']['区段1']['TB1']['I'].value_c
-        # data['主串TB2电流(A)'] = md.lg['线路3']['地面']['区段1']['TB2']['I'].value_c
-        # data['被串TB1电流(A)'] = md.lg['线路4']['地面']['区段1']['TB1']['I'].value_c
-        # data['被串TB2电流(A)'] = md.lg['线路4']['地面']['区段1']['TB2']['I'].value_c
-
-        #################################################################################
-
-        # data['调整轨入最大值'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
-        # data['调整功出电压'] = md.lg['线路3']['地面']['区段1']['右调谐单元']['1发送器']['2内阻']['U2'].value_c
-        # data['调整接收轨入max(V)'] = md.lg['线路3']['地面']['区段1']['左调谐单元']['1接收器']['U'].value_c
-        # data['调整功出电压max(V)'] = md.lg['线路3']['地面']['区段1']['右调谐单元']['1发送器']['2内阻']['U2'].value_c
-        # data['调整功出电流max(I)'] = md.lg['线路3']['地面']['区段1']['右调谐单元']['1发送器']['2内阻']['I2'].value_c
-        # data['调整发送轨面max(V)'] = md.lg['线路3']['地面']['区段1']['右调谐单元'].md_list[-1]['U2'].value_c
-        # data['调整接收轨面max(V)'] = md.lg['线路3']['地面']['区段1']['左调谐单元'].md_list[-1]['U2'].value_c
-
-        #################################################################################
 
         # 分路计算
 
@@ -378,24 +214,17 @@ def main_cal(path1, path2):
         # md = PreModel_QJ_25Hz_coding(parameter=para)
         # md = PreModel_20200730(parameter=para)
         # md = PreModel_V001(parameter=para)
-        md = PreModel_1125(parameter=para)
+        md = PreModel_1128(parameter=para)
 
         md.add_train()
         # md.add_train_bei()
 
-        # posi_list = np.arange(data['被串区段长度(m)']*3 + 14.5, -14.50001, -interval)
+        flag_l = data['分路起点']
+        flag_r = data['分路终点']
 
-        flag_l = data['被串左端里程标'] + data['调谐区长度'] / 2
-        flag_r = data['被串左端里程标'] + data['被串区段长度(m)'] - data['调谐区长度'] / 2
-
-        # if data['被串方向'] == '正向':
-        #     posi_list = np.arange(flag_r, flag_l - 0.0001, -interval)
-        # else:
-        #     posi_list = np.arange(flag_l, flag_r + 0.0001, +interval)
-
-        if data['被串方向'] == '右发':
+        if data['被串方向'] == '左发':
             posi_list = np.arange(flag_r, flag_l - 0.0001, -interval)
-        elif data['被串方向'] == '左发':
+        elif data['被串方向'] == '右发':
             posi_list = np.arange(flag_l, flag_r + 0.0001, +interval)
         else:
             raise KeyboardInterrupt("被串方向应填写'左发'或'右发'")
@@ -427,9 +256,9 @@ def main_cal(path1, path2):
             md.train1.posi_rlt = posi_bei
             md.train1.set_posi_abs(0)
 
-            posi_zhu = posi_bei
-            md.train2.posi_rlt = posi_zhu
-            md.train2.set_posi_abs(0)
+            # posi_zhu = posi_bei
+            # md.train2.posi_rlt = posi_zhu
+            # md.train2.set_posi_abs(0)
 
             m1 = MainModel(md.lg, md=md)
 
@@ -443,7 +272,7 @@ def main_cal(path1, path2):
             # m1.equs.creat_matrix()
             # m1.equs.solve_matrix()
 
-            i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
+            # i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
             i_sht_bei = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
 
             # i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu, direct='右')
@@ -492,7 +321,7 @@ def main_cal(path1, path2):
             #################################################################################
 
             # data2excel.add_data(sheet_name="主串钢轨电流", data1=i_trk_zhu)
-            data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
+            # data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
             data2excel.add_data(sheet_name="被串钢轨电流", data1=i_trk_bei)
             data2excel.add_data(sheet_name="被串分路电流", data1=i_sht_bei)
             # data2excel.add_data(sheet_name="被串轨入电压", data1=v_rcv_bei)
@@ -519,12 +348,14 @@ def main_cal(path1, path2):
         max_i = data['被串最大干扰电流(A)'] * 1000
         MAX_I = para['MAX_CURRENT'][data['主串频率(Hz)']]
 
-        if data['故障位置'] == '无':
-            max_i_normal = max_i
+        # if data['故障位置'] == '无':
+        #     max_i_normal = max_i
+        #
+        # data['干扰值变化'] = max_i / max_i_normal - 1
+        #
+        # print('%.2fmA, %.2f%%' % (max_i, data['干扰值变化'] * 100))
 
-        data['干扰值变化'] = max_i / max_i_normal - 1
-
-        print('%.2fmA, %.2f%%' % (max_i, data['干扰值变化'] * 100))
+        print('%.2fmA' % max_i)
 
         # if max_i > MAX_I:
         #     text = '干扰频率：' + str(data['主串频率(Hz)']) + 'Hz，'\
@@ -597,15 +428,14 @@ def main_cal(path1, path2):
         'align': 'center',  # 水平对齐方式
         'border': 1})
 
-    if pd_read_flag:
-        write_to_excel(df=df_input, writer=writer, sheet_name="参数设置", hfmt=header_format)
+    # write_to_excel(df=df_input, writer=writer, sheet_name="参数设置", hfmt=header_format)
     write_to_excel(df=df_data, writer=writer, sheet_name="数据输出", hfmt=header_format)
 
     names = [
         "被串钢轨电流",
         "被串分路电流",
         # "主串钢轨电流",
-        "主串分路电流",
+        # "主串分路电流",
         # "主串轨面电压",
         # "主串SVA'电流",
         # "被串钢轨电流折算后",

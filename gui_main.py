@@ -103,7 +103,9 @@ class MainWindow:
 
         path1 = self.entry1.get()
 
-        file_name = '仿真输出_%s.xlsx' % time.strftime("%Y%m%d%H%M%S", time.localtime())
+        input_name = os.path.basename(path1)
+        file_name = '仿真输出_%s_%s' % (time.strftime("%Y%m%d%H%M%S", time.localtime()), input_name)
+        # file_name = '仿真输出_%s.xlsx' % time.strftime("%Y%m%d%H%M%S", time.localtime())
         path2 = '/'.join([os.path.dirname(path1), file_name])
 
         self.set_entry(self.entry2, path2)

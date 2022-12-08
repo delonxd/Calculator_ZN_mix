@@ -842,3 +842,24 @@ class RowData:
             data['被串扼流变压器变比'] = para['被串扼流变比'] = None
 
     #################################################################################
+
+    # 区段类型
+    def config_sec_type(self, pd_read_flag=False):
+        df_input, para, data = self.read_parameters()
+
+        if pd_read_flag:
+            data['主串区段类型'] = para['主串区段类型'] = df_input['主串区段类型']
+            data['被串区段类型'] = para['被串区段类型'] = df_input['被串区段类型']
+
+            data['调谐区长度'] = para['调谐区长度'] = df_input['调谐区长度']
+
+    #################################################################################
+
+    # 电容故障
+    def config_c_error(self, pd_read_flag=False):
+        df_input, para, data = self.read_parameters()
+
+        if pd_read_flag:
+            data['故障位置'] = para['故障位置'] = df_input['故障位置']
+            data['故障类型'] = para['故障类型'] = df_input['故障类型']
+

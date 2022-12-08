@@ -4,6 +4,7 @@ from src.Model.PreModel import *
 from src.FrequencyType import Freq
 from src.ConstantType import *
 from src.Method import *
+from src.logMethod import *
 from src.ConfigHeadList import *
 from src.Data2Excel import *
 from src.RowData import RowData
@@ -45,6 +46,8 @@ def main_cal(path1, path2):
     # df_input = df_input.where(df_input.notnull(), None)
 
     # df_input = regular_input(df_input)
+
+    MainLog.add_log_accurate('init input')
     df_input = init_input_1125()
     # print(df_input)
     # print(list(df_input['序号']))
@@ -157,6 +160,11 @@ def main_cal(path1, path2):
 
     # num_len = 1
 
+    MainLog.add_log_accurate('start calculate')
+    MainLog.add_log_accurate('total: ' + str(num_len))
+
+    max_i_normal = 0
+
     # for cv1, cv2, cv3, cv4, cv5, cv6 in clist:
     for temp_temp in range(num_len):
 
@@ -167,7 +175,9 @@ def main_cal(path1, path2):
         # if getattr(sys, 'frozen', False):
         #     print(df_input[temp_temp:(temp_temp + 1)])
         # print(temp_temp)
-        print('calculating line ' + str(counter) + ' ...')
+        # print('calculating line ' + str(counter) + ' ...')
+
+        MainLog.add_log_accurate('line' + str(counter) + ' ...')
 
         #################################################################################
 
@@ -219,8 +229,9 @@ def main_cal(path1, path2):
 
         # row_data.config_c_fault_mode(['无'], ['无'], pd_read_flag=flag)
         # row_data.config_c_fault_num([], [], pd_read_flag=flag)
-        row_data.config_c_fault_mode(['无'], ['无'], pd_read_flag=False)
-        row_data.config_c_fault_num([], [], pd_read_flag=False)
+        # row_data.config_c_fault_mode(['无'], ['无'], pd_read_flag=False)
+        # row_data.config_c_fault_num([], [], pd_read_flag=False)
+        row_data.config_c_error(pd_read_flag=flag)
 
         row_data.config_rd(10000, 10000, pd_read_flag=flag, respectively=True)
 
@@ -231,7 +242,7 @@ def main_cal(path1, path2):
 
         # TB模式
         # row_data.config_TB_mode('无TB', pd_read_flag=False)
-        row_data.config_TB_mode('双端TB', pd_read_flag=flag)
+        row_data.config_TB_mode('无TB', pd_read_flag=flag)
         # row_data.config_TB_mode('双端TB', pd_read_flag=False)
 
         # 区段类型
@@ -258,11 +269,11 @@ def main_cal(path1, path2):
         row_data.config_error()
 
         # interval = row_data.config_interval(1, pd_read_flag=flag)
-        interval = row_data.config_interval(1, pd_read_flag=False)
+        interval = row_data.config_interval(10, pd_read_flag=False)
 
-        if data['被串故障模式'] is None:
-            print(para['freq_被'], para['被串故障模式'])
-            continue
+        # if data['被串故障模式'] is None:
+        #     print(para['freq_被'], para['被串故障模式'])
+        #     continue
         data2excel.add_new_row()
 
         # 移频脉冲
@@ -508,7 +519,12 @@ def main_cal(path1, path2):
         max_i = data['被串最大干扰电流(A)'] * 1000
         MAX_I = para['MAX_CURRENT'][data['主串频率(Hz)']]
 
-        print(max_i)
+        if data['故障位置'] == '无':
+            max_i_normal = max_i
+
+        data['干扰值变化'] = max_i / max_i_normal - 1
+
+        print('%.2fmA, %.2f%%' % (max_i, data['干扰值变化'] * 100))
 
         # if max_i > MAX_I:
         #     text = '干扰频率：' + str(data['主串频率(Hz)']) + 'Hz，'\
