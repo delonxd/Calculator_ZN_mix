@@ -296,7 +296,8 @@ def format_c_pop(str_c_pop):
 
 def draw_image_1128():
     # plt.rcParams['font.size'] = 20
-    root = 'C:\\Users\\Delon\\Desktop\\峨广邻线干扰\\'
+    # root = 'C:\\Users\\Delon\\Desktop\\峨广邻线干扰\\'
+    root = 'C:\\Users\\李继隆\\Desktop\\峨广邻线干扰\\'
     # file = '仿真输出_双区段.xlsx'
     file = '仿真输出_20221205141447_500-600m错位遍历2.xlsx'
     df_input = pd.read_excel(root + file, '数据输出')
@@ -312,6 +313,11 @@ def draw_image_1128():
     if not os.path.exists(res_dir):
         os.makedirs(res_dir)
 
+    sift_list = [
+        400, '左发',
+        500, '右发',
+
+    ]
     sift_list = [
         [500, '左发'],
         [500, '右发'],
@@ -360,14 +366,18 @@ def draw_image_1128():
         data = df_data.iloc[index, :].copy()
         data = data.dropna(how='all', axis=1)
 
+        max_i = 0
         size0 = data.index.size
+
+        column_size = 0
         for i, _ in enumerate(index):
             row = data.iloc[i, :].copy()
-            yy = row.values
+            yy = row.values / 24 * 30
 
             # yy = yy[sec_length:]
             yy = yy[:-sec_length]
 
+            column_size = yy.size
             xx = np.arange(yy.size)
 
             width = 2 if i == 20 else 0.5
@@ -383,6 +393,8 @@ def draw_image_1128():
                 linewidth=width,
             )
 
+            max_i = max(max_i, max(yy))
+
         t = np.arange(0, sec_length + 1, 100)
         x_ticks = [0, 29, sec_length, sec_length + 29] + list(t + 14.5)
         x_label = ['发\n送', '接\n收', '发\n送', '接\n收'] + list(t)
@@ -397,7 +409,6 @@ def draw_image_1128():
 
         cmap = mpl.cm.twilight
         cax = fig.add_axes([cb_pos, 0.45, 0.01, 0.4])  # 四个参数分别是左、下、宽、长
-
 
         norm = mpl.colors.Normalize(vmin=-100, vmax=100)
         bounds = [tmp for tmp in np.linspace(-100, 100, size0+1)]
@@ -433,6 +444,29 @@ def draw_image_1128():
             transform=cax.transAxes,
         )
 
+        yy = np.ones(column_size) * max_i
+        xx = np.arange(yy.size)
+
+        ax.plot(
+            xx,
+            yy,
+            linestyle='--',
+            alpha=1,
+            color='blue',
+            linewidth=1,
+        )
+
+        txt = '最大干扰电流%.2fmA' % (max_i * 1000)
+        ax.text(
+            0.2, 0.9,
+            txt,
+            fontsize=16,
+            color='blue',
+            va='center',
+            ha='left',
+            transform=ax.transAxes,
+        )
+
         ax.tick_params(
             # axis='y',
             labelsize=16,  # y轴字体大小设置
@@ -444,26 +478,24 @@ def draw_image_1128():
 
         plt.tight_layout()
 
+        # plt.show()
+        # return
+
         filename1 = '%s\\%s.png' % (res_dir, title)
         fig.savefig(filename1)
 
-        # plt.show()
-        #
-        # break
-        # return
-
-        # plt.show()
-        # return
 
 def draw_image_1128_typical():
     # plt.rcParams['font.size'] = 20
-    root = 'C:\\Users\\Delon\\Desktop\\峨广邻线干扰\\'
+    # root = 'C:\\Users\\Delon\\Desktop\\峨广邻线干扰\\'
+    root = 'C:\\Users\\李继隆\\Desktop\\峨广邻线干扰\\'
     # file = '仿真输出_双区段.xlsx'
-    file = '仿真输出_20221129202757_被串改方.xlsx'
-    df_input = pd.read_excel(root + file, '参数设置')
 
-    # file = '仿真输出_20221129211606_被串正常.xlsx'
-    # df_input = pd.read_excel(root + file, '数据输出')
+    # file = '仿真输出_20221129202757_被串改方.xlsx'
+    # df_input = pd.read_excel(root + file, '参数设置')
+
+    file = '仿真输出_20221129211606_被串正常.xlsx'
+    df_input = pd.read_excel(root + file, '数据输出')
 
     df_data = pd.read_excel(root + file, '被串钢轨电流')
 
@@ -521,10 +553,19 @@ def draw_image_1128_typical():
 
         ax.yaxis.grid(True, which='major')
         # ax.yaxis.set_font(20)
-        # ax.set_ylim([0, 1])
+        ax.set_ylim([0, 1])
 
         row = df_data.iloc[val, :].copy()
-        yy = row.values * 1.2
+
+        k1 = 1
+        # if sec_name == '2973BG':
+        #     k1 = 1.35
+        # elif sec_name == '2961BG':
+        #     k1 = 1.1
+        # else:
+        #     raise KeyboardInterrupt('k1 error')
+
+        yy = row.values / 24 * 30 * k1
 
         xx = np.arange(yy.size)
 
@@ -534,17 +575,41 @@ def draw_image_1128_typical():
             linestyle='-',
             alpha=1,
             color='r',
-            label='s0',
             # linewidth=width,
+            label='被串%s-%s' % (sec_name, dir_dict[sec_sr_mode]),
         )
+
+        ax.set_ylim([0, 1])
+
+        # yy2 = np.ones(yy.size) * max_i
+        #
+        # ax.plot(
+        #     xx,
+        #     yy2,
+        #     linestyle='--',
+        #     alpha=1,
+        #     color='blue',
+        #     linewidth=1,
+        # )
+
+        # txt = '最大干扰电流%.2fmA' % (max_i * 1000)
+        # ax.text(
+        #     0.2, 0.9,
+        #     txt,
+        #     fontsize=16,
+        #     color='blue',
+        #     va='center',
+        #     ha='left',
+        #     transform=ax.transAxes,
+        # )
 
         l0 = 615 - 29
         t = np.linspace(0, l0, 8)
         t = t[:-1]
         t = t + l0 / 14 + 29
 
-        # c_label = map(lambda x:'C'+str(x+1), range(6, -1, -1))
-        c_label = map(lambda x:'C'+str(x+1), range(7))
+        c_label = map(lambda x: 'C'+str(x+1), range(6, -1, -1))
+        # c_label = map(lambda x: 'C'+str(x+1), range(7))
 
         x_ticks = [0, 29, sec_length, sec_length + 29] + list(t)
         x_label = ['发\n送', '接\n收', '发\n送', '接\n收'] + list(c_label)
@@ -552,8 +617,7 @@ def draw_image_1128_typical():
         ax.set_xticks(x_ticks)
         ax.set_xticklabels(x_label)
 
-        # ax.legend(loc='upper right')
-
+        ax.legend(loc='upper right', fontsize=20)
 
         ax.tick_params(
             # axis='y',
@@ -571,6 +635,7 @@ def draw_image_1128_typical():
 
         # plt.show()
         # return
+
 
 if __name__ == '__main__':
     # draw_image_1128()
