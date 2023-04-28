@@ -1718,3 +1718,93 @@ class PreModel_1128(PreModel):
         self.lg = LineGroup(self.l3, self.l4, name_base='线路组')
         self.lg.special_point = self.parameter['special_point']
         self.lg.refresh()
+
+
+class PreModel_20230426(PreModel):
+    def __init__(self, parameter):
+        # super().__init__(turnout_list, parameter)
+        self.parameter = para = parameter
+        self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
+        self.train2 = Train(name_base='列车2', posi=0, parameter=parameter)
+        # self.train1['分路电阻1'].z = 1000000
+        self.train2['分路电阻1'].z = 1000000
+
+        # 轨道电路初始化
+        send_level = para['send_level']
+
+        sg3 = SectionGroup(name_base='地面', posi=para['offset_zhu'], m_num=1,
+                           m_frqs=para['主串频率列表'],
+                           m_lens=para['主串区段长度'],
+                           j_lens=[29, 29],
+                           m_typs=['2000A'],
+                           c_nums=para['主串电容数'],
+                           sr_mods=[para['sr_mod_主']],
+                           send_lvs=[send_level],
+                           parameter=parameter)
+
+        flg = para['pwr_v_flg']
+        if para['sr_mod_主'] == '左发':
+            sg3['区段1']['左调谐单元'].set_power_voltage(flg)
+        elif para['sr_mod_主'] == '右发':
+            sg3['区段1']['右调谐单元'].set_power_voltage(flg)
+
+        freq_tmp = Freq(para['freq_被'])
+        freq_tmp.change_freq()
+
+        sg4 = SectionGroup(name_base='地面', posi=para['offset_bei'], m_num=3,
+                           m_frqs=para['被串频率列表'],
+                           m_lens=para['被串区段长度'],
+                           j_lens=[29] * 4,
+                           m_typs=['2000A'] * 3,
+                           c_nums=para['被串电容数'],
+                           sr_mods=[para['sr_mod_被']] * 3,
+                           send_lvs=[send_level] * 3,
+                           parameter=parameter)
+
+        self.section_group3 = sg3
+        self.section_group4 = sg4
+
+        self.change_c_value()
+
+        self.l3 = l3 = Line(name_base='线路3', sec_group=sg3,
+                            parameter=parameter)
+        self.l4 = l4 = Line(name_base='线路4', sec_group=sg4,
+                            parameter=parameter)
+        self.set_rail_para(line=l3, z_trk=para['Trk_z'], rd=para['Trk_z'])
+        self.set_rail_para(line=l4, z_trk=para['Trk_z'], rd=para['Trk_z'])
+
+        self.lg = LineGroup(l3, l4, name_base='线路组')
+
+        self.lg.special_point = para['special_point']
+        self.lg.refresh()
+
+    def change_c_value(self):
+        para = self.parameter
+
+        for index, sec in enumerate(self.section_group3.element.values()):
+            for ele in sec.element.values():
+                if isinstance(ele, CapC):
+                    ele.z = para['主串容值列表'][index]
+
+        for index, sec in enumerate(self.section_group4.element.values()):
+            for ele in sec.element.values():
+                if isinstance(ele, CapC):
+                    ele.z = para['被串容值列表'][index]
+
+    def add_train(self):
+        para = self.parameter
+        l3 = Line(name_base='线路3', sec_group=self.section_group3,
+                  parameter=self.parameter, train=[self.train2])
+        self.l3 = l3
+
+        l4 = Line(name_base='线路4', sec_group=self.section_group4,
+                  parameter=self.parameter, train=[self.train1])
+        self.l4 = l4
+
+        self.set_rail_para(line=l3, z_trk=para['主串钢轨阻抗'], rd=para['主串道床电阻'])
+        self.set_rail_para(line=l4, z_trk=para['被串钢轨阻抗'], rd=para['被串道床电阻'])
+
+        self.lg = LineGroup(self.l3, self.l4, name_base='线路组')
+        self.lg.special_point = self.parameter['special_point']
+        self.lg.refresh()
+

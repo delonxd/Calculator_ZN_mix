@@ -43,13 +43,13 @@ def main_cal(path1, path2):
     # df_input = pd.read_excel('邻线干扰参数输入_20200806.xlsx')
     # df_input = pd.read_excel('邻线干扰参数输入_BPLN.xlsx')
 
-    # df_input = pd.read_excel(path1)
-    # df_input = df_input.where(df_input.notnull(), None)
+    df_input = pd.read_excel(path1)
+    df_input = df_input.where(df_input.notnull(), None)
 
     # df_input = regular_input(df_input)
 
-    MainLog.add_log_accurate('init input')
-    df_input = init_input_1128()
+    # MainLog.add_log_accurate('init input')
+    # df_input = init_input_1128()
     # print(df_input)
     # print(list(df_input['序号']))
     num_len = len(list(df_input['序号']))
@@ -131,7 +131,8 @@ def main_cal(path1, path2):
     # head_list = config_headlist_V001()
     # head_list = config_headlist_ZN_mix()
     # head_list = config_headlist_1125()
-    head_list = config_headlist_1128()
+    # head_list = config_headlist_1128()
+    head_list = config_headlist_20230426()
 
     #################################################################################
 
@@ -196,7 +197,7 @@ def main_cal(path1, path2):
         df_input_row = df_input.iloc[temp_temp]
 
         # 配置数据
-        config_row_data_1128(df_input_row, para, data)
+        config_row_data_20230426(df_input_row, para, data)
 
         interval = data['分路间隔(m)']
 
@@ -214,7 +215,8 @@ def main_cal(path1, path2):
         # md = PreModel_QJ_25Hz_coding(parameter=para)
         # md = PreModel_20200730(parameter=para)
         # md = PreModel_V001(parameter=para)
-        md = PreModel_1128(parameter=para)
+        # md = PreModel_1128(parameter=para)
+        md = PreModel_20230426(parameter=para)
 
         md.add_train()
         # md.add_train_bei()
@@ -245,8 +247,13 @@ def main_cal(path1, path2):
 
         len_posi = max(len(posi_list), len_posi)
 
+        tmp_counter = 0
         for posi_bei in posi_list:
-
+            # tmp_counter += 1
+            # print(posi_bei)
+            # if tmp_counter == 100:
+            #     tmp_counter = 0
+            #     print('*'*100)
             # if event.is_set():
             #     print('calculate stopped')
             #     return
@@ -256,9 +263,9 @@ def main_cal(path1, path2):
             md.train1.posi_rlt = posi_bei
             md.train1.set_posi_abs(0)
 
-            # posi_zhu = posi_bei
-            # md.train2.posi_rlt = posi_zhu
-            # md.train2.set_posi_abs(0)
+            posi_zhu = posi_bei
+            md.train2.posi_rlt = posi_zhu
+            md.train2.set_posi_abs(0)
 
             m1 = MainModel(md.lg, md=md)
 
@@ -272,7 +279,7 @@ def main_cal(path1, path2):
             # m1.equs.creat_matrix()
             # m1.equs.solve_matrix()
 
-            # i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
+            i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
             i_sht_bei = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
 
             # i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu, direct='右')
@@ -321,7 +328,7 @@ def main_cal(path1, path2):
             #################################################################################
 
             # data2excel.add_data(sheet_name="主串钢轨电流", data1=i_trk_zhu)
-            # data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
+            data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
             data2excel.add_data(sheet_name="被串钢轨电流", data1=i_trk_bei)
             data2excel.add_data(sheet_name="被串分路电流", data1=i_sht_bei)
             # data2excel.add_data(sheet_name="被串轨入电压", data1=v_rcv_bei)
@@ -461,7 +468,7 @@ def main_cal(path1, path2):
 
 
 if __name__ == '__main__':
-    main_cal('邻线干扰参数输入_V002.xlsx',
+    main_cal('邻线干扰参数输入_QJ_V003.xlsx',
              '仿真输出' + '_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx',
              )
     # main(sys.argv[1], sys.argv[2], sys.argv[3])
