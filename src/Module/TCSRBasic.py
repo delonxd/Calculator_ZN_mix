@@ -135,3 +135,68 @@ class TCSR(ElePack):
         equs.add_equations(self.md_list[0].equs)
         self.equs.reload_coefficient(equs)
         return self.equs
+
+
+# 无分路死区内隔离
+class Inside_iso_non_dead(OPortZ):
+    def __init__(self, parent_ins, name_base, posi_flag, z):
+        super().__init__(parent_ins, name_base, z)
+        self.posi_flag = posi_flag
+        self.init_position(0)
+        self.flag_ele_unit = True
+
+    # 相对位置
+    @property
+    def posi_rlt(self):
+        posi = None
+        parent = self.parent_ins
+        if isinstance(parent, sc.Section):
+            if self.posi_flag == '左':
+                posi = parent['左绝缘节'].j_length / 2 + 10
+            elif self.posi_flag == '右':
+                posi = parent.s_length - parent['右绝缘节'].j_length / 2 - 10
+        elif isinstance(parent, jt.Joint):
+            if self.posi_flag == '左':
+                posi = parent.j_length / 2 + 10
+            elif self.posi_flag == '右':
+                posi = - parent.j_length / 2 - 10
+        return posi
+
+    # 隶属的绝缘节
+    @property
+    def parent_joint(self):
+        joint = None
+        if isinstance(self.parent_ins, sc.Section):
+            name = self.posi_flag + '绝缘节'
+            joint = self.parent_ins[name]
+        elif isinstance(self.parent_ins, jt.Joint):
+            joint = self.parent_ins
+        return joint
+
+    # 区段类型
+    @property
+    def m_type(self):
+        m_type = None
+        if isinstance(self.parent_ins, sc.Section):
+            m_type = self.parent_ins.m_type
+        elif isinstance(self.parent_ins, jt.Joint):
+            m_type = self.parent_ins.parent_ins.m_type
+        return m_type
+
+    # 区段频率
+    @property
+    def m_freq(self):
+        m_freq = None
+        if isinstance(self.parent_ins, sc.Section):
+            m_freq = self.parent_ins.m_freq
+        elif isinstance(self.parent_ins, jt.Joint):
+            section = self.parent_ins.parent_ins
+            m_freq = section.m_freq.copy()
+            m_freq.change_freq()
+            # m_freq = section.change_freq(section.m_freq)
+        return m_freq
+
+    def get_coeffs(self, freq):
+        z = self.z[self.m_freq.value][freq].z
+        self.value2coeffs(z)
+        return self.equs

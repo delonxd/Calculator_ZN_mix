@@ -109,7 +109,45 @@ class Joint_2000A_Electric(Joint):
         self.tcsr_cls = ZPW2000A_QJ_Normal
 
 
-# 2000A电气绝缘节
+# 2000A白俄电气绝缘节
 class Joint_2000A_Electric_Belarus(Joint):
     def set_element(self):
         self.tcsr_cls = ZPW2000A_QJ_Belarus
+
+
+# 2000A无死区电气绝缘节
+class Joint_2000A_Electric_non_dead_zone(Joint):
+    def set_element(self):
+        self.tcsr_cls = ZPW2000A_QJ_non_dead_zone
+
+    def add_joint_tcsr(self):
+        tcsr_name = '相邻调谐单元'
+        iso_name = '相邻内隔离'
+        if not self.l_section:
+            tcsr = self.r_section['左调谐单元']
+            iso = self.r_section['左内隔离']
+            flag = '右'
+        elif not self.r_section:
+            tcsr = self.l_section['右调谐单元']
+            iso = self.l_section['右内隔离']
+            flag = '左'
+        else:
+            return
+
+        if isinstance(tcsr, self.tcsr_cls):
+            cls = self.tcsr_cls
+            ele = cls(parent_ins=self,
+                      name_base=tcsr_name,
+                      posi_flag=flag,
+                      cable_length=tcsr.cable_length,
+                      mode=self.change_sr_mode(tcsr.mode),
+                      level=tcsr.send_level)
+            self.add_child(tcsr_name, ele)
+
+        if isinstance(iso, Inside_iso_non_dead):
+            ele = Inside_iso_non_dead(
+                parent_ins=self,
+                name_base=iso_name,
+                posi_flag=flag,
+                z=self.parameter['non_dead_zone_z_inside_iso'])
+            self.add_child(iso_name, ele)

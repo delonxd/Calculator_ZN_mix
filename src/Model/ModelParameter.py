@@ -546,6 +546,119 @@ class ModelParameter:
 
 ########################################################################################################################
 
+        # 无死区参数
+
+        # 引接线
+        parameter['Non_dead_zone_rca'] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_rca'].rlc_s = {
+            1700: (6.46e-3, 2.90e-6, None),
+            2000: (7.12e-3, 2.86e-6, None),
+            2300: (7.74e-3, 2.82e-6, None),
+            2600: (8.34e-3, 2.80e-6, None)}
+
+        # L1、C1
+        parameter['Non_dead_zone_z1'] = {}
+        parameter['Non_dead_zone_z1'][1700] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_z1'][1700].rlc_s = {
+            1700: (8e-3, 54.16e-6, 84.15e-6),
+            2000: (8e-3, 54.16e-6, 84.15e-6),
+            2300: (8e-3, 54.16e-6, 84.15e-6),
+            2600: (8e-3, 54.16e-6, 84.15e-6)}
+
+        parameter['Non_dead_zone_z1'][2000] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_z1'][2000].rlc_s = {
+            1700: (8e-3, 65.84e-6, 54.67e-6),
+            2000: (8e-3, 65.84e-6, 54.67e-6),
+            2300: (8e-3, 65.84e-6, 54.67e-6),
+            2600: (8e-3, 65.84e-6, 54.67e-6)}
+
+        parameter['Non_dead_zone_z1'][2300] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_z1'][2300].rlc_s = {
+            1700: (17e-3, 130.00e-6, 65.91e-6),
+            2000: (17e-3, 130.00e-6, 65.91e-6),
+            2300: (17e-3, 130.00e-6, 65.91e-6),
+            2600: (17e-3, 130.00e-6, 65.91e-6)}
+
+        parameter['Non_dead_zone_z1'][2600] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_z1'][2600].rlc_s = {
+            1700: (17e-3, 130.00e-6, 47.63e-6),
+            2000: (17e-3, 130.00e-6, 47.63e-6),
+            2300: (17e-3, 130.00e-6, 47.63e-6),
+            2600: (17e-3, 130.00e-6, 47.63e-6)}
+
+        # L2、C2
+        parameter['Non_dead_zone_z2'] = {}
+        parameter['Non_dead_zone_z2'][1700] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_z2'][1700].rlc_s = {
+            1700: (22.000001e-3, 50e-6, None),
+            2000: (25.000001e-3, 50e-6, None),
+            2300: (28.000001e-3, 50e-6, None),
+            2600: (31.000001e-3, 50e-6, None)}
+
+        parameter['Non_dead_zone_z2'][2000] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_z2'][2000].rlc_s = {
+            1700: (22.000001e-3, 50e-6, None),
+            2000: (25.000001e-3, 50e-6, None),
+            2300: (28.000001e-3, 50e-6, None),
+            2600: (31.000001e-3, 50e-6, None)}
+
+        parameter['Non_dead_zone_z2'][2300] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_z2'][2300].rlc_s = {
+            1700: (22.000001e-3, None, 83.50e-6),
+            2000: (25.000001e-3, None, 83.50e-6),
+            2300: (28.000001e-3, None, 83.50e-6),
+            2600: (31.000001e-3, None, 83.50e-6)}
+
+        parameter['Non_dead_zone_z2'][2600] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_z2'][2600].rlc_s = {
+            1700: (22.000001e-3, None, 73.01e-6),
+            2000: (25.000001e-3, None, 73.01e-6),
+            2300: (28.000001e-3, None, 73.01e-6),
+            2600: (31.000001e-3, None, 73.01e-6)}
+
+        # C5
+        parameter['Non_dead_zone_c5'] = {}
+        parameter['Non_dead_zone_c5'][1700] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_c5'][1700].rlc_s = {
+            1700: (3e-3, None, 156.99e-6),
+            2000: (3e-3, None, 156.99e-6),
+            2300: (3e-3, None, 156.99e-6),
+            2600: (3e-3, None, 156.99e-6)}
+
+        parameter['Non_dead_zone_c5'][2000] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_c5'][2000].rlc_s = {
+            1700: (3e-3, None, 113.89e-6),
+            2000: (3e-3, None, 113.89e-6),
+            2300: (3e-3, None, 113.89e-6),
+            2600: (3e-3, None, 113.89e-6)}
+
+        parameter['Non_dead_zone_c5'][2300] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_c5'][2300].rlc_s = {
+            1700: (3e-3, None, 73.84e-6),
+            2000: (3e-3, None, 73.84e-6),
+            2300: (3e-3, None, 73.84e-6),
+            2600: (3e-3, None, 73.84e-6)}
+
+        parameter['Non_dead_zone_c5'][2600] = ImpedanceMultiFreq()
+        parameter['Non_dead_zone_c5'][2600].rlc_s = {
+            1700: (3e-3, None, 59.62e-6),
+            2000: (3e-3, None, 59.62e-6),
+            2300: (3e-3, None, 59.62e-6),
+            2600: (3e-3, None, 59.62e-6)}
+
+        # 内隔离
+        parameter['non_dead_zone_z_inside_iso'] = {}
+        p0 = parameter['Non_dead_zone_rca']
+        p1 = parameter['Non_dead_zone_z1']
+        p2 = parameter['Non_dead_zone_z2']
+        parameter['non_dead_zone_z_inside_iso'][1700] = p0 + (p1[1700] // p2[1700])
+        parameter['non_dead_zone_z_inside_iso'][2000] = p0 + (p1[2000] // p2[2000])
+        parameter['non_dead_zone_z_inside_iso'][2300] = p0 + (p1[2300] // p2[2300])
+        parameter['non_dead_zone_z_inside_iso'][2600] = p0 + (p1[2600] // p2[2600])
+
+
+########################################################################################################################
+
         self.parameter = parameter
 
     def __len__(self):

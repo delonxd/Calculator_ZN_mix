@@ -330,3 +330,66 @@ class Section_ZPW2000A_25Hz_Coding(Section_ZPW2000A):
                 raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
         return j_clss, tcsr_clss
 
+
+# 2000A_无分路死区
+class Section_ZPW2000A_non_dead_zone(Section_ZPW2000A):
+    def __init__(self, parent_ins, name_base,
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
+        super().__init__(parent_ins, name_base,
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
+        self.m_type = '2000A_non_dead_zone'
+
+    def config_inside_iso(self):
+        pass
+
+    @staticmethod
+    def config_class(j_typs):
+        j_clss, tcsr_clss = [None, None], [None, None]
+        for num in range(2):
+            if j_typs[num] == '电气':
+                j_clss[num] = Joint_2000A_Electric_non_dead_zone
+                tcsr_clss[num] = ZPW2000A_QJ_non_dead_zone
+            elif j_typs[num] == '机械':
+                raise KeyboardInterrupt('2000A_non_dead_zone不支持机械绝缘节')
+            else:
+                raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
+        return j_clss, tcsr_clss
+
+    def config_joint_tcsr(self, j_clss, tcsr_clss, j_lens,
+                          j_typs, sr_mods, send_lv):
+        level = send_lv
+        cab_len = self.parameter['cab_len']
+        for num in range(2):
+            flag = ['左', '右'][num]
+            l_section = None if num == 0 else self
+            r_section = self if num == 0 else None
+
+            cls = j_clss[num]
+            joint_name = flag + '绝缘节'
+            ele = cls(parent_ins=self,
+                      name_base=joint_name,
+                      posi_flag=flag,
+                      l_section=l_section,
+                      r_section=r_section,
+                      j_length=j_lens[num],
+                      j_type=j_typs[num])
+            self.add_child(joint_name, ele)
+
+            cls = tcsr_clss[num]
+            tcsr_name = flag + '调谐单元'
+            ele = cls(parent_ins=self,
+                      name_base=tcsr_name,
+                      posi_flag=flag,
+                      cable_length=cab_len,
+                      mode=sr_mods[num],
+                      level=level)
+            self.add_child(tcsr_name, ele)
+
+            if cls == ZPW2000A_QJ_non_dead_zone:
+                iso_name = flag + '内隔离'
+                ele = Inside_iso_non_dead(
+                    parent_ins=self,
+                    name_base=iso_name,
+                    posi_flag=flag,
+                    z=self.parameter['non_dead_zone_z_inside_iso'])
+                self.add_child(iso_name, ele)
