@@ -655,8 +655,13 @@ def check_input_v01(df_input, group):
                 row0 = row.copy().drop('并行长度')
             elif counter % 4 == 0:
                 row1 = row.copy().drop('并行长度')
+
+                row0 = row0.dropna()
+                row1 = row1.dropna()
+
                 if not row1.eq(row0).all():
                     raise KeyboardInterrupt('2对1数据错误: 被串区段数据不符')
+
             elif counter % 4 == 1:
                 freq = row['频率']
             elif counter % 4 == 3:
