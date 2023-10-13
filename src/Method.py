@@ -528,6 +528,22 @@ def regular_input(df_input, calc_type):
 
         index += 1
 
+    if calc_type == '2对1':
+        ret2 = ret.copy()
+        ret = pd.DataFrame(columns=columns_header())
+
+        length = index - 1
+        for i in range(length):
+
+            t1 = i // 4
+            t2 = (i % 4) // 2
+            t3 = (i % 4) % 2
+
+            i2 = int(t2 * length / 2 + t1 * 2 + t3)
+
+            ret.loc[i+1, :] = ret2.iloc[i2, :]
+            ret.loc[i+1, '序号'] = i+1
+
     for _, row in ret.copy().iterrows():
         ret.loc[index] = row
         ret.loc[index, '序号'] = index
