@@ -169,6 +169,8 @@ def main_cal(_, path2, path3):
             # i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
             i_sht_bei = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
 
+            i_sht_bei_complex = md.lg['线路4']['列车1']['分路电阻1']['I'].value
+
             # i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu, direct='右')
             # i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
             # if data['被串方向'] == '正向':
@@ -223,6 +225,7 @@ def main_cal(_, path2, path3):
             data2excel.add_data(sheet_name="被串分路电流", data1=i_sht_bei)
             data2excel.add_data(sheet_name="被串分路点左侧钢轨电流", data1=i_trk_l)
             data2excel.add_data(sheet_name="被串分路点右侧钢轨电流", data1=i_trk_r)
+            data2excel.add_data(sheet_name="被串分路电流复数", data1=i_sht_bei_complex)
             # data2excel.add_data(sheet_name="被串轨入电压", data1=v_rcv_bei)
             # data2excel.add_data(sheet_name="主串SVA'电流", data1=i_sva1)
             # data2excel.add_data(sheet_name="被串钢轨电流折算后", data1=i_trk_bei_temp)
@@ -291,6 +294,7 @@ def main_cal(_, path2, path3):
     data2excel["被串钢轨电流"].header[0] = '被串左端'
     data2excel["被串分路点左侧钢轨电流"].header[0] = '被串左端'
     data2excel["被串分路点右侧钢轨电流"].header[0] = '被串左端'
+    data2excel["被串分路电流复数"].header[0] = '被串左端'
     # data2excel["主串钢轨电流"].header[0] = '被串发送端'
     # data2excel["主串分路电流"].header[0] = '被串发送端'
     # data2excel["主串轨面电压"].header[0] = '主串发送端'
@@ -318,6 +322,7 @@ def main_cal(_, path2, path3):
     names = [
         "被串分路电流",
         "被串钢轨电流",
+        "被串分路电流复数",
         # "被串分路点左侧钢轨电流",
         # "被串分路点右侧钢轨电流",
         # "主串钢轨电流",
