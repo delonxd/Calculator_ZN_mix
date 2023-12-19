@@ -7,34 +7,64 @@ from src.Model.ModelParameter import *
 from src.FrequencyType import Freq
 from src.Model.PreModel import PreModel
 
+import os
+import time
+import pandas as pd
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib import cm
+# # plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
+# plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']  # 用来正常显示中文标签
+# # plt.rcParams['font.sans-serif'] = ['consolas']  # 用来正常显示中文标签
+# plt.rcParams['axes.unicode_minus'] = False
+
+plt.rcParams['font.sans-serif'] = ['SimSun']
+plt.rcParams['mathtext.fontset'] = 'stix'
+plt.rcParams['axes.unicode_minus'] = False
+
 
 def get_guangzhan_info():
+    # info_line1 = [
+    #     -36,
+    #     ('0132AG', 2000, 475, 8),
+    #     ('0132BG', 2600, 475, 6),
+    #     ('0132CG', 2000, 500, 8),
+    #     ('0148AG', 2600, 400, 5),
+    #     ('0148BG', 2000, 600, 10),
+    #     ('0148CG', 2600, 500, 6),
+    #     ('0162AG', 2000, 551, 10),
+    #     ('0162BG-1', 2600, 551, 7),
+    #     ('0162BG-2', 2000, 400, 6),
+    #     ('0178AG', 2600, 700, 8),
+    # ]
+
     info_line1 = [
-        -36,
-        ('0132AG', 2000, 475, 8),
-        ('0132BG', 2600, 475, 6),
-        ('0132CG', 2000, 500, 8),
-        ('0148AG', 2600, 400, 5),
-        ('0148BG', 2000, 600, 10),
-        ('0148CG', 2600, 500, 6),
-        ('0162AG', 2000, 551, 10),
-        ('0162BG-1', 2600, 551, 7),
-        ('0162BG-2', 2000, 400, 6),
-        ('0178AG', 2600, 700, 8),
+        -244,
+        ('广湛NS1LQAG', 2000, 537, 9),
+        ('广湛5578CG', 2600, 470, 6),
+        ('广湛5578BG', 2000, 625, 10),
+        ('广湛5578AG', 2600, 745, 9),
+        ('广湛5560CG', 2000, 505, 9),
+        ('广湛5560BG', 2600, 625, 8),
+        ('广湛5560AG', 2000, 760, 13),
+        ('广湛5542CG', 2600, 490, 6),
+        ('广湛5542BG', 2000, 560, 10),
+        ('广湛5542AG', 2600, 800, 10),
     ]
 
     info_line2 = [
         -294,
-        ('NS1LQAG', 2000, 537, 9),
-        ('5578CG', 2600, 470, 6),
-        ('5578BG', 2000, 625, 10),
-        ('5578AG', 2600, 745, 9),
-        ('5560CG', 2000, 505, 9),
-        ('5560BG', 2600, 625, 8),
-        ('5560AG', 2000, 760, 13),
-        ('5542CG', 2600, 490, 6),
-        ('5542BG', 2000, 560, 10),
-        ('5542AG', 2600, 800, 10),
+        ('南广NS1LQAG', 2000, 537, 9),
+        ('南广5578CG', 2600, 470, 6),
+        ('南广5578BG', 2000, 625, 10),
+        ('南广5578AG', 2600, 745, 9),
+        ('南广5560CG', 2000, 505, 9),
+        ('南广5560BG', 2600, 625, 8),
+        ('南广5560AG', 2000, 760, 13),
+        ('南广5542CG', 2600, 490, 6),
+        ('南广5542BG', 2000, 560, 10),
+        ('南广5542AG', 2600, 800, 10),
     ]
 
     info_line3 = [
@@ -54,8 +84,65 @@ def get_guangzhan_info():
     ret = []
     ret.extend(get_line_info(info_line1, info_line2))
     ret.extend(get_line_info(info_line2, info_line1))
-    ret.extend(get_line_info(info_line2, info_line3))
-    ret.extend(get_line_info(info_line3, info_line2))
+    # ret.extend(get_line_info(info_line2, info_line3))
+    # ret.extend(get_line_info(info_line3, info_line2))
+
+    # ret = ret[:1]
+
+    return ret
+
+
+def get_guangzhan_test_info():
+    # info_line1 = [
+    #     0,
+    #     ('广湛测试区段2600Hz', 2600, 625, 8),
+    # ]
+    #
+    # # info_line2 = [
+    # #     0,
+    # #     ('广湛测试区段2000Hz', 2000, 625, 10),
+    # # ]
+    #
+    # info_line3 = [
+    #     -470,
+    #     ('5578CG', 2600, 470, 6),
+    #     ('5578BG', 2000, 625, 10),
+    #     ('5578AG', 2600, 745, 9),
+    # ]
+    #
+    # info_line4 = [
+    #     -400,
+    #     ('8420DG', 2600, 625, 8),
+    # ]
+    #
+    # info_line5 = [
+    #     -470,
+    #     ('5578CG', 2600, 470, 6),
+    #     ('5578BG', 2000, 625, 10),
+    # ]
+
+    ret = []
+    # ret.extend(get_line_info(info_line1, info_line3))
+    # ret.extend(get_line_info(info_line4, info_line5))
+
+    for offset in range(-450, 451, 50):
+        info_line1 = [
+            offset,
+            ('广湛测试区段2600Hz', 2600, 500, 0),
+        ]
+
+        info_line2 = [
+            -470,
+            ('5578CG', 2600, 470, 6),
+            ('5578BG', 2000, 625, 10),
+            ('5578AG', 2600, 745, 9),
+        ]
+
+        ret.extend(get_line_info(info_line1, info_line2))
+
+    # ret.extend(get_line_info(info_line3, info_line1))
+    # ret.extend(get_line_info(info_line2, info_line3))
+    # ret.extend(get_line_info(info_line3, info_line2))
 
     return ret
 
@@ -131,6 +218,7 @@ def config_input_20231011_guangzhan():
     ]
 
     src = get_guangzhan_info()
+    # src = get_guangzhan_test_info()
 
     df = pd.DataFrame(index=columns, dtype='object')
 
@@ -406,6 +494,19 @@ def config_row_data_20231011_guangzhan(df_input, para, data):
     data['分路起点'] = offset - 14.5
     data['分路终点'] = offset + sum(length2) + 14.5
 
+    # # focus_sec = '3778G'
+    # focus_sec = '5578BG'
+    # index_bei = data['被串区段'].index(focus_sec)
+    #
+    # l_point = offset + sum(length2[0:index_bei]) - 14.5
+    # r_point = l_point + length2[index_bei] + 29
+    #
+    # data['分路起点'] = l_point
+    # data['分路终点'] = r_point
+    #
+    # data['分路起点'] = offset - 14.5 + length2[0]
+    # data['分路终点'] = offset + length2[0] + length2[1] + 14.5
+
 
 class PreModel_QJ_20231011_guangzhan(PreModel):
     def __init__(self, parameter):
@@ -496,3 +597,127 @@ class PreModel_QJ_20231011_guangzhan(PreModel):
         self.lg = LineGroup(self.l3, self.l4, name_base='线路组')
         self.lg.special_point = self.parameter['special_point']
         self.lg.refresh()
+
+
+# from matplotlib import rcParams
+
+# matplotlib.use("pgf")
+# pgf_config = {
+#     "font.family":'serif',
+#     "font.size": 20,
+#     "pgf.rcfonts": False,
+#     "text.usetex": True,
+#     "pgf.preamble": [
+#         r"\usepackage{unicode-math}",
+#         #r"\setmathfont{XITS Math}",
+#         # 这里注释掉了公式的XITS字体，可以自行修改
+#         r"\setmainfont{Times New Roman}",
+#         r"\usepackage{xeCJK}",
+#         r"\xeCJKsetup{CJKmath=true}",
+#         r"\setCJKmainfont{SimSun}",
+#     ],
+# }
+# rcParams.update(pgf_config)
+
+
+def draw_image_2021023_guangzhan():
+    # plt.rcParams['font.size'] = 20
+
+    # 根目录
+    root = 'C:\\Users\\李继隆\\Desktop\\广湛六线并行\\'
+
+    # 创建文件夹
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = '%s图表汇总\\图表汇总_广湛六线并行_%s' % (root, timestamp)
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    # 读取数据
+
+    # file = '仿真输出_站内400m邻线干扰_主串1700_被串2300.xlsx'
+    # file = '站内数字化_两送一收_数据输出.xlsx'
+    # file = '站内数字化_一送一收_数据输出.xlsx'
+
+    # path = '%s%s' % (root, file)
+    # df_input = pd.read_excel(path, '数据输出')
+
+    # path2 = '%s%s' % (root, '站内数字化_一送一收_数据输出.xlsx')
+    # with pd.ExcelWriter(path2) as writer:
+    #     df_input.to_excel(writer, sheet_name="数据输出", index=True)
+    # df_data = pd.read_excel(path, '被串钢轨电流')
+
+    # 创建图表
+    fig = plt.figure(figsize=(16, 8), dpi=100)
+    fig.subplots_adjust(hspace=0.1, wspace=0.1, top=0.8, left=0.15, right=0.85)
+    # title = '站内数字化轨道电路邻线干扰仿真：不同扼流变比'
+    # fig.suptitle(title, x=0.5, y=0.93, fontsize=25, fontfamily='SimHei')
+
+    file = '广湛六线并行_测试结果对比.xlsx'
+    path = '%s%s' % (root, file)
+    df1 = pd.read_excel(path, '仿真结果')
+    df2 = pd.read_excel(path, '测试结果')
+    xx2 = df2.columns.tolist()
+
+    # print(df1)
+    # print(df2)
+    ax_list = []
+
+    length = df1.shape[1]
+    xx1 = list(range(length))
+
+    for i in range(4):
+        ax = fig.add_subplot(2, 2, i+1)
+        ax_list.append(ax)
+
+        yy1 = (df1.iloc[i, :]*1000).tolist()
+        ax.plot(xx1, yy1, linestyle='-', alpha=0.8, color='blue')
+
+        yy2 = df2.iloc[i, :].tolist()
+        ax.scatter(
+            xx2,
+            yy2,
+            marker='x',
+            color='r',
+        )
+
+    # # 创建图表
+    # fig = plt.figure(figsize=(16, 8), dpi=100)
+    # fig.subplots_adjust(hspace=0.4)
+    # title = '区段配置：%s  电容配置：%s' % (send_type, c_type)
+    # fig.suptitle(title, x=0.5, y=0.98, fontsize=25, fontfamily='SimHei')
+
+    # ax_list = []
+    plt.show()
+
+
+def analyse_complex_add():
+    path = 'C:\\Users\\李继隆\\Desktop\\广湛六线并行\\仿真输出_广湛六线并行_复数形式.xlsx'
+    df = pd.read_excel(path, sheet_name='被串分路电流复数')
+
+    s1 = df.iloc[2, :]
+    s2 = df.iloc[3, :]
+    s1 = s1.apply(lambda x: complex(x)).values
+    s2 = s2.apply(lambda x: complex(x)).values
+
+    df2 = pd.DataFrame()
+    for theta in range(0, 360, 10):
+        k = 1j * np.sin(theta / 180 * np.pi) + np.cos(theta / 180 * np.pi)
+        s3 = np.ones(len(s1)) * k
+
+        s4 = pd.Series((s1 * s3) + s2, name=theta)
+        s5 = s4.apply(lambda x: abs(x))
+        df2 = pd.concat([df2, s5], axis=1)
+
+    df2 = df2.transpose()
+    print(df2)
+
+    path2 = 'C:\\Users\\李继隆\\Desktop\\广湛六线并行\\结果导出\\广湛六线并行_复数形式处理_同时分路.xlsx'
+
+    df2.to_excel(path2, sheet_name='result', index=False)
+
+
+if __name__ == '__main__':
+    # draw_image_20230904_digital()
+    # draw_image_2021023_guangzhan()
+    analyse_complex_add()
