@@ -245,6 +245,51 @@ class ZPW2000A_YPMC_Normal(TCSR):
         self.config_varb()
 
 
+# ZPW2000A站内移频脉冲标准 BZE并联电容
+class ZPW2000A_YPMC_add_cap(TCSR):
+    def __init__(self, parent_ins, name_base,
+                 posi_flag, cable_length, mode, level):
+        super().__init__(parent_ins, name_base, posi_flag)
+        self.parameter = para = parent_ins.parameter
+        self.posi_flag = posi_flag
+        self.init_position(0)
+        self.flag_ele_list = True
+        self.flag_ele_unit = True
+        self.mode = mode
+        self.send_level = level
+        self.u_list_max = [45, 37.5, 30, 22.5]
+        self.u_list_min = [45, 37.5, 30, 22.5]
+
+        if self.mode == '发送':
+            self.add_child('1发送器', TcsrPowerYPMC(self, '1发送器',
+                                                 para['z_pwr_yp'],
+                                                 para['z_pwr_ypmc_iso']))
+        elif self.mode == '接收':
+            self.add_child('1接收器', TcsrReceiverYPMC(self, '1接收器',
+                                                    para['z_rcv_ypmc_iso2'],
+                                                    para['z_rcv_ypmc_iso'],
+                                                    para['z_rcv_ypmc']))
+        # 注意拓扑结构
+        self.add_child('2防雷', TcsrFLYPMC(self, '2防雷',
+                                         para['z1_FL_ypmc'],
+                                         para['z2_FL_ypmc'],
+                                         para['n_FL_ypmc']))
+        self.add_child('3Cab', TPortCable(self, '3Cab', cable_length,
+                                          para['Cable_R'],
+                                          para['Cable_L'],
+                                          para['Cable_C']))
+        self.add_child('4扼流', TcsrELYPMC(self, '4扼流',
+                                         para['z1_EL_ypmc'],
+                                         para['z2_EL_ypmc'],
+                                         para['n_EL_ypmc']))
+        self.add_child('5BA', TcsrBA(self, '5BA', para['YPMC_BZE_add_cap']))
+        # self.add_child('6CA', TcsrCA(self, '6CA', para['CA_z_区间']))
+        self.add_child('6CA', TcsrCA(self, '6CA', para['CA_z_站内']))
+
+        self.md_list = self.get_md_list([])
+        self.config_varb()
+
+
 # ZPW2000A站内BPLN配置
 class ZPW2000A_ZN_BPLN(TCSR):
     def __init__(self, parent_ins, name_base,

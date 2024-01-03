@@ -265,6 +265,28 @@ class Section_ZPW2000A_YPMC(Section_ZPW2000A):
         return j_clss, tcsr_clss
 
 
+# 2000A移频脉冲BZE并联电容配置
+class Section_ZPW2000A_YPMC_add_cap(Section_ZPW2000A_YPMC):
+    def __init__(self, parent_ins, name_base,
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
+        super().__init__(parent_ins, name_base,
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
+        self.m_type = '2000A_YPMC_add_cap'
+
+    @staticmethod
+    def config_class(j_typs):
+        j_clss, tcsr_clss = [None, None], [None, None]
+        for num in range(2):
+            if j_typs[num] == '电气':
+                raise KeyboardInterrupt('2000A移频脉冲不支持电气绝缘节')
+            elif j_typs[num] == '机械':
+                j_clss[num] = Joint_Mechanical
+                tcsr_clss[num] = ZPW2000A_YPMC_add_cap
+            else:
+                raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
+        return j_clss, tcsr_clss
+
+
 # 2000A白俄配置
 class Section_ZPW2000A_Belarus(Section_ZPW2000A):
     def __init__(self, parent_ins, name_base,
