@@ -9,6 +9,92 @@ from src.Model.PreModel import PreModel
 
 
 # 区间无分路死区邻线干扰
+
+# 配置输入
+def config_input_20230801_non_dead_zone():
+
+    columns = [
+        '序号',
+        '备注',
+        '主串区段', '被串区段',
+        '主串方向', '被串方向',
+
+        '主串区段长度(m)', '被串区段长度(m)',
+
+        '被串相对位置(m)',
+        '耦合系数(μH/km)',
+
+        '主串电平级',
+        '主串频率(Hz)', '被串频率(Hz)',
+
+        '主串电缆长度(km)', '被串电缆长度(km)',
+        '主串电容数(含TB)', '被串电容数(含TB)',
+        '主串道床电阻(Ω·km)', '被串道床电阻(Ω·km)',
+
+        '分路间隔(m)',
+        '分路电阻(Ω)',
+    ]
+
+    list1 = [
+        400,
+        600,
+        800,
+        1200,
+    ]
+
+    list2 = [1700, 2000, 2300, 2600]
+    list3 = [1700, 2000, 2300, 2600]
+
+    iter_list = list(itertools.product(
+        list1, list2, list3))
+
+    df = pd.DataFrame(index=columns, dtype='object')
+
+    counter = 0
+    for length, freq_zhu, freq_bei in iter_list:
+        counter += 1
+
+        s0 = pd.Series(name=counter, index=columns)
+
+        s0['序号'] = s0.name
+        s0['备注'] = '无死区'
+
+        s0['主串区段'] = '测试1'
+        s0['被串区段'] = '测试2'
+
+        s0['主串方向'] = '右发'
+        s0['被串方向'] = '右发'
+
+        s0['主串区段长度(m)'] = length
+        s0['被串区段长度(m)'] = length
+
+        s0['被串相对位置(m)'] = 0
+        s0['耦合系数(μH/km)'] = 20
+
+        s0['主串电平级'] = 1
+
+        s0['主串频率(Hz)'] = freq_zhu
+        s0['被串频率(Hz)'] = freq_bei
+
+        s0['主串电缆长度(km)'] = 10
+        s0['被串电缆长度(km)'] = 10
+
+        s0['主串道床电阻(Ω·km)'] = 10000
+        s0['被串道床电阻(Ω·km)'] = 10000
+        s0['分路间隔(m)'] = 1
+        s0['分路电阻(Ω)'] = 1e-7
+
+        print('generate row: %s --> %s' % (counter, s0.tolist()))
+
+        df = pd.concat([df, s0], axis=1)
+
+        # if counter == 4:
+        #     return df.transpose()
+
+    df = df.transpose()
+    return df
+
+
 # 配置表头
 def config_headlist_20230801_non_dead_zone():
     head_list = [

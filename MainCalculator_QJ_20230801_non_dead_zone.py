@@ -40,7 +40,8 @@ def main_cal(input_path, output_path, work_path):
     # df_input = pd.read_excel('邻线干扰参数输入_BPLN.xlsx')
     # df_input = pd.read_excel('邻线干扰参数输入_20230801_区间无分路死区.xlsx')
 
-    df_input = pd.read_excel(input_path)
+    # df_input = pd.read_excel(input_path)
+    df_input = config_input_20230801_non_dead_zone()
     # df_input = df_input.where(df_input.notnull(), None)
     # df_input = config_input_20230720_pusu(sec_type, sec_length)
     num_len = len(list(df_input['序号']))
@@ -230,6 +231,8 @@ def main_cal(input_path, output_path, work_path):
 
         len_posi = max(len(posi_list), len_posi)
 
+        tmp_posi = []
+
         for posi_bei in posi_list:
             para['分路位置'] = posi_bei
 
@@ -242,7 +245,13 @@ def main_cal(input_path, output_path, work_path):
 
             m1 = MainModel(md.lg, md=md)
 
-            MainLog.add_log_accurate('position --> %sm' % posi_bei)
+            tmp_posi.append(posi_bei)
+            if len(tmp_posi) == 100:
+                MainLog.add_log_accurate('分路位置 --> %sm' % tmp_posi)
+                tmp_posi = []
+
+            # MainLog.add_log_accurate('position --> %sm' % posi_bei)
+
             # zm_sva = 2 * np.pi * freq * data["SVA'互感"] * 1e-6 * 1j
             #
             # # list_sva1_mutual = [(3, 4, '右'), (3, 4, '左') ,(4, 3, '右') ,(4, 3, '左')]
