@@ -6,10 +6,18 @@ from src.Model.MainModel import *
 from src.Model.ModelParameter import *
 from src.FrequencyType import Freq
 from src.Model.PreModel import PreModel
+from src.logMethod import *
+from src.Data2Excel import *
+
+import os
+import time
+import matplotlib.pyplot as plt
+plt.rcParams['font.sans-serif'] = ['SimSun']
+plt.rcParams['mathtext.fontset'] = 'stix'
+plt.rcParams['axes.unicode_minus'] = False
 
 
 # 区间无分路死区邻线干扰
-
 # 配置输入
 def config_input_20230801_non_dead_zone():
 
@@ -453,3 +461,313 @@ class PreModel_20230801_non_dead_zone(PreModel):
         self.lg = LineGroup(self.l3, self.l4, name_base='线路组')
         self.lg.special_point = self.parameter['special_point']
         self.lg.refresh()
+
+
+def draw_image_20230801_non_dead_zone():
+    # plt.rcParams['font.size'] = 20
+
+    # 根目录
+    # root = 'C:\\Users\\李继隆\\PycharmProjects\\Calculator_ZN_mix\\20230801_无死区\\无死区仿真结果汇总'
+    root = '..\\20230801_无死区\\无死区数据处理\\'
+    # 创建文件夹
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = '%s图表汇总\\图表汇总_无死区_%s' % (root, timestamp)
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    # 读取数据
+
+    # file = '仿真输出_站内400m邻线干扰_主串1700_被串2300.xlsx'
+    # file = '站内数字化_两送一收_数据输出.xlsx'
+    # file = '站内数字化_一送一收_数据输出.xlsx'
+
+    # path = '%s%s' % (root, file)
+    # df_input = pd.read_excel(path, '数据输出')
+
+    # path2 = '%s%s' % (root, '站内数字化_一送一收_数据输出.xlsx')
+    # with pd.ExcelWriter(path2) as writer:
+    #     df_input.to_excel(writer, sheet_name="数据输出", index=True)
+    # df_data = pd.read_excel(path, '被串钢轨电流')
+
+    path1 = '%s%s' % (root, '无死区邻线干扰_长度遍历2.xlsx')
+    path2 = '%s%s' % (root, '2000A邻线干扰_长度遍历2.xlsx')
+
+    df_data1 = pd.read_excel(path1, '数据输出')
+    MainLog.add_log_accurate('#' * 30)
+
+    # df_data2 = pd.read_excel(path2, '数据输出')
+    df_i_trk_1 = pd.read_excel(path1, '被串钢轨电流')
+    MainLog.add_log_accurate('#' * 30)
+
+    df_i_trk_2 = pd.read_excel(path2, '被串钢轨电流')
+    MainLog.add_log_accurate('#' * 30)
+
+    # length = df_data1.shape[1]
+    # xx1 = list(range(length))
+
+    # sec_length_list = [400, 600, 800, 1200]
+    sec_length_list = list(range(400, 1201, 100))
+    freq_list = [1700, 2000, 2300, 2600]
+
+    condition_list = [
+        '同频',
+        '同方向不同频',
+        '不同方向',
+    ]
+
+    for condition in condition_list:
+        for sec_length in sec_length_list:
+            # 创建图表
+            fig = plt.figure(figsize=(16, 8), dpi=100)
+            # fig.subplots_adjust(hspace=0.4, wspace=0.1, top=0.8, left=0.15, right=0.85)
+            fig.subplots_adjust(hspace=0.4, wspace=0.1, left=0.05, right=0.95)
+            # fig.subplots_adjust(hspace=0.4)
+            title = '区间邻线干扰-%sm-%s' % (sec_length, condition)
+            fig.suptitle(title, x=0.5, y=0.98, fontsize=25, fontfamily='SimHei')
+
+            ax_list = []
+
+            for j, freq_zhu in enumerate(freq_list):
+                ax = fig.add_subplot(2, 2, j + 1)
+                ax_list.append(ax)
+
+                sub_title = '主串%sHz' % freq_zhu
+                ax.set_title(sub_title, pad=8, fontsize=12)
+
+                if condition == '同频':
+                    bei_freq_list = [freq_zhu]
+                elif condition == '同方向不同频':
+                    tmp = {
+                        1700: 2300,
+                        2000: 2600,
+                        2300: 1700,
+                        2600: 2000,
+                    }
+                    bei_freq_list = [tmp[freq_zhu]]
+                elif condition == '不同方向':
+                    tmp = {
+                        1700: [2000, 2600],
+                        2000: [1700, 2300],
+                        2300: [2000, 2600],
+                        2600: [1700, 2300],
+                    }
+                    bei_freq_list = tmp[freq_zhu]
+                else:
+                    raise KeyboardInterrupt('condition error')
+
+                for i, freq_bei in enumerate(bei_freq_list):
+                    index = df_data1.loc[
+                        (df_data1["主串区段长度(m)"] == sec_length) &
+                        (df_data1["主串频率(Hz)"] == freq_zhu) &
+                        (df_data1["被串频率(Hz)"] == freq_bei)
+                    ]['序号'].tolist()
+
+                    if len(index) == 1:
+                        index = index[0] - 1
+                    else:
+                        raise KeyboardInterrupt('error: len(index) != 1')
+
+                    yy1 = (df_i_trk_1.iloc[index, :].copy().dropna()*1000).tolist()
+                    yy2 = (df_i_trk_2.iloc[index, :].copy().dropna()*1000).tolist()
+
+                    yy1 = yy1[400:-400]
+                    yy2 = yy2[400:-400]
+
+                    xx1 = range(len(yy1))
+
+                    color_list = [
+                        'red',
+                        'orange',
+                        'blue',
+                        'green',
+                    ]
+                    ax.plot(xx1, yy1, linestyle='-', alpha=0.8, color=color_list[i], label='被串%sHz-无死区' % freq_bei)
+                    ax.plot(xx1, yy2, linestyle='--', alpha=0.8, color=color_list[i], label='被串%sHz-2000A' % freq_bei)
+
+                    ax.legend(loc='upper right', fontsize=9)
+
+                    # yy2 = df2.iloc[i, :].tolist()
+                    # ax.scatter(
+                    #     xx2,
+                    #     yy2,
+                    #     marker='x',
+                    #     color='r',
+                    # )
+
+            plt.text(
+                0.5, 0.07, '被串分路位置(m)',
+                va='top', ha='center', transform=fig.transFigure,
+                fontsize=13,
+            )
+
+            plt.text(
+                0.02, 0.5, '邻线干扰电流(mA)',
+                va='center', ha='right', transform=fig.transFigure,
+                fontsize=13, rotation=90,
+            )
+
+            # plt.show()
+            # raise KeyboardInterrupt()
+            filename1 = '%s\\区间邻线干扰_%s_%sm.png' % (res_dir, condition, sec_length)
+            fig.savefig(filename1, transparent=True)
+
+    # # 创建图表
+    # fig = plt.figure(figsize=(16, 8), dpi=100)
+    # fig.subplots_adjust(hspace=0.4)
+    # title = '区段配置：%s  电容配置：%s' % (send_type, c_type)
+    # fig.suptitle(title, x=0.5, y=0.98, fontsize=25, fontfamily='SimHei')
+
+    # ax_list = []
+    # plt.show()
+
+
+def draw_image_20230801_non_dead_zone2():
+
+    # plt.rcParams['font.size'] = 20
+
+    # 根目录
+    # root = 'C:\\Users\\李继隆\\PycharmProjects\\Calculator_ZN_mix\\20230801_无死区\\无死区仿真结果汇总'
+    root = '..\\20230801_无死区\\无死区数据处理\\'
+    # 创建文件夹
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = '%s图表汇总\\图表汇总_无死区_%s' % (root, timestamp)
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    # 读取数据
+
+    path1 = '%s%s' % (root, '无死区邻线干扰_长度遍历2.xlsx')
+    path2 = '%s%s' % (root, '无死区邻线干扰_长度遍历2.xlsx')
+    # path2 = '%s%s' % (root, '2000A邻线干扰_长度遍历2.xlsx')
+
+    # df_data1 = pd.read_excel(path1, '数据输出')
+    # MainLog.add_log_accurate('#' * 30)
+
+    df_data2 = pd.read_excel(path2, '数据输出')
+    MainLog.add_log_accurate('#' * 30)
+
+    # df_i_trk_1 = pd.read_excel(path1, '被串钢轨电流')
+    # MainLog.add_log_accurate('#' * 30)
+
+    df_i_trk_2 = pd.read_excel(path2, '被串钢轨电流')
+    MainLog.add_log_accurate('#' * 30)
+
+    data2excel = SheetDataGroup(sheet_names=[])
+
+    max_i = []
+    for _, row in df_i_trk_2.iterrows():
+        data2excel.add_new_row()
+
+        yy = row.copy().dropna().tolist()
+        yy = yy[439:-439]
+        max_i.append(max(yy))
+        for val in yy:
+            data2excel.add_data('被串钢轨电流', val)
+
+        # print(yy)
+    s1 = pd.Series(max_i)
+    df_data2['主轨最大干扰电流(A)'] = s1
+
+    data2excel.config_header()
+
+    # output_path = '%s%s' % (root, '2000A邻线干扰_无调谐区.xlsx')
+    output_path = '%s%s' % (root, '无死区邻线干扰_无调谐区.xlsx')
+
+    writer = pd.ExcelWriter(output_path, engine='xlsxwriter')
+
+    workbook = writer.book
+    header_format = workbook.add_format({
+        'bold': True,  # 字体加粗
+        'text_wrap': True,  # 是否自动换行
+        'valign': 'vcenter',  # 垂直对齐方式
+        'align': 'center',  # 水平对齐方式
+        'border': 1})
+
+    # write_to_excel(df=df_input, writer=writer, sheet_name="参数设置", hfmt=header_format)
+    write_to_excel(df=df_data2, writer=writer, sheet_name="数据输出", hfmt=header_format)
+
+    data2excel.write2excel(sheet_names=['被串钢轨电流'], writer=writer)
+    writer.save()
+
+
+def draw_image_20230801_non_dead_zone3():
+
+    # plt.rcParams['font.size'] = 20
+
+    # 根目录
+    # root = 'C:\\Users\\李继隆\\PycharmProjects\\Calculator_ZN_mix\\20230801_无死区\\无死区仿真结果汇总'
+    root = '..\\20230801_无死区\\无死区数据处理\\'
+
+    # # 创建文件夹
+    # timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    # res_dir = '%s图表汇总\\图表汇总_无死区_%s' % (root, timestamp)
+    #
+    # if not os.path.exists(res_dir):
+    #     os.makedirs(res_dir)
+
+    # 读取数据
+
+    path1 = '%s%s' % (root, '无死区邻线干扰_长度遍历2.xlsx')
+    path2 = '%s%s' % (root, '2000A邻线干扰_长度遍历2.xlsx')
+
+    # path1 = '%s%s' % (root, '无死区邻线干扰_无调谐区.xlsx')
+    # path2 = '%s%s' % (root, '2000A邻线干扰_无调谐区.xlsx')
+
+    df_data1 = pd.read_excel(path1, '数据输出')
+    MainLog.add_log_accurate('#' * 30)
+
+    df_data2 = pd.read_excel(path2, '数据输出')
+    MainLog.add_log_accurate('#' * 30)
+
+    tmp = {
+        1700: [1700, 2300],
+        2000: [2000, 2600],
+        2300: [2300, 1700],
+        2600: [2600, 2000],
+    }
+
+    df_output1 = pd.DataFrame()
+    df_output2 = pd.DataFrame()
+
+    for _, row in df_data1.iterrows():
+        freq_zhu = row['主串频率(Hz)']
+        freq_bei = row['被串频率(Hz)']
+
+        if freq_bei in tmp[freq_zhu]:
+            df_output1 = pd.concat([df_output1, row], axis=1, sort=False)
+
+    for _, row in df_data2.iterrows():
+        freq_zhu = row['主串频率(Hz)']
+        freq_bei = row['被串频率(Hz)']
+
+        if freq_bei in tmp[freq_zhu]:
+            df_output2 = pd.concat([df_output2, row], axis=1, sort=False)
+
+    df_output1 = df_output1.transpose()
+    df_output2 = df_output2.transpose()
+
+    # output_path = '%s%s' % (root, '无死区邻线干扰_同方向主轨汇总.xlsx')
+    output_path = '%s%s' % (root, '无死区邻线干扰_同方向含调谐区汇总.xlsx')
+
+    writer = pd.ExcelWriter(output_path, engine='xlsxwriter')
+
+    workbook = writer.book
+    header_format = workbook.add_format({
+        'bold': True,  # 字体加粗
+        'text_wrap': True,  # 是否自动换行
+        'valign': 'vcenter',  # 垂直对齐方式
+        'align': 'center',  # 水平对齐方式
+        'border': 1})
+
+    write_to_excel(df=df_output1, writer=writer, sheet_name="数据输出_无死区", hfmt=header_format)
+    write_to_excel(df=df_output2, writer=writer, sheet_name="数据输出_2000A", hfmt=header_format)
+
+    writer.save()
+
+
+if __name__ == '__main__':
+    # draw_image_20230801_non_dead_zone()
+    # draw_image_20230801_non_dead_zone2()
+    draw_image_20230801_non_dead_zone3()
