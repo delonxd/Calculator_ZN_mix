@@ -199,6 +199,7 @@ class TcsrCableComp(TPortZSeries):
 
 ########################################################################################################################
 
+
 # FT1-u变压器
 class TcsrFT1u(ElePack):
     def __init__(self, parent_ins, name_base, r1, zs, zm, n):
@@ -208,6 +209,7 @@ class TcsrFT1u(ElePack):
         self.add_child('2短路阻抗', TPortZSeries(self, '2短路阻抗', zs))
         self.add_child('3开路阻抗', TPortZParallel(self, '3开路阻抗', zm))
         self.add_child('4变压器', TPortCircuitN(self, '4变压器', n))
+
 
 class TcsrNGLz3(TPortZParallel):
     def __init__(self, parent_ins, name_base, l, c3, c4):
@@ -264,6 +266,8 @@ class TcsrEL25HzCoding(ElePack):
         self.add_child('2开路阻抗', TPortZParallel(self, '2开路阻抗', zm))
         self.add_child('3变压器', TPortCircuitN(self, '3变压器', n))
 
+########################################################################################################################
+
 
 # 邯郸BPM变压器
 class Tcsr_25HzCoding_BPM_handan(ElePack):
@@ -272,3 +276,15 @@ class Tcsr_25HzCoding_BPM_handan(ElePack):
         self.flag_ele_list = True
         self.add_child('1阻抗', TPortZSeries(self, '1短路阻抗', z1))
         self.add_child('2变压器', TPortCircuitN(self, '2变压器', n))
+
+########################################################################################################################
+
+
+# 数字化扼流变压器
+class TcsrEL_Digital_1129(ElePack):
+    def __init__(self, parent_ins, name_base, zs, zm, n):
+        super().__init__(parent_ins, name_base)
+        self.flag_ele_list = True
+        self.add_child('1短路阻抗', TPortZSeries(self, '1短路阻抗', zs))
+        self.add_child('2开路阻抗', TPortZParallel(self, '2开路阻抗', zm))
+        self.add_child('3变压器', TPortCircuitN(self, '3变压器', n))

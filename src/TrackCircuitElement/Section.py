@@ -415,3 +415,57 @@ class Section_ZPW2000A_non_dead_zone(Section_ZPW2000A):
                     posi_flag=flag,
                     z=self.parameter['non_dead_zone_z_inside_iso'])
                 self.add_child(iso_name, ele)
+
+
+# 2000A_站内数字化
+class Section_ZPW2000A_ZN_Digital(Section_ZPW2000A):
+    def __init__(self, parent_ins, name_base,
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
+        super().__init__(parent_ins, name_base,
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
+        self.m_type = '2000A_ZN_Digital'
+
+    @staticmethod
+    def config_class(j_typs):
+        j_clss, tcsr_clss = [None, None], [None, None]
+        for num in range(2):
+            if j_typs[num] == '电气':
+                raise KeyboardInterrupt('2000A_ZN_Digital不支持电气绝缘节')
+            elif j_typs[num] == '机械':
+                j_clss[num] = Joint_Mechanical
+                tcsr_clss[num] = ZPW2000A_ZN_Digital
+            else:
+                raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
+        return j_clss, tcsr_clss
+
+
+# 2000A_站内数字化_两端发送
+class Section_ZPW2000A_ZN_Digital_Double_Sending(Section_ZPW2000A_ZN_Digital):
+    def __init__(self, parent_ins, name_base,
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
+        super().__init__(parent_ins, name_base,
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
+        self.m_type = '2000A_ZN_Digital_Double_Sending'
+
+        cab_len = self.parameter['cab_len']
+        tcsr_name = '中间接收'
+        ele = ZPW2000A_ZN_Digital_Middle(parent_ins=self,
+                                         name_base=tcsr_name,
+                                         posi_flag=None,
+                                         cable_length=cab_len,
+                                         mode='接收',
+                                         level=send_lv)
+        self.add_child(tcsr_name, ele)
+
+    @staticmethod
+    def config_class(j_typs):
+        j_clss, tcsr_clss = [None, None], [None, None]
+        for num in range(2):
+            if j_typs[num] == '电气':
+                raise KeyboardInterrupt('2000A_ZN_Digital不支持电气绝缘节')
+            elif j_typs[num] == '机械':
+                j_clss[num] = Joint_Mechanical
+                tcsr_clss[num] = ZPW2000A_ZN_Digital_Side
+            else:
+                raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
+        return j_clss, tcsr_clss
