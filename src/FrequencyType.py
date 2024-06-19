@@ -18,6 +18,18 @@ class Freq:
         self.value = new
         return new
 
+    @property
+    def direction(self):
+        # 下行频率： 1700Hz/2300Hz
+        # 上行频率： 2000Hz/2600Hz
+
+        if self.value in [1700, 2300]:
+            return '下行'
+        elif self.value in [2000, 2600]:
+            return '上行'
+        else:
+            raise KeyboardInterrupt('错误的上下行频率')
+
     def __float__(self):
         return float(self.value)
 
@@ -67,5 +79,5 @@ class Freq:
 
 if __name__ == '__main__':
     a = Freq(1700)
-
+    print(a.direction)
     xxx = 10
