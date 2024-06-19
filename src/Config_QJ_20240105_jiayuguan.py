@@ -28,7 +28,8 @@ def config_input_20240105_jiayuguan():
 
     df = pd.DataFrame(index=columns, dtype='object')
 
-    r_list = [1e-7, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5]
+    # r_list = [1e-7, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5]
+    r_list = [0, 0.06, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 1000]
 
     signal_types = ['后方区段信号', '前方区段信号']
     counter = 0
@@ -290,10 +291,19 @@ class PreModel_20240105_QJ_jiayuguan(PreModel):
     def __init__(self, parameter):
         # super().__init__(turnout_list, parameter)
         self.parameter = para = parameter
-        self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
-        # self.train2 = Train(name_base='列车2', posi=0, parameter=parameter)
-        self.train1['分路电阻1'].z = para['分路电阻']
-        # self.train2['分路电阻1'].z = para['主串分路电阻']
+        # self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
+        # # self.train2 = Train(name_base='列车2', posi=0, parameter=parameter)
+        # self.train1['分路电阻1'].z = para['分路电阻']
+        # # self.train2['分路电阻1'].z = para['主串分路电阻']
+
+        self.train1 = TrainMulti(
+            name_base='列车1',
+            posi=0,
+            parameter=parameter,
+            wheel_list=[0, 2, 4, 12, 14, 16],
+            # wheel_list=[0],
+        )
+        self.train1.set_r_sht(para['分路电阻'])
 
         # 轨道电路初始化
         send_level = para['send_level']
@@ -411,6 +421,12 @@ def draw_image_20240105_jiayuguan(root, file):
     df_tmp = df_input[df_input['信号类型'] == '后方区段信号']
     r_sht_list = df_tmp['分路电阻(Ω)'].tolist()
 
+    x_ticks = [0, 2, 4, 6, 8, 10, 12, 14.5, 17, 19, 21, 23, 25, 27, 29]
+    x_label = list(map(lambda x: '%s' % x, x_ticks))
+    x_label[0] = x_label[0] + '\n后方区段发送'
+    x_label[-1] = x_label[-1] + '\n前方区段接收'
+    x_label[7] = x_label[7] + '\nSVA'
+
     # 前方钢轨电流
     for index0, r_sht in enumerate(r_sht_list):
 
@@ -427,14 +443,16 @@ def draw_image_20240105_jiayuguan(root, file):
         # 图表标题
         # title = file.split('.')[0]
 
-        title = '%s嘉峪关分路不良-前方钢轨电流-分路电阻%sΩ' % (index0+1, r_sht)
+        title = '%s、前方钢轨电流（分路电阻$\mathrm{%sΩ}$）' % (index0+1, r_sht)
+        filename1 = '%s\\%s-前方钢轨电流-分路电阻%sΩ.png' % (res_dir, index0+1, r_sht)
+
         ax.set_title(title, x=0.5, y=1.04, fontsize=30)
 
         # fig.suptitle(title, fontsize=30)
 
         # 横纵坐标
         # 坐标名
-        ax.set_xlabel('分路位置', fontsize=20)
+        ax.set_xlabel('分路位置(m)', fontsize=20)
         ax.set_ylabel('前方钢轨电流(A)', fontsize=20)
 
         # 纵坐标
@@ -448,6 +466,9 @@ def draw_image_20240105_jiayuguan(root, file):
 
         # ax.set_xticks(x_ticks)
         # ax.set_xticklabels(x_label)
+
+        ax.set_xticks(x_ticks)
+        ax.set_xticklabels(x_label)
 
         # 坐标轴字体
         ax.tick_params(
@@ -474,10 +495,10 @@ def draw_image_20240105_jiayuguan(root, file):
             row = df_data.iloc[i, :].copy()
 
             row_output = df_input.iloc[i, :].copy()
-            signal_type = row_output['信号类型']
+            signal_freq = row_output['信号频率(Hz)']
             # r_sht = row_output['分路电阻(Ω)']
 
-            label = '%s' % signal_type
+            label = '%s(%sHz)' % (signal_type, signal_freq)
 
             xx = np.arange(row.size)
             yy = row.values
@@ -500,7 +521,6 @@ def draw_image_20240105_jiayuguan(root, file):
 
         plt.tight_layout()
 
-        filename1 = '%s\\%s.png' % (res_dir, title)
         fig.savefig(filename1)
 
         # plt.show()
@@ -518,14 +538,16 @@ def draw_image_20240105_jiayuguan(root, file):
         # 图表标题
         # title = file.split('.')[0]
 
-        title = '%s嘉峪关分路不良-轨入电压-分路电阻%sΩ' % (index0+1, r_sht)
+        title = '%s、轨入电压（分路电阻$\mathrm{%sΩ}$）' % (index0+1, r_sht)
+        filename1 = '%s\\%s-轨入电压-分路电阻%sΩ.png' % (res_dir, index0+1, r_sht)
+
         ax.set_title(title, x=0.5, y=1.04, fontsize=30)
 
         # fig.suptitle(title, fontsize=30)
 
         # 横纵坐标
         # 坐标名
-        ax.set_xlabel('分路位置', fontsize=20)
+        ax.set_xlabel('分路位置(m)', fontsize=20)
         ax.set_ylabel('轨入电压(V)', fontsize=20)
 
         # 纵坐标
@@ -539,6 +561,9 @@ def draw_image_20240105_jiayuguan(root, file):
 
         # ax.set_xticks(x_ticks)
         # ax.set_xticklabels(x_label)
+
+        ax.set_xticks(x_ticks)
+        ax.set_xticklabels(x_label)
 
         # 坐标轴字体
         ax.tick_params(
@@ -561,15 +586,14 @@ def draw_image_20240105_jiayuguan(root, file):
         xx = np.arange(df_rcv2.iloc[i, :].copy().size)
         yy1 = df_rcv2.iloc[i, :].copy().values
 
-        ax.plot(xx, yy1, linestyle='-', color='red', label='前方区段主轨轨入')
-
         df_tmp2 = df_tmp1[df_tmp1['信号类型'] == '后方区段信号']
         i = df_tmp2['序号'].tolist()[0] - 1
         yy2 = df_rcv1.iloc[i, :].copy().values
         yy3 = df_rcv2.iloc[i, :].copy().values
 
-        ax.plot(xx, yy2, linestyle='-', color='blue', label='后方区段主轨轨入')
-        ax.plot(xx, yy3, linestyle='-', color='green', label='后方区段小轨轨入')
+        ax.plot(xx, yy2, linestyle='-', color='blue', label='后方区段主轨轨入(2300Hz)')
+        ax.plot(xx, yy1, linestyle='-', color='red', label='前方区段主轨轨入(1700Hz)')
+        ax.plot(xx, yy3, linestyle='-', color='green', label='前方区段小轨轨入(2300Hz)')
 
         # for j, signal_type in enumerate(signal_type_list):
         #     df_tmp2 = df_tmp1[df_tmp1['信号类型'] == signal_type]
@@ -603,7 +627,6 @@ def draw_image_20240105_jiayuguan(root, file):
 
         plt.tight_layout()
 
-        filename1 = '%s\\%s.png' % (res_dir, title)
         fig.savefig(filename1)
 
 

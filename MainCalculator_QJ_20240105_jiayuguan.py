@@ -165,7 +165,8 @@ def main_cal(root, path2, path3):
             para['分路位置'] = posi_zhu
 
             md.train1.posi_rlt = posi_zhu
-            md.train1.set_posi_abs(0)
+            # md.train1.set_posi_abs(0)
+            md.train1.set_head_posi(posi_zhu, '右')
 
             # posi_zhu = posi_bei
             # md.train2.posi_rlt = posi_zhu
@@ -184,7 +185,8 @@ def main_cal(root, path2, path3):
             # m1.equs.creat_matrix()
             # m1.equs.solve_matrix()
 
-            i_sht_zhu = md.lg['线路3']['列车1']['分路电阻1']['I'].value_c
+            # i_sht_zhu = md.lg['线路3']['列车1']['分路电阻1']['I'].value_c
+            i_sht_zhu = md.lg['线路3']['列车1']['轮对1']['I'].value_c
             # i_sht_bei = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
 
             i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu, direct='右')
@@ -376,6 +378,9 @@ def main_cal(root, path2, path3):
 
     writer.save()
     # return 1
+
+    file = path2.split('\\')[-1]
+    draw_image_20240105_jiayuguan(root, file)
 
 
 if __name__ == '__main__':
