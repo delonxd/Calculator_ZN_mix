@@ -172,6 +172,8 @@ def main_cal(input_path, output_path, work_path):
         else:
             raise KeyboardInterrupt("被串方向应填写'左发'或'右发'")
 
+        posi_list = np.arange(flag_l, flag_r + 0.0001, +interval)
+
         len_posi = max(len(posi_list), len_posi)
 
         for posi_bei in posi_list:
@@ -391,8 +393,8 @@ def main_cal(input_path, output_path, work_path):
 
 
 if __name__ == '__main__':
-    sub0 = '20240618_大龙线站内数字化\\'
-    sub1 = '大龙线站内数字化'
+    sub0 = '20240618_大龙村站内数字化\\'
+    sub1 = '大龙村站内数字化'
 
     timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
 

@@ -67,35 +67,55 @@ def config_input_20240618_dalong_digital():
         ['IG', -550, 410, 1700, 11, '右发', [439.7, 516.15, 5, 6]],
         ['IIG', -543, 341, 2600, 10, '左发', [436.06, 448.41, 5, 5]],
         ['IIG', -543, 341, 2300, 10, '右发', [436.06, 448.41, 5, 5]],
-        ['3G', -592, 366, 2000, 10, '左发', [489.12, 473.32, 5, 5]],
-        ['3G', -592, 366, 1700, 10, '右发', [489.12, 473.32, 5, 5]],
     ]
 
     condition_list = [
-        ['主串调整被串分路'],
         ['主被串同时分路'],
     ]
 
     counter = 1
 
     pick_sec = [
-        [0, 2],
         [0, 3],
-        [1, 2],
         [1, 3],
-        [2, 0],
         [2, 1],
-        [3, 0],
         [3, 1],
-        [2, 4],
-        [2, 5],
-        [3, 4],
-        [3, 5],
-        [4, 2],
-        [4, 3],
-        [5, 2],
-        [5, 3],
     ]
+
+    # sec_list = [
+    #     ['IG', -550, 410, 2000, 11, '左发', [439.7, 516.15, 5, 6]],
+    #     ['IG', -550, 410, 1700, 11, '右发', [439.7, 516.15, 5, 6]],
+    #     ['IIG', -543, 341, 2600, 10, '左发', [436.06, 448.41, 5, 5]],
+    #     ['IIG', -543, 341, 2300, 10, '右发', [436.06, 448.41, 5, 5]],
+    #     ['3G', -592, 366, 2000, 10, '左发', [489.12, 473.32, 5, 5]],
+    #     ['3G', -592, 366, 1700, 10, '右发', [489.12, 473.32, 5, 5]],
+    # ]
+    #
+    # condition_list = [
+    #     ['主串调整被串分路'],
+    #     ['主被串同时分路'],
+    # ]
+    #
+    # counter = 1
+    #
+    # pick_sec = [
+    #     [0, 2],
+    #     [0, 3],
+    #     [1, 2],
+    #     [1, 3],
+    #     [2, 0],
+    #     [2, 1],
+    #     [3, 0],
+    #     [3, 1],
+    #     [2, 4],
+    #     [2, 5],
+    #     [3, 4],
+    #     [3, 5],
+    #     [4, 2],
+    #     [4, 3],
+    #     [5, 2],
+    #     [5, 3],
+    # ]
 
     # sec_list = [
     #     # ['IG', 0, 1050, 1700, 12, '右发'],
@@ -385,8 +405,18 @@ def config_row_data(df_input, para, data):
 
     # 分路间隔
     data['分路间隔(m)'] = df_input['分路间隔(m)']
-    data['分路起点'] = offset
-    data['分路终点'] = offset + length2
+
+    if data['主串区段'] == 'IG' and data['被串区段'] == 'IIG':
+        data['分路起点'] = offset
+        data['分路终点'] = offset + length2
+    elif data['主串区段'] == 'IIG' and data['被串区段'] == 'IG':
+        data['分路起点'] = 0
+        data['分路终点'] = 0 + length1
+    else:
+        raise KeyboardInterrupt('区段错误')
+
+    # data['分路起点'] = offset
+    # data['分路终点'] = offset + length2
 
     # TB模式
     data['主串TB模式'] = para['主串TB模式'] = '无TB'
@@ -612,7 +642,7 @@ def draw_image_20240618_dalong_digital():
     # plt.rcParams['font.size'] = 20
 
     # 根目录
-    root = 'C:\\Users\\李继隆\\PycharmProjects\\Calculator_ZN_mix\\20240618_大龙线站内数字化\\图表汇总'
+    root = 'C:\\Users\\李继隆\\PycharmProjects\\Calculator_ZN_mix\\20240618_大龙村站内数字化\\图表汇总'
 
     # 创建文件夹
     timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
@@ -623,13 +653,14 @@ def draw_image_20240618_dalong_digital():
 
     # 读取数据
 
-    path1 = '%s\\%s' % (root, '仿真输出_大龙线站内数字化_邻线干扰计算.xlsx')
+    path1 = '%s\\%s' % (root, '仿真输出_大龙村站内数字化_邻线干扰计算.xlsx')
 
     df_data1 = pd.read_excel(path1, '数据输出')
     MainLog.add_log_accurate('#' * 30)
 
     # df_data2 = pd.read_excel(path2, '数据输出')
-    df_i_trk_1 = pd.read_excel(path1, '被串钢轨电流')
+    # df_i_trk_1 = pd.read_excel(path1, '被串钢轨电流')
+    df_i_trk_1 = pd.read_excel(path1, '被串分路电流')
     MainLog.add_log_accurate('#' * 30)
 
     # df_i_trk_2 = pd.read_excel(path2, '被串钢轨电流')
@@ -680,8 +711,8 @@ def draw_image_20240618_dalong_digital():
             ax = fig.add_subplot(2, 2, j + 1)
             ax_list.append(ax)
 
-            sub_title = '主串方向:%s/被串方向:%s' % (dir_zhu, dir_bei)
-            ax.set_title(sub_title, pad=8, fontsize=12)
+            # sub_title = '主串方向:%s/被串方向:%s' % (dir_zhu, dir_bei)
+            # ax.set_title(sub_title, pad=8, fontsize=12)
 
             # 纵坐标
             # ax.yaxis.grid(True, which='major')
@@ -738,7 +769,13 @@ def draw_image_20240618_dalong_digital():
                 index = row['序号'].tolist()
                 freq_zhu = row['主串频率(Hz)'].tolist()[0]
 
-                sub_title = '主串方向:%s 被串方向:%s 干扰频率:%s(Hz)' % (dir_zhu, dir_bei, freq_zhu)
+                tmp_dict = {
+                    '左发': '向左',
+                    '右发': '向右',
+                }
+                tmp_dir = tmp_dict[dir_bei]
+
+                sub_title = '主串:80V/%s(Hz) 被串%s行驶' % (freq_zhu, tmp_dir)
                 ax.set_title(sub_title, pad=8, fontsize=12)
 
                 if len(index) == 1:
@@ -772,7 +809,7 @@ def draw_image_20240618_dalong_digital():
                 x_ticks = list(range(0, sec_length, 100))
                 x_label = map(lambda x: r'$\mathrm{%.0f}$' % x, x_ticks)
                 x_label = list(x_label)
-                x_label[0] = '被串接收'
+                # x_label[0] = '被串接收'
 
                 ax.set_xticks(x_ticks)
                 ax.set_xticklabels(x_label)
@@ -858,8 +895,14 @@ def draw_image_20240618_dalong_digital():
             fontsize=13,
         )
 
+        # plt.text(
+        #     0.12, 0.5, '邻线干扰电流$\mathrm{(mA)}$',
+        #     va='center', ha='right', transform=fig.transFigure,
+        #     fontsize=13, rotation=90,
+        # )
+
         plt.text(
-            0.12, 0.5, '邻线干扰电流$\mathrm{(mA)}$',
+            0.12, 0.5, '邻线干扰分路线电流$\mathrm{(mA)}$',
             va='center', ha='right', transform=fig.transFigure,
             fontsize=13, rotation=90,
         )
@@ -876,7 +919,7 @@ def draw_image_20240618_dalong_digital():
         # plt.show()
         # raise KeyboardInterrupt()
 
-        filename1 = '%s\\大龙村站内数字化_主串%s_被串%s.png' % (res_dir, sec_zhu, sec_bei)
+        filename1 = '%s\\大龙村站内数字化_主串%s_被串%s_分路线电流.png' % (res_dir, sec_zhu, sec_bei)
         MainLog.add_log_accurate('save figure --> %s' % filename1)
         fig.savefig(filename1, transparent=True)
 
