@@ -469,3 +469,25 @@ class Section_ZPW2000A_ZN_Digital_Double_Sending(Section_ZPW2000A_ZN_Digital):
             else:
                 raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
         return j_clss, tcsr_clss
+
+
+# 2000A_区间分散式轨道电路
+class Section_ZPW2000A_QJ_Disperse(Section_ZPW2000A):
+    def __init__(self, parent_ins, name_base,
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
+        super().__init__(parent_ins, name_base,
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
+        self.m_type = '2000A_QJ_Disperse'
+
+    @staticmethod
+    def config_class(j_typs):
+        j_clss, tcsr_clss = [None, None], [None, None]
+        for num in range(2):
+            if j_typs[num] == '电气':
+                j_clss[num] = Joint_2000A_Electric_QJ_Disperse
+                tcsr_clss[num] = ZPW2000A_QJ_Disperse
+            elif j_typs[num] == '机械':
+                raise KeyboardInterrupt('2000A区间分散式暂不支持机械绝缘节')
+            else:
+                raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
+        return j_clss, tcsr_clss

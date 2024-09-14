@@ -606,3 +606,47 @@ class ZPW2000A_ZN_Digital_Side(ZPW2000A_ZN_Digital):
     def __init__(self, parent_ins, name_base,
                  posi_flag, cable_length, mode, level):
         super().__init__(parent_ins, name_base, posi_flag, cable_length, '发送', level)
+
+
+# ZPW2000A区间分散式配置
+class ZPW2000A_QJ_Disperse(TCSR):
+    def __init__(self, parent_ins, name_base,
+                 posi_flag, cable_length, mode, level):
+        super().__init__(parent_ins, name_base, posi_flag)
+        self.parameter = para = parent_ins.parameter
+        self.posi_flag = posi_flag
+        self.init_position(0)
+        self.flag_ele_list = True
+        self.flag_ele_unit = True
+        self.mode = mode
+        self.send_level = level
+        self.u_list_max = [183, 164, 142, 115, 81.5, 68, 60.5, 48.6, 40.8]
+        self.u_list_min = [167, 150, 130, 105, 74.5, 61, 55, 44, 37]
+
+        if self.mode == '发送':
+            self.add_child('1发送器', TcsrPower(self, '1发送器', para['z_pwr']))
+        elif self.mode == '接收':
+            self.add_child('1接收器', TcsrReceiver(self, '1接收器', para['Z_rcv']))
+        self.add_child('2防雷', TcsrFL(self, '2防雷',
+                                     para['FL_z1_分散式'],
+                                     para['FL_z2_分散式'],
+                                     para['FL_n_分散式']))
+
+        self.add_child('3补偿电阻', TPortZSeries(self, '3补偿电阻', para['补偿电阻_分散式']))
+
+        if self.mode == '发送':
+            self.add_child('4TAD', TcsrTAD_disperse(self, '4TAD',
+                                                    para['TAD_z1_分散式_发送端'],
+                                                    para['TAD_z2_分散式_发送端'],
+                                                    para['TAD_n_分散式_发送端']))
+        elif self.mode == '接收':
+            self.add_child('4TAD', TcsrTAD_disperse(self, '4TAD',
+                                                    para['TAD_z1_分散式_接收端'],
+                                                    para['TAD_z2_分散式_接收端'],
+                                                    para['TAD_n_分散式_接收端']))
+
+        self.add_child('5BA', TcsrBA(self, '5BA', para['PT']))
+        self.add_child('6CA', TcsrCA(self, '6CA', para['CA_z_分散式']))
+
+        self.md_list = self.get_md_list([])
+        self.config_varb()

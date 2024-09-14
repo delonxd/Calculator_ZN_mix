@@ -507,7 +507,6 @@ class ModelParameter:
             2300: (0.289, 0.118e-3, None),
             2600: (0.307, 0.117e-3, None)}
 
-
         parameter['zm_EL_25Hz_Coding'] = ImpedanceMultiFreq()
         parameter['zm_EL_25Hz_Coding'].rlc_s = {
             1700: (110, 0.024, None),
@@ -656,6 +655,78 @@ class ModelParameter:
         parameter['non_dead_zone_z_inside_iso'][2300] = p0 + (p1[2300] // p2[2300])
         parameter['non_dead_zone_z_inside_iso'][2600] = p0 + (p1[2600] // p2[2600])
 
+########################################################################################################################
+
+        # 分散式轨道电路
+        parameter['FL_z1_分散式'] = ImpedanceMultiFreq()
+        parameter['FL_z1_分散式'].rlc_s = {
+            1700: (6.28, 1.03e-3, None),
+            2000: (6.31, 1.03e-3, None),
+            2300: (6.34, 1.03e-3, None),
+            2600: (6.38, 1.03e-3, None)}
+
+        parameter['FL_z2_分散式'] = ImpedanceMultiFreq()
+        parameter['FL_z2_分散式'].rlc_s = {
+            1700: (5.36e3, 238.13e-3, None),
+            2000: (5.93e3, 182.03e-3, None),
+            2300: (6.42e3, 136.40e-3, None),
+            2600: (6.85e3, 97.30e-3, None)}
+
+        parameter['FL_n_分散式'] = {
+            1700: 1.04,
+            2000: 1.04,
+            2300: 1.04,
+            2600: 1.04}
+
+        parameter['TAD_z1_分散式_发送端'] = ImpedanceMultiFreq()
+        parameter['TAD_z1_分散式_发送端'].rlc_s = {
+            1700: (3.0451e3, 551.191e-3, None),
+            2000: (3.1163e3, 580.653e-3, None),
+            2300: (3.1775e3, 605.011e-3, None),
+            2600: (3.2591e3, 635.065e-3, None)
+        }
+
+        parameter['TAD_z2_分散式_发送端'] = ImpedanceMultiFreq()
+        parameter['TAD_z2_分散式_发送端'].rlc_p = {
+            1700: (3.0451e3, 551.191e-3, None),
+            2000: (3.1163e3, 580.653e-3, None),
+            2300: (3.1775e3, 605.011e-3, None),
+            2600: (3.2591e3, 635.065e-3, None),
+        }
+
+        parameter['TAD_n_分散式_发送端'] = {
+            1700: 8.9202,
+            2000: 8.8912,
+            2300: 8.8508,
+            2600: 8.8688,
+        }
+
+        parameter['TAD_z1_分散式_接收端'] = ImpedanceMultiFreq()
+        parameter['TAD_z1_分散式_接收端'].rlc_s = {
+            1700: (2.5082, 313.43e-6, None),
+            2000: (2.1881, 319.11e-6, None),
+            2300: (1.5138, 260.17e-6, None),
+            2600: (0.9564, 226.35e-6, None)}
+
+        parameter['TAD_z2_分散式_接收端'] = ImpedanceMultiFreq()
+        parameter['TAD_z2_分散式_接收端'].rlc_p = {
+            1700: (2.5312e3, 0.284779, None),
+            2000: (2.6386e3, 0.303275, None),
+            2300: (2.7380e3, 0.312331, None),
+            2600: (2.8293e3, 0.327270, None)}
+
+        parameter['TAD_n_分散式_接收端'] = {
+            1700: 8.7351,
+            2000: 8.7384,
+            2300: 8.6904,
+            2600: 8.7085}
+
+        parameter['CA_z_分散式'] = ImpedanceMultiFreq()
+        parameter['CA_z_分散式'].rlc_s = {
+            1700: (6.46e-3, 2.90e-6, None),
+            2000: (7.12e-3, 2.86e-6, None),
+            2300: (7.74e-3, 2.82e-6, None),
+            2600: (8.34e-3, 2.80e-6, None)}
 
 ########################################################################################################################
 

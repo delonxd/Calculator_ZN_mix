@@ -151,3 +151,14 @@ class Joint_2000A_Electric_non_dead_zone(Joint):
                 posi_flag=flag,
                 z=self.parameter['non_dead_zone_z_inside_iso'])
             self.add_child(iso_name, ele)
+
+
+# 2000A区间分散式轨道电路电气绝缘节
+class Joint_2000A_Electric_QJ_Disperse(Joint):
+    def set_element(self):
+        ele = SVA(parent_ins=self,
+                  name_base='SVA',
+                  posi=0,
+                  z=self.parameter['SVA_z'])
+        self.add_child('SVA', ele)
+        self.tcsr_cls = ZPW2000A_QJ_Disperse

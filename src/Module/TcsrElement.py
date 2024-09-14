@@ -1,5 +1,5 @@
 from src.Module.CircuitBasic import *
-from src.ConstantType import Constant
+# from src.ConstantType import Constant
 
 
 ########################################################################################################################
@@ -280,11 +280,20 @@ class Tcsr_25HzCoding_BPM_handan(ElePack):
 ########################################################################################################################
 
 
-# 数字化扼流变压器
-class TcsrEL_Digital_1129(ElePack):
+# 分散式轨道电路匹配变压器
+class Tcsr_TAD_1129(ElePack):
     def __init__(self, parent_ins, name_base, zs, zm, n):
         super().__init__(parent_ins, name_base)
         self.flag_ele_list = True
         self.add_child('1短路阻抗', TPortZSeries(self, '1短路阻抗', zs))
         self.add_child('2开路阻抗', TPortZParallel(self, '2开路阻抗', zm))
         self.add_child('3变压器', TPortCircuitN(self, '3变压器', n))
+
+
+# 分散式轨道电路TAD变压器
+class TcsrTAD_disperse(ElePack):
+    def __init__(self, parent_ins, name_base, z1, z2, n):
+        super().__init__(parent_ins, name_base)
+        self.flag_ele_list = True
+        self.add_child('1等效内阻', TPortCircuitT(self, '1等效内阻', z1, z2, z1))
+        self.add_child('2变压器', TPortCircuitN(self, '2变压器', n))
