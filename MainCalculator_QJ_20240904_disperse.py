@@ -13,7 +13,7 @@ import time
 import os
 
 
-def main_cal(output_path, work_path):
+def main_cal(output_path, work_path, cycle_para):
     pd.set_option('display.max_columns', None)
     pd.set_option('display.expand_frame_repr', True)
     pd.set_option('display.unicode.ambiguous_as_wide', True)
@@ -25,7 +25,7 @@ def main_cal(output_path, work_path):
     # 参数输入
 
     # df_input = pd.read_excel(input_path)
-    df_input = config_input_20240904_disperse()
+    df_input = config_input_20240904_disperse(cycle_para)
     # df_input = df_input.where(df_input.notnull(), None)
     # df_input = config_input_20230720_pusu(sec_type, sec_length)
     num_len = len(list(df_input['序号']))
@@ -380,14 +380,29 @@ def main_cal(output_path, work_path):
     # return 1
 
 
-if __name__ == '__main__':
-    sub0 = '20240904_区间分散式轨道电路\\'
-    sub1 = '分散式轨道电路'
+def cycle_cal():
 
+    list_c_value = [25, 50]
+    list_freq_zhu = [1700, 2000, 2300, 2600]
+    list_freq_bei = [1700, 2000, 2300, 2600]
+
+    sub_name = '20240904_区间分散式轨道电路'
     timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
 
-    # path1 = '邻线干扰参数输入_20230801_区间无分路死区.xlsx'
-    path2 = '%s仿真输出_%s_%s.xlsx' % (sub0, timestamp, sub1)
-    path3 = os.getcwd()
+    dir_path = '%s\\仿真输出_分散式轨道电路_%s' % (sub_name, timestamp)
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
 
-    main_cal(path2, path3)
+    iter_list = list(itertools.product(
+        list_c_value, list_freq_zhu, list_freq_bei))
+
+    for cycle_para in iter_list:
+        file_name = '分散式_电容%sμF_主串%sHz_被串%sHz.xlsx' % cycle_para
+
+        file_path = '%s\\%s' % (dir_path, file_name)
+        print(file_path)
+        main_cal(file_path, os.getcwd(), cycle_para)
+
+
+if __name__ == '__main__':
+    cycle_cal()

@@ -280,8 +280,8 @@ class Tcsr_25HzCoding_BPM_handan(ElePack):
 ########################################################################################################################
 
 
-# 分散式轨道电路匹配变压器
-class Tcsr_TAD_1129(ElePack):
+# 站内数字化扼流变压器
+class TcsrEL_Digital_1129(ElePack):
     def __init__(self, parent_ins, name_base, zs, zm, n):
         super().__init__(parent_ins, name_base)
         self.flag_ele_list = True

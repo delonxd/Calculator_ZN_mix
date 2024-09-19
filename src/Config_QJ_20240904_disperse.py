@@ -19,8 +19,7 @@ plt.rcParams['axes.unicode_minus'] = False
 
 # 区间分散式轨道电路
 # 配置输入
-def config_input_20240904_disperse():
-
+def config_input_20240904_disperse(cycle_para):
     columns = [
         '序号',
         '备注',
@@ -47,13 +46,13 @@ def config_input_20240904_disperse():
         '分路电阻(Ω)',
     ]
 
-    list1 = [
-        25,
-        50,
-    ]
-
-    list2 = [1700, 2000, 2300, 2600]
-    list3 = [1700, 2000, 2300, 2600]
+    # list1 = [
+    #     25,
+    #     50,
+    # ]
+    #
+    # list2 = [1700, 2000, 2300, 2600]
+    # list3 = [1700, 2000, 2300, 2600]
 
     list4 = [14, 18, 20, 24]
     list5 = list(range(50, 451, 50))
@@ -63,18 +62,20 @@ def config_input_20240904_disperse():
     list6 = [10]
 
     iter_list = list(itertools.product(
-        list1, list2, list3, list4, list5, list6))
+        list4, list5, list6))
 
     df = pd.DataFrame(index=columns, dtype='object')
 
+    c_value, freq_zhu, freq_bei = cycle_para
+
     counter = 0
-    for c_value, freq_zhu, freq_bei, c_num, r_cable, n_tad in iter_list:
+    for c_num, r_cable, n_tad in iter_list:
         counter += 1
 
         s0 = pd.Series(name=counter, index=columns)
 
         s0['序号'] = s0.name
-        s0['备注'] = '分散式'
+        s0['备注'] = '分散式-主被串同时分路'
 
         s0['主串区段'] = 'IG'
         s0['被串区段'] = 'IIG'
@@ -403,7 +404,7 @@ class PreModel_20240904_QJ_Disperse(PreModel):
         self.train1 = Train(name_base='列车1', posi=0, parameter=parameter)
         self.train2 = Train(name_base='列车2', posi=0, parameter=parameter)
         # self.train1['分路电阻1'].z = 1000000
-        self.train2['分路电阻1'].z = 1000000
+        # self.train2['分路电阻1'].z = 1000000
 
         # 轨道电路初始化
         send_level = para['send_level']

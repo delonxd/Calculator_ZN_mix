@@ -680,10 +680,10 @@ class ModelParameter:
 
         parameter['TAD_z1_分散式_发送端'] = ImpedanceMultiFreq()
         parameter['TAD_z1_分散式_发送端'].rlc_s = {
-            1700: (3.0451e3, 551.191e-3, None),
-            2000: (3.1163e3, 580.653e-3, None),
-            2300: (3.1775e3, 605.011e-3, None),
-            2600: (3.2591e3, 635.065e-3, None)
+            1700: (3.9146, 581.14e-6, None),
+            2000: (3.9695, 684.89e-6, None),
+            2300: (3.8636, 769.06e-6, None),
+            2600: (3.7937, 959.15e-6, None),
         }
 
         parameter['TAD_z2_分散式_发送端'] = ImpedanceMultiFreq()
