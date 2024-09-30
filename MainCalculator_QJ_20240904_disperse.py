@@ -13,7 +13,7 @@ import time
 import os
 
 
-def main_cal(output_path, work_path, cycle_para):
+def main_cal(output_path, work_path, cycle_para, df_src):
     pd.set_option('display.max_columns', None)
     pd.set_option('display.expand_frame_repr', True)
     pd.set_option('display.unicode.ambiguous_as_wide', True)
@@ -24,8 +24,11 @@ def main_cal(output_path, work_path, cycle_para):
 
     # 参数输入
 
-    # df_input = pd.read_excel(input_path)
-    df_input = config_input_20240904_disperse(cycle_para)
+    if df_src is not None:
+        df_input = df_src
+    else:
+        df_input = config_input_20240904_disperse(cycle_para)
+
     # df_input = df_input.where(df_input.notnull(), None)
     # df_input = config_input_20230720_pusu(sec_type, sec_length)
     num_len = len(list(df_input['序号']))
@@ -382,7 +385,7 @@ def main_cal(output_path, work_path, cycle_para):
 
 def cycle_cal():
 
-    list_c_value = [25, 50]
+    list_c_value = [50]
     list_freq_zhu = [1700, 2000, 2300, 2600]
     list_freq_bei = [1700, 2000, 2300, 2600]
 
@@ -401,7 +404,7 @@ def cycle_cal():
 
         file_path = '%s\\%s' % (dir_path, file_name)
         print(file_path)
-        main_cal(file_path, os.getcwd(), cycle_para)
+        main_cal(file_path, os.getcwd(), cycle_para, None)
 
 
 if __name__ == '__main__':

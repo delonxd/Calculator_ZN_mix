@@ -146,7 +146,7 @@ def config_headlist_20240904_disperse():
         '主串电容值(μF)', '被串电容值(μF)',
 
         '补偿电阻(Ω)',
-        # '匹配变压器变比',
+        '匹配变压器变比',
 
         '钢轨电阻(Ω/km)', '钢轨电感(H/km)',
         '主串道床电阻(Ω·km)', '被串道床电阻(Ω·km)',
@@ -291,8 +291,11 @@ def config_row_data_20240904_disperse(df_input, para, data):
     para['被串频率列表'] = generate_frqs(Freq(freq2), 3, flip_flag=True)
 
     # 电容配置
-    c_pack_zhu = config_c_pack_20240904_disperse(para['主串频率列表'], para['主串区段长度'], [25])
-    c_pack_bei = config_c_pack_20240904_disperse(para['被串频率列表'], para['被串区段长度'], [25, 25, 25])
+
+    c_value1 = df_input['主串电容值(μF)']
+    c_value2 = df_input['被串电容值(μF)']
+    c_pack_zhu = config_c_pack_20240904_disperse(para['主串频率列表'], para['主串区段长度'], [c_value1])
+    c_pack_bei = config_c_pack_20240904_disperse(para['被串频率列表'], para['被串区段长度'], [c_value2, c_value2, c_value2])
 
     # 电容数量
     # data['主串电容数量列表'] = para['主串电容数'] = c_pack_zhu['电容数量列表']
@@ -320,8 +323,8 @@ def config_row_data_20240904_disperse(df_input, para, data):
     # data['主串电容数量列表'] = c_pack_zhu['电容数量列表']
     # data['被串电容数量列表'] = c_pack_bei['电容数量列表']
 
-    data['主串电容容值列表'] = c_pack_zhu['电容容值列表']
-    data['被串电容容值列表'] = c_pack_bei['电容容值列表']
+    # data['主串电容容值列表'] = c_pack_zhu['电容容值列表']
+    # data['被串电容容值列表'] = c_pack_bei['电容容值列表']
 
     para['主串容值列表'] = c_pack_zhu['电容阻抗列表']
     para['被串容值列表'] = c_pack_bei['电容阻抗列表']
@@ -368,7 +371,63 @@ def config_row_data_20240904_disperse(df_input, para, data):
         2300: [r_cable, None, None],
         2600: [r_cable, None, None]}
 
+    # TAD参数
     data['匹配变压器变比'] = para['匹配变压器变比'] = df_input['匹配变压器变比']
+
+    para['TAD_z1_分散式_发送端'] = ImpedanceMultiFreq()
+    para['TAD_z1_分散式_发送端'].rlc_s = {
+        1700: (3.9146, 581.14e-6, None),
+        2000: (3.9695, 684.89e-6, None),
+        2300: (3.8636, 769.06e-6, None),
+        2600: (3.7937, 959.15e-6, None),
+    }
+
+    para['TAD_z2_分散式_发送端'] = ImpedanceMultiFreq()
+    para['TAD_z2_分散式_发送端'].rlc_p = {
+        1700: (3.0451e3, 551.191e-3, None),
+        2000: (3.1163e3, 580.653e-3, None),
+        2300: (3.1775e3, 605.011e-3, None),
+        2600: (3.2591e3, 635.065e-3, None),
+    }
+
+    para['TAD_n_分散式_发送端'] = {
+        1700: 8.9202,
+        2000: 8.8912,
+        2300: 8.8508,
+        2600: 8.8688,
+    }
+
+    n1 = para['匹配变压器变比']
+    n2 = para['TAD_n_分散式_发送端'][freq]
+    k_fs = n1 * n1 / (n2 * n2)
+    para['TAD_z1_分散式_发送端'] = para['TAD_z1_分散式_发送端'] * k_fs
+    para['TAD_z2_分散式_发送端'] = para['TAD_z2_分散式_发送端'] * k_fs
+
+    para['TAD_z1_分散式_接收端'] = ImpedanceMultiFreq()
+    para['TAD_z1_分散式_接收端'].rlc_s = {
+        1700: (2.5082, 313.43e-6, None),
+        2000: (2.1881, 319.11e-6, None),
+        2300: (1.5138, 260.17e-6, None),
+        2600: (0.9564, 226.35e-6, None)}
+
+    para['TAD_z2_分散式_接收端'] = ImpedanceMultiFreq()
+    para['TAD_z2_分散式_接收端'].rlc_p = {
+        1700: (2.5312e3, 0.284779, None),
+        2000: (2.6386e3, 0.303275, None),
+        2300: (2.7380e3, 0.312331, None),
+        2600: (2.8293e3, 0.327270, None)}
+
+    para['TAD_n_分散式_接收端'] = {
+        1700: 8.7351,
+        2000: 8.7384,
+        2300: 8.6904,
+        2600: 8.7085}
+
+    n1 = para['匹配变压器变比']
+    n2 = para['TAD_n_分散式_接收端'][freq]
+    k_js = n1 * n1 / (n2 * n2)
+    para['TAD_z1_分散式_接收端'] = para['TAD_z1_分散式_接收端'] * k_js
+    para['TAD_z2_分散式_接收端'] = para['TAD_z2_分散式_接收端'] * k_js
 
     # 分路电阻
     data['主串分路电阻(Ω)'] = para['主串分路电阻'] = df_input['分路电阻(Ω)']
