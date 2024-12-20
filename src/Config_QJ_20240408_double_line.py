@@ -418,8 +418,8 @@ def config_row_data_20240408_double_line(df_input, para, data):
 
     # 分路间隔
     data['分路间隔(m)'] = 1
-    data['分路起点'] = offset + length2 - 14.5
-    data['分路终点'] = offset + length2 + length2 + 14.5
+    data['分路起点'] = offset - 14.5
+    data['分路终点'] = offset + length2 + 14.5
 
 
 class PreModel_QJ_20240408_double_line(PreModel):
