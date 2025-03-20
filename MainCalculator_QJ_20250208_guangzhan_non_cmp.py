@@ -346,7 +346,7 @@ def main_cal(_, path2, path3):
 
 
 if __name__ == '__main__':
-    sub_name = '20250308_广湛六线并行_无电容'
+    sub_name = '20250208_广湛六线并行_无电容'
     timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
     main_cal(None,
              '%s\\仿真输出_广湛六线并行_%s.xlsx' % (sub_name, timestamp),
