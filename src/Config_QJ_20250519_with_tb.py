@@ -564,7 +564,8 @@ def generate_data_df():
 
     timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
 
-    dir_path = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\结果数据'
+    # dir_path = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\结果数据'
+    dir_path = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\同上下行\\结果数据'
     new_dir = '%s\\数据简化' % dir_path
 
     if not os.path.exists(new_dir):
@@ -603,7 +604,7 @@ def generate_data_df2(sub_str):
 
     # timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
 
-    dir_path = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\结果数据'
+    dir_path = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\同上下行\\结果数据'
     new_dir = '%s\\数据简化' % dir_path
 
     if not os.path.exists(new_dir):
@@ -675,7 +676,7 @@ def draw_image_20250526_with_tb():
     plt.rcParams['axes.unicode_minus'] = False
 
     timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
-    save_dir = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\图表汇总\\图表汇总_%s' % timestamp
+    save_dir = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\同上下行\\图表汇总\\图表汇总_%s' % timestamp
 
     length_list = [
         600,
@@ -686,22 +687,36 @@ def draw_image_20250526_with_tb():
     ]
 
     for sec_length in length_list:
-        root = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\结果数据\\数据简化\\'
+        root = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\同上下行\\结果数据\\数据简化\\'
         file = '区间更换TB_数据简化_%sm.xlsx' % sec_length
         df_input = pd.read_excel(root + file, '被串钢轨电流')
 
+        # freq_list1 = [
+        #     [1700, 2000],
+        #     [1700, 2600],
+        #     [2300, 2000],
+        #     [2300, 2600],
+        # ]
+        #
+        # freq_list2 = [
+        #     [2000, 1700],
+        #     [2000, 2300],
+        #     [2600, 1700],
+        #     [2600, 2300],
+        # ]
+
         freq_list1 = [
-            [1700, 2000],
-            [1700, 2600],
-            [2300, 2000],
-            [2300, 2600],
+            [1700, 1700],
+            [1700, 2300],
+            [2300, 1700],
+            [2300, 2300],
         ]
 
         freq_list2 = [
-            [2000, 1700],
-            [2000, 2300],
-            [2600, 1700],
-            [2600, 2300],
+            [2000, 2000],
+            [2000, 2600],
+            [2600, 2000],
+            [2600, 2600],
         ]
 
         list0 = [freq_list1, freq_list2]
@@ -899,8 +914,9 @@ def generate_data_df3(sec_length):
 
     # timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
 
-    dir_path = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\结果数据\\数据简化'
-    file_path = os.path.join(dir_path, '区间更换TB_数据简化_20250526114533.xlsx')
+    dir_path = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\同上下行\\结果数据\\数据简化'
+    # file_path = os.path.join(dir_path, '区间更换TB_数据简化_20250526114533.xlsx')
+    file_path = os.path.join(dir_path, '区间更换TB_数据简化_20250811092706.xlsx')
 
     df = pd.read_excel(file_path, '整理2')
 
@@ -934,7 +950,7 @@ def draw_image_20250526_with_tb2():
     plt.rcParams['axes.unicode_minus'] = False
 
     timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
-    save_dir = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\图表汇总\\错位遍历_%s' % timestamp
+    save_dir = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\同上下行\\图表汇总\\错位遍历_%s' % timestamp
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -948,22 +964,36 @@ def draw_image_20250526_with_tb2():
     ]
 
     for sec_length in length_list:
-        root = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\结果数据\\数据简化\\'
+        root = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\同上下行\\结果数据\\数据简化\\'
         file = '区间更换TB_数据整理_%sm.xlsx' % sec_length
         df_input = pd.read_excel(root + file, '数据整理')
 
+        # freq_list1 = [
+        #     [1700, 2000],
+        #     [1700, 2600],
+        #     [2300, 2000],
+        #     [2300, 2600],
+        # ]
+        #
+        # freq_list2 = [
+        #     [2000, 1700],
+        #     [2000, 2300],
+        #     [2600, 1700],
+        #     [2600, 2300],
+        # ]
+
         freq_list1 = [
-            [1700, 2000],
-            [1700, 2600],
-            [2300, 2000],
-            [2300, 2600],
+            [1700, 1700],
+            [1700, 2300],
+            [2300, 1700],
+            [2300, 2300],
         ]
 
         freq_list2 = [
-            [2000, 1700],
-            [2000, 2300],
-            [2600, 1700],
-            [2600, 2300],
+            [2000, 2000],
+            [2000, 2600],
+            [2600, 2000],
+            [2600, 2600],
         ]
 
         list0 = [freq_list1, freq_list2]
@@ -1158,7 +1188,7 @@ def draw_image_20250526_with_tb3():
     plt.rcParams['axes.unicode_minus'] = False
 
     timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
-    save_dir = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\图表汇总\\变化率_%s' % timestamp
+    save_dir = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\同上下行\\图表汇总\\变化率_%s' % timestamp
 
     length_list = [
         600,
@@ -1168,21 +1198,31 @@ def draw_image_20250526_with_tb3():
     ]
 
     for sec_length in length_list:
-        root = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\结果数据\\数据简化\\'
+        root = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\同上下行\\结果数据\\数据简化\\'
         file = '区间更换TB_数据整理_%sm.xlsx' % sec_length
         df_input = pd.read_excel(root + file, '数据整理')
 
-        list0 = [
-            [1700, 2000],
-            [1700, 2600],
-            [2300, 2000],
-            [2300, 2600],
-            [2000, 1700],
-            [2000, 2300],
-            [2600, 1700],
-            [2600, 2300],
-        ]
+        # list0 = [
+        #     [1700, 2000],
+        #     [1700, 2600],
+        #     [2300, 2000],
+        #     [2300, 2600],
+        #     [2000, 1700],
+        #     [2000, 2300],
+        #     [2600, 1700],
+        #     [2600, 2300],
+        # ]
 
+        list0 = [
+            [1700, 1700],
+            [1700, 2300],
+            [2300, 1700],
+            [2300, 2300],
+            [2000, 2000],
+            [2000, 2600],
+            [2600, 2000],
+            [2600, 2600],
+        ]
         # list0 = [freq_list1, freq_list2, freq_list3, freq_list4]
 
         for i, val in enumerate(list0):
@@ -1434,8 +1474,9 @@ def generate_data_df4(sec_length):
 
     # timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
 
-    dir_path = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\结果数据\\数据简化'
-    file_path = os.path.join(dir_path, '区间更换TB_数据简化_20250526114533.xlsx')
+    dir_path = 'C:\\Users\\李继隆\\Desktop\\区间轨道电路换装TB\\同上下行\\结果数据\\数据简化'
+    # file_path = os.path.join(dir_path, '区间更换TB_数据简化_20250526114533.xlsx')
+    file_path = os.path.join(dir_path, '区间更换TB_数据简化_20250811092706.xlsx')
 
     df = pd.read_excel(file_path, '整理2')
 
@@ -1443,18 +1484,27 @@ def generate_data_df4(sec_length):
 
     new_path = '%s\\区间更换TB_干扰变化值_%sm.xlsx' % (dir_path, sec_length)
 
+    # list0 = [
+    #     [1700, 2000],
+    #     [1700, 2600],
+    #     [2300, 2000],
+    #     [2300, 2600],
+    #     [2000, 1700],
+    #     [2000, 2300],
+    #     [2600, 1700],
+    #     [2600, 2300],
+    # ]
+
     list0 = [
-        [1700, 2000],
-        [1700, 2600],
-        [2300, 2000],
-        [2300, 2600],
-        [2000, 1700],
-        [2000, 2300],
-        [2600, 1700],
-        [2600, 2300],
+        [1700, 1700],
+        [1700, 2300],
+        [2300, 1700],
+        [2300, 2300],
+        [2000, 2000],
+        [2000, 2600],
+        [2600, 2000],
+        [2600, 2600],
     ]
-
-
 
     columns = list(map(lambda x: '主串%s\n被串%s' % (x[0], x[1]), list0))
     columns.insert(0, '被串相对位置(m)')
@@ -1593,6 +1643,19 @@ def generate_data_df4(sec_length):
 
 
 if __name__ == '__main__':
-    draw_image_20250526_with_tb()
-
+    # generate_data_df()
+    # generate_data_df2('600m')
+    # generate_data_df2('1000m')
+    # generate_data_df2('1200m')
+    # generate_data_df2('1400m')
+    # draw_image_20250526_with_tb()
+    # generate_data_df3(600)
+    # generate_data_df3(1000)
+    # generate_data_df3(1200)
+    # generate_data_df3(1400)
+    # draw_image_20250526_with_tb3()
+    generate_data_df4(600)
+    generate_data_df4(1000)
+    generate_data_df4(1200)
+    generate_data_df4(1400)
     pass
