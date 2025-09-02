@@ -297,3 +297,20 @@ class TcsrTAD_disperse(ElePack):
         self.flag_ele_list = True
         self.add_child('1等效内阻', TPortCircuitT(self, '1等效内阻', z1, z2, z1))
         self.add_child('2变压器', TPortCircuitN(self, '2变压器', n))
+
+########################################################################################################################
+
+
+# 区间数字化防雷变压器
+class TcsrFL_QJ_Digital(TcsrTransformerOpenShort):
+    def __init__(self, parent_ins, name_base, z1, z2, n):
+        super().__init__(parent_ins, name_base, z1, z2, n)
+
+
+# 区间数字化TAD变压器
+class TcsrTAD_QJ_Digital(ElePack):
+    def __init__(self, parent_ins, name_base, z1, z2, n, zc):
+        super().__init__(parent_ins, name_base)
+        self.flag_ele_list = True
+        self.add_child('1变压器', TcsrTransformerOpenShort(self, '1变压器', z1, z2, n))
+        self.add_child('2串联电容', TPortZSeries(self, '2串联电容', zc))
