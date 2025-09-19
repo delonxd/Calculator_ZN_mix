@@ -1,10 +1,19 @@
-from src.Model.PreModel import *
-from src.Method import *
-from src.ConfigHeadList import *
-from src.Data2Excel import *
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.Model.ModelParameter import ModelParameter
+from src.Model.PreModel import PreModel_V001
+from src.Model.MainModel import MainModel
+
+from src.ConfigHeadList import config_headlist_ZN_mix
 from src.RowData import RowData
 
+from src.Method import regular_input
+from src.Method import get_i_trk
+from src.Method import write_to_excel
+
+from src.Data2Excel import SheetDataGroup
+
 import pandas as pd
+import numpy as np
 import time
 import os
 
@@ -12,6 +21,8 @@ from functools import wraps
 
 
 def try_calc(time0):
+    _ = time0
+
     def logging_decorator(func):
         @wraps(func)
         def wrapped_function(*args, **kwargs):
@@ -316,8 +327,14 @@ def main_cal(path1, path2, window):
 
                 if data['被串方向'] == '右发':
                     i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
+
+                    i_ca1 = md.lg['线路4']['地面']['区段1']['右调谐单元']['7CA']['I1'].value_c
+                    i_ca2 = md.lg['线路4']['地面']['区段1']['左调谐单元']['7CA']['I1'].value_c
                 else:
                     i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
+
+                    i_ca1 = md.lg['线路4']['地面']['区段1']['左调谐单元']['7CA']['I1'].value_c
+                    i_ca2 = md.lg['线路4']['地面']['区段1']['右调谐单元']['7CA']['I1'].value_c
 
                 # i1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I1'].value
                 # i2 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I2'].value
@@ -353,6 +370,8 @@ def main_cal(path1, path2, window):
                 data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
                 data2excel.add_data(sheet_name="被串钢轨电流", data1=i_trk_bei)
                 data2excel.add_data(sheet_name="被串分路电流", data1=i_sht_bei)
+                data2excel.add_data(sheet_name="被串发送端引接线电流", data1=i_ca1)
+                data2excel.add_data(sheet_name="被串接收端引接线电流", data1=i_ca2)
                 # data2excel.add_data(sheet_name="被串轨入电压", data1=v_rcv_bei)
                 # data2excel.add_data(sheet_name="主串SVA'电流", data1=i_sva1)
                 # data2excel.add_data(sheet_name="被串钢轨电流折算后", data1=i_trk_bei_temp)
@@ -466,6 +485,8 @@ def main_cal(path1, path2, window):
         names = [
             "被串钢轨电流",
             "被串分路电流",
+            "被串发送端引接线电流",
+            "被串接收端引接线电流",
             # "主串钢轨电流",
             # "主串分路电流",
             # "主串轨面电压",
@@ -488,8 +509,9 @@ def main_cal(path1, path2, window):
 
 
 def main_test():
-    path1 = '邻线干扰单独核算区段输入模板-V1.0.xlsx'
-    path2 = '仿真输出_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx'
+    # path1 = '邻线干扰单独核算区段输入模板-V1.0.xlsx'
+    path1 = '20240105_站内邻线干扰引接线\\模拟区段2.xlsx'
+    path2 = '20240105_站内邻线干扰引接线\\仿真输出_模拟区段2_' + time.strftime("%Y%m%d%H%M%S", time.localtime()) + '.xlsx'
 
     main_cal(path1, path2, None)
 
