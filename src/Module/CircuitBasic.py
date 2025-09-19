@@ -1,7 +1,8 @@
-from src.Module.PortNetwork import *
-from src.AbstractClass.Equation import *
-from src.Module.ParameterType import *
-from src.ConstantType import *
+from src.Module.PortNetwork import OnePortNetwork
+from src.Module.PortNetwork import TwoPortNetwork
+from src.Module.ParameterType import VariableImpedance
+from src.Module.ParameterType import VariableByFreq
+from src.ConstantType import Constant
 import numpy as np
 
 
@@ -302,7 +303,8 @@ class TPortABCD_re(TwoPortNetwork):
         'a': VariableImpedance,
         'b': VariableImpedance,
         'c': VariableImpedance,
-        'd': VariableImpedance,}
+        'd': VariableImpedance,
+    }
 
     def __init__(self, parent_ins, name_base, p1, p2, p3, p4):
         super().__init__(parent_ins, name_base)
@@ -347,7 +349,8 @@ class TPortABCD_tr(TwoPortNetwork):
         'a': VariableImpedance,
         'b': VariableImpedance,
         'c': VariableImpedance,
-        'd': VariableImpedance,}
+        'd': VariableImpedance,
+    }
 
     def __init__(self, parent_ins, name_base, p1, p2, p3, p4):
         super().__init__(parent_ins, name_base)
