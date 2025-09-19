@@ -1,5 +1,5 @@
-from src.AbstractClass.ElePack import *
-from src.AbstractClass.Equation import *
+from src.AbstractClass.ElePack import ElePack
+from src.AbstractClass.Equation import EquationGroup
 
 
 # 电气模块
@@ -49,9 +49,10 @@ class EleModule(ElePack):
         return varb
 
     def get_value(self, *items):
-        for item in items:
-            cls = self.para_type[item]
-            value = self.__getattribute__(item)
+        # for item in items:
+        #     cls = self.para_type[item]
+        #     value = self.__getattribute__(item)
+        pass
 
     @property
     def varb_value(self):

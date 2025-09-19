@@ -1,9 +1,7 @@
-from src.AbstractClass.Varb import *
-from src.AbstractClass.ElePack import *
+from src.AbstractClass.Varb import Varb
+from src.AbstractClass.Varb import VarbGroup
+from src.AbstractClass.ElePack import ElePack
 import numpy as np
-# import numpy.matlib
-# import sympy as sp
-# from numba import jit
 
 
 # 方程组
@@ -93,7 +91,7 @@ class EquationGroup:
         num = 0
         for equ in self.equs:
             for varb in equ.varb_list:
-                if not varb in varb_set:
+                if varb not in varb_set:
                     varb_set.add(varb)
                     self.varb_num[varb] = num
                     num += 1
@@ -164,7 +162,6 @@ class EquationGroup:
     def __len__(self):
         return len(self.equs)
 
-
     def simplify_equs(self, varbs1, varbs2, equ_name):
         if len(self.equs) < 6:
             return self
@@ -219,6 +216,8 @@ class Equation:
         self.coeff_list = list()
         self.varbs_num_list = dict()
         self.constant = constant
+
+        self._init_item = items
 
     def get_varbs_num_list(self, equs):
         num_list = list()
