@@ -1,7 +1,9 @@
-from src.AbstractClass.ElePack import *
-from src.Module.SubRail import *
-from src.Module.BreakPoint import *
-from src.TrackCircuitElement.Train import *
+from src.AbstractClass.ElePack import ElePack
+from src.AbstractClass.Equation import EquationGroup
+from src.Module.SubRail import SubRailPi
+from src.Module.BreakPoint import BreakPoint
+from src.TrackCircuitElement.Train import Train
+
 
 class NodeGroup:
     def __init__(self):
@@ -71,6 +73,7 @@ class NodeGroup:
     def clear(self):
         self.node_dict.clear()
 
+
 class Node:
     def __init__(self, posi):
         self.node_type = 'connected'
@@ -138,6 +141,7 @@ class Node:
         equs_new = equs.simplify_equs(varbs1, varbs2, equ_name)
 
         return equs_new
+
 
 class SingleLineModel(ElePack):
     def __init__(self, parent_ins, line):
@@ -263,17 +267,31 @@ class SingleLineModel(ElePack):
                     else:
                         self.equal_varb([ele.md_list[-1], -2], [node.track[0].md_list[0], 2])
             elif node.node_type == 'disconnected':
+                flag = '右连接'
                 for ele in node.element.values():
-                    if isinstance(ele.parent_ins, Train):
-                        if node.track[1] is not None:
-                            self.equal_varb([ele.md_list[-1], -2], [node.track[1].md_list[0], 0])
-                        else:
-                            self.equal_varb([ele.md_list[-1], -2], [node.track[0].md_list[0], 2])
-                    else:
+                    if not isinstance(ele.parent_ins, Train):
                         if ele.posi_rlt <= 0:
-                            self.equal_varb([ele.md_list[-1], -2], [node.track[1].md_list[0], 0])
+                            flag = '右连接'
                         else:
-                            self.equal_varb([ele.md_list[-1], -2], [node.track[0].md_list[0], 2])
+                            flag = '左连接'
+
+                for ele in node.element.values():
+                    if flag == '右连接':
+                        self.equal_varb([ele.md_list[-1], -2], [node.track[1].md_list[0], 0])
+                    else:
+                        self.equal_varb([ele.md_list[-1], -2], [node.track[0].md_list[0], 2])
+
+                # for ele in node.element.values():
+                #     if isinstance(ele.parent_ins, Train):
+                #         if node.track[1] is not None:
+                #             self.equal_varb([ele.md_list[-1], -2], [node.track[1].md_list[0], 0])
+                #         else:
+                #             self.equal_varb([ele.md_list[-1], -2], [node.track[0].md_list[0], 2])
+                #     else:
+                #         if ele.posi_rlt <= 0:
+                #             self.equal_varb([ele.md_list[-1], -2], [node.track[1].md_list[0], 0])
+                #         else:
+                #             self.equal_varb([ele.md_list[-1], -2], [node.track[0].md_list[0], 2])
 
     # 按位置筛选元件
     @staticmethod
