@@ -1,18 +1,15 @@
-import numpy as np
-import numpy.matlib
-from src.Model.SingleLineModel import *
+from src.AbstractClass.ElePack import ElePack
+from src.AbstractClass.Equation import EquationGroup, Equation
 from src.TrackCircuitElement.Line import Line
-from src.Module.OutsideElement import *
-from src.Method import *
-
-# from numba import jit
-# import time
+from src.Model.SingleLineModel import SingleLineModel
 
 
 class MainModel(ElePack):
     def __init__(self, line_group, md):
         super().__init__(None, line_group.name_base)
         self.freq = md.parameter['freq']
+        self.mutual_flag = md.parameter['mutual_flag']
+
         self.line_group = line_group
         self.equs = None
         self.varbs = None
@@ -72,7 +69,7 @@ class MainModel(ElePack):
         self.get_ele_set(ele_set=set())
 
     def config_mutual(self):
-        if len(self.element) == 2:
+        if len(self.element) == 2 and self.mutual_flag is True:
             line1, line2 = list(self.element.values())
             set1 = set(line1.node_dict.keys())
             set2 = set(line2.node_dict.keys())
@@ -185,6 +182,4 @@ class MainModel(ElePack):
 
 
 if __name__ == '__main__':
-    c1 = np.random
-
     pass
