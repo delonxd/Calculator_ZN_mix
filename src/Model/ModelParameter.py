@@ -22,6 +22,8 @@ class ModelParameter:
         with open(path, 'rb') as pk_f:
             parameter = pickle.load(pk_f)
 
+        parameter['mutual_flag'] = True
+
 ########################################################################################################################
         # 移频脉冲发送器
         parameter['z_pwr_yp'] = dict()
