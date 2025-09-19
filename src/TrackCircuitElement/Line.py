@@ -1,4 +1,5 @@
-from src.TrackCircuitElement.Rail import *
+from src.AbstractClass.ElePack import ElePack
+from src.TrackCircuitElement.Rail import RailGroup
 
 
 # 线路

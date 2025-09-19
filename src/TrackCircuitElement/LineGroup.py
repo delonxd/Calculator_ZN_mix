@@ -1,4 +1,4 @@
-from src.AbstractClass.ElePack import *
+from src.AbstractClass.ElePack import ElePack
 
 
 class LineGroup(ElePack):
@@ -13,7 +13,6 @@ class LineGroup(ElePack):
     def refresh(self):
         self.get_ele_set(ele_set=set())
         self.set_ele_name(prefix='')
-
 
     def add_line(self, line):
         self.add_child(line.name_base, line)

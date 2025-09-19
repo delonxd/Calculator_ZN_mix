@@ -1,4 +1,4 @@
-from src.AbstractClass.ElePack import *
+from src.AbstractClass.ElePack import ElePack
 import numpy as np
 
 
@@ -87,10 +87,11 @@ class RailGroup(ElePack):
 
 
 if __name__ == '__main__':
-    import src.TrackCircuitCalculator3 as tc
-
-    a = Rail(parant_line=None, l_posi=-20, r_posi=300, ztrk=1.314, rd=1000)
-    rg = RailGroup(parent_ins=None, name_base='akdla', parameter=tc.TCSR_2000A)
-    rg.add_rail(a)
-
-    b = 1
+    # import src.TrackCircuitCalculator3 as tc
+    #
+    # a = Rail(parant_line=None, l_posi=-20, r_posi=300, ztrk=1.314, rd=1000)
+    # rg = RailGroup(parent_ins=None, name_base='akdla', parameter=tc.TCSR_2000A)
+    # rg.add_rail(a)
+    #
+    # b = 1
+    pass

@@ -1,4 +1,4 @@
-from src.AbstractClass.ElePack import *
+from src.AbstractClass.ElePack import ElePack
 from src.Module.OutsideElement import ROutside
 
 

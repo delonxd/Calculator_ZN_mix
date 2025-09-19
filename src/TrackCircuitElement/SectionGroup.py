@@ -1,4 +1,4 @@
-from src.TrackCircuitElement.Section import *
+from src.AbstractClass.ElePack import ElePack
 
 
 # 区段组
@@ -18,8 +18,7 @@ class SectionGroup(ElePack):
         super().__init__(None, name_base)
         self.init_position(posi)
         self.parameter = parameter
-        init_list = m_num, m_frqs, m_lens, j_lens, \
-                    m_typs, c_nums, sr_mods, send_lvs
+        init_list = m_num, m_frqs, m_lens, j_lens, m_typs, c_nums, sr_mods, send_lvs
         self.m_num = m_num
         self.section_list = list()
         self.ele_posi = list()
@@ -29,8 +28,7 @@ class SectionGroup(ElePack):
         self.refresh()
 
     def init_element(self, init_list):
-        m_num, m_frqs, m_lens, j_lens, \
-        m_typs, c_nums, sr_mods, send_lvs = init_list
+        m_num, m_frqs, m_lens, j_lens, m_typs, c_nums, sr_mods, send_lvs = init_list
         m_frqs = m_frqs[:m_num]
         m_lens = m_lens[:m_num]
         j_lens = j_lens[:(m_num + 1)]
@@ -106,4 +104,3 @@ class SectionGroup(ElePack):
         for sec in self.section_list:
             for j_name in ['左绝缘节', '右绝缘节']:
                 sec[j_name].add_joint_tcsr()
-
