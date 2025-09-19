@@ -1,4 +1,5 @@
-from src.AbstractClass.EleModule import *
+from src.AbstractClass.EleModule import EleModule
+
 
 class BreakPoint(EleModule):
     def __init__(self, parent_ins, name_base, posi):

@@ -1,4 +1,7 @@
-from src.Module.PortNetwork import *
+from src.AbstractClass.Equation import Equation
+from src.AbstractClass.Equation import EquationGroup
+from src.Module.PortNetwork import OnePortNetwork
+
 
 class JumperWire(OnePortNetwork):
     def __init__(self, parent_ins, name_base, posi):

@@ -25,6 +25,7 @@ class VariableMultiFreq:
     def value(self, freq):
         return self._value[freq]
 
+
 class VariableByFreq:
     def __init__(self, name, value):
         self.name = name

@@ -1,5 +1,10 @@
-from src.Module.CircuitBasic import *
-# from src.ConstantType import Constant
+from src.AbstractClass.ElePack import ElePack
+from src.Module.CircuitBasic import OPortPowerU
+from src.Module.CircuitBasic import OPortZ
+from src.Module.CircuitBasic import TPortZSeries
+from src.Module.CircuitBasic import TPortZParallel
+from src.Module.CircuitBasic import TPortCircuitT
+from src.Module.CircuitBasic import TPortCircuitN
 
 
 ########################################################################################################################
@@ -18,7 +23,6 @@ class TcsrPower(ElePack):
         self.flag_ele_list = True
         self.add_child('1电压源', OPortPowerU(self, '1电压源', voltage=parent_ins.pwr_voltage))
         self.add_child('2内阻', TcsrPowerZ(self, '2内阻', z))
-
 
     @property
     def z(self):

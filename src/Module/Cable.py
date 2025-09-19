@@ -1,5 +1,7 @@
-from src.Module.CircuitBasic import *
-from src.ConstantType import *
+from src.Module.CircuitBasic import TPortCircuitPi
+from src.Module.CircuitBasic import TwoPortNetwork
+from src.ConstantType import Constant
+import numpy as np
 
 
 # 电缆等效电路

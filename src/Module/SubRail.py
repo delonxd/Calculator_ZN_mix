@@ -1,7 +1,6 @@
 from src.Module.PortNetwork import TwoPortNetwork
-from src.AbstractClass.Equation import *
-from src.Module.ParameterType import *
-from src.ConstantType import *
+from src.Module.ParameterType import VariableImpedance
+from src.ConstantType import Constant
 import numpy as np
 
 
@@ -66,12 +65,11 @@ class SubRailPi(TwoPortNetwork):
         self.equ2.coeff_list = np.array([-1, -y_tk, (y_tk + y_rd)])
         # mmm = 2 * np.pi* 2600 * 22.820 * 1e-6
 
-
         freq_zhu = self.parent_ins.parameter.parameter['freq_主']
         km = self.parent_ins.parameter.parameter['耦合系数']
 
         # mmm = 2 * np.pi* freq_zhu * km * 1e-6
-        mmm = 2 * np.pi* freq_zhu * km * 1e-6 * 1j
+        mmm = 2 * np.pi * freq_zhu * km * 1e-6 * 1j
         # mmm = 2 * np.pi* 2600 * 13 * 1e-6
         special_point = self.parent_ins.parameter.parameter['极性交叉位置']
         for temp_point in special_point:

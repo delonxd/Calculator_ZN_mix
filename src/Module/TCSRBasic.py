@@ -1,7 +1,8 @@
-from src.Module.Cable import *
-from src.Module.TcsrElement import *
-import src.TrackCircuitElement.Section as sc
-import src.TrackCircuitElement.Joint as jt
+from src.AbstractClass.ElePack import ElePack
+from src.AbstractClass.Equation import EquationGroup
+from src.Module.Cable import TPortCable
+from src.Module.CircuitBasic import OPortZ
+from src.ConstantType import Constant
 
 
 class TCSR(ElePack):
@@ -31,17 +32,22 @@ class TCSR(ElePack):
         self.u_list_max = list()
         self.u_list_min = list()
 
+        from src.TrackCircuitElement.Section import Section
+        from src.TrackCircuitElement.Joint import Joint
+        self.section_type = Section
+        self.joint_type = Joint
+
     # 相对位置
     @property
     def posi_rlt(self):
         posi = None
         parent = self.parent_ins
-        if isinstance(parent, sc.Section):
+        if isinstance(parent, self.section_type):
             if self.posi_flag == '左':
                 posi = parent['左绝缘节'].j_length / 2
             elif self.posi_flag == '右':
                 posi = parent.s_length - parent['右绝缘节'].j_length / 2
-        elif isinstance(parent, jt.Joint):
+        elif isinstance(parent, self.joint_type):
             if self.posi_flag == '左':
                 posi = parent.j_length / 2
             elif self.posi_flag == '右':
@@ -52,10 +58,10 @@ class TCSR(ElePack):
     @property
     def parent_joint(self):
         joint = None
-        if isinstance(self.parent_ins, sc.Section):
+        if isinstance(self.parent_ins, self.section_type):
             name = self.posi_flag + '绝缘节'
             joint = self.parent_ins[name]
-        elif isinstance(self.parent_ins, jt.Joint):
+        elif isinstance(self.parent_ins, self.joint_type):
             joint = self.parent_ins
         return joint
 
@@ -63,9 +69,9 @@ class TCSR(ElePack):
     @property
     def m_type(self):
         m_type = None
-        if isinstance(self.parent_ins, sc.Section):
+        if isinstance(self.parent_ins, self.section_type):
             m_type = self.parent_ins.m_type
-        elif isinstance(self.parent_ins, jt.Joint):
+        elif isinstance(self.parent_ins, self.joint_type):
             m_type = self.parent_ins.parent_ins.m_type
         return m_type
 
@@ -73,9 +79,9 @@ class TCSR(ElePack):
     @property
     def m_freq(self):
         m_freq = None
-        if isinstance(self.parent_ins, sc.Section):
+        if isinstance(self.parent_ins, self.section_type):
             m_freq = self.parent_ins.m_freq
-        elif isinstance(self.parent_ins, jt.Joint):
+        elif isinstance(self.parent_ins, self.joint_type):
             section = self.parent_ins.parent_ins
             m_freq = section.m_freq.copy()
             m_freq.change_freq()
@@ -117,21 +123,21 @@ class TCSR(ElePack):
         for module in self.md_list:
             module.init_equs(freq)
             equs.add_equations(module.equs)
-        varb_U2 = self.md_list[-1].get_varb(-2)
-        varb_I2 = self.md_list[-1].get_varb(-1)
-        self.equs = equs.simplify_equs([varb_U2], [varb_I2], equ_name=self.name)
+        varb_u2 = self.md_list[-1].get_varb(-2)
+        varb_i2 = self.md_list[-1].get_varb(-1)
+        self.equs = equs.simplify_equs([varb_u2], [varb_i2], equ_name=self.name)
         # self.equs = equs
         return self.equs
 
     def refresh_coeffs(self, freq):
         for module in self.md_list:
             module.refresh_coeffs(freq)
-        varb_U2 = self.md_list[-1].get_varb(-2)
-        varb_I2 = self.md_list[-1].get_varb(-1)
-        varb_U1 = self.md_list[0].get_varb(0)
-        varb_I1 = self.md_list[0].get_varb(1)
+        varb_u2 = self.md_list[-1].get_varb(-2)
+        varb_i2 = self.md_list[-1].get_varb(-1)
+        varb_u1 = self.md_list[0].get_varb(0)
+        varb_i1 = self.md_list[0].get_varb(1)
         name = self.name
-        equs = self.equs_cmplx.simplify_equs([varb_U1, varb_I1], [varb_U2, varb_I2], name=name)
+        equs = self.equs_cmplx.simplify_equs([varb_u1, varb_i1], [varb_u2, varb_i2], equ_name=name)
         equs.add_equations(self.md_list[0].equs)
         self.equs.reload_coefficient(equs)
         return self.equs
@@ -145,17 +151,22 @@ class Inside_iso_non_dead(OPortZ):
         self.init_position(0)
         self.flag_ele_unit = True
 
+        from src.TrackCircuitElement.Section import Section
+        from src.TrackCircuitElement.Joint import Joint
+        self.section_type = Section
+        self.joint_type = Joint
+
     # 相对位置
     @property
     def posi_rlt(self):
         posi = None
         parent = self.parent_ins
-        if isinstance(parent, sc.Section):
+        if isinstance(parent, self.section_type):
             if self.posi_flag == '左':
                 posi = parent['左绝缘节'].j_length / 2 + 10
             elif self.posi_flag == '右':
                 posi = parent.s_length - parent['右绝缘节'].j_length / 2 - 10
-        elif isinstance(parent, jt.Joint):
+        elif isinstance(parent, self.joint_type):
             if self.posi_flag == '左':
                 posi = parent.j_length / 2 + 10
             elif self.posi_flag == '右':
@@ -166,10 +177,10 @@ class Inside_iso_non_dead(OPortZ):
     @property
     def parent_joint(self):
         joint = None
-        if isinstance(self.parent_ins, sc.Section):
+        if isinstance(self.parent_ins, self.section_type):
             name = self.posi_flag + '绝缘节'
             joint = self.parent_ins[name]
-        elif isinstance(self.parent_ins, jt.Joint):
+        elif isinstance(self.parent_ins, self.joint_type):
             joint = self.parent_ins
         return joint
 
@@ -177,9 +188,9 @@ class Inside_iso_non_dead(OPortZ):
     @property
     def m_type(self):
         m_type = None
-        if isinstance(self.parent_ins, sc.Section):
+        if isinstance(self.parent_ins, self.section_type):
             m_type = self.parent_ins.m_type
-        elif isinstance(self.parent_ins, jt.Joint):
+        elif isinstance(self.parent_ins, self.joint_type):
             m_type = self.parent_ins.parent_ins.m_type
         return m_type
 
@@ -187,9 +198,9 @@ class Inside_iso_non_dead(OPortZ):
     @property
     def m_freq(self):
         m_freq = None
-        if isinstance(self.parent_ins, sc.Section):
+        if isinstance(self.parent_ins, self.section_type):
             m_freq = self.parent_ins.m_freq
-        elif isinstance(self.parent_ins, jt.Joint):
+        elif isinstance(self.parent_ins, self.joint_type):
             section = self.parent_ins.parent_ins
             m_freq = section.m_freq.copy()
             m_freq.change_freq()

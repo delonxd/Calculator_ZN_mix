@@ -1,6 +1,6 @@
-from src.AbstractClass.EleModule import *
-from src.AbstractClass.Varb import *
-from src.AbstractClass.Equation import *
+from src.AbstractClass.EleModule import EleModule
+from src.AbstractClass.Equation import Equation
+from src.AbstractClass.Varb import Varb
 
 
 # 一端口元件
