@@ -216,18 +216,18 @@ class TcsrFT1u(ElePack):
 
 
 class TcsrNGLz3(TPortZParallel):
-    def __init__(self, parent_ins, name_base, l, c3, c4):
+    def __init__(self, parent_ins, name_base, l1, c3, c4):
         super().__init__(parent_ins, name_base, 0)
-        self.l = l
+        self.l1 = l1
         self.c3 = c3
         self.c4 = c4
 
     def get_coeffs(self, freq):
-        l = self.l[self.m_freq.value][freq]
+        l1 = self.l1[self.m_freq.value][freq]
         c3 = self.c3[freq]
         c4 = self.c4[freq]
 
-        impedance = (l // c3) + c4
+        impedance = (l1 // c3) + c4
         z = impedance.z
         self.value2coeffs(z)
         return self.equs
@@ -239,12 +239,12 @@ class TcsrNGLz3(TPortZParallel):
 
 # 电码化室内隔离盒
 class TcsrNGL25HzCoding(ElePack):
-    def __init__(self, parent_ins, name_base, z1, c1, l, c3, c4):
+    def __init__(self, parent_ins, name_base, z1, c1, l1, c3, c4):
         super().__init__(parent_ins, name_base)
         self.flag_ele_list = True
         self.add_child('1阻抗', TPortZParallel(self, '1阻抗', z1))
         self.add_child('2电容C1', TPortZSeries(self, '2电容C1', c1))
-        self.add_child('3阻抗', TcsrNGLz3(self, '3阻抗', l, c3, c4))
+        self.add_child('3阻抗', TcsrNGLz3(self, '3阻抗', l1, c3, c4))
 
 
 # 电码化室外隔离盒
