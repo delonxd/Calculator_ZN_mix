@@ -622,7 +622,8 @@ class ZPW2000A_ZN_Digital(TCSR):
 # ZPW2000A站内数字化轨道电路_中间接收
 class ZPW2000A_ZN_Digital_Middle(ZPW2000A_ZN_Digital):
     def __init__(self, parent_ins, name_base,
-                 posi_flag, cable_length, _, level):
+                 posi_flag, cable_length, mode, level):
+        _ = mode
         super().__init__(parent_ins, name_base, posi_flag, cable_length, '接收', level)
         self.default_position = 'auto'
 
@@ -643,14 +644,16 @@ class ZPW2000A_ZN_Digital_Middle(ZPW2000A_ZN_Digital):
 # ZPW2000A站内数字化轨道电路_两端发送
 class ZPW2000A_ZN_Digital_Side(ZPW2000A_ZN_Digital):
     def __init__(self, parent_ins, name_base,
-                 posi_flag, cable_length, _, level):
+                 posi_flag, cable_length, mode, level):
+        _ = mode
         super().__init__(parent_ins, name_base, posi_flag, cable_length, '发送', level)
 
 
 # ZPW2000A区间分散式配置
 class ZPW2000A_QJ_Disperse(TCSR):
     def __init__(self, parent_ins, name_base,
-                 posi_flag, _, mode, level):
+                 posi_flag, cable_length, mode, level):
+        _ = cable_length
         super().__init__(parent_ins, name_base, posi_flag)
         self.parameter = para = parent_ins.parameter
         self.posi_flag = posi_flag
@@ -759,7 +762,8 @@ class ZPW2000A_QJ_Digital(TCSR):
 # ZPW2000A站内数字化轨道电路
 class ZPW2000A_ZN_Digital_adj(TCSR):
     def __init__(self, parent_ins, name_base,
-                 posi_flag, _, mode, level):
+                 posi_flag, cable_length, mode, level):
+        _ = cable_length
         super().__init__(parent_ins, name_base, posi_flag)
         self.parameter = para = parent_ins.parameter
         self.posi_flag = posi_flag
@@ -818,7 +822,8 @@ class ZPW2000A_ZN_Digital_adj(TCSR):
 # ZPW2000A站内数字化轨道电路_两送一受_中间接收
 class ZPW2000A_ZN_Digital_adj_Middle(ZPW2000A_ZN_Digital_adj):
     def __init__(self, parent_ins, name_base,
-                 posi_flag, cable_length, _, level):
+                 posi_flag, cable_length, mode, level):
+        _ = mode
         super().__init__(parent_ins, name_base, posi_flag, cable_length, '接收', level)
         self.default_position = 'auto'
 
