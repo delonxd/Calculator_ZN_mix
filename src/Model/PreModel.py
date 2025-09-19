@@ -1,11 +1,18 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+from src.ImpedanceParaType import ImpedanceMultiFreq
 from src.FrequencyType import Freq
-from src.Method import *
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Line import Line
+from src.TrackCircuitElement.Train import Train
+
+from src.Module.TcsrLib import ZPW2000A_YPMC_Normal
+from src.Module.TcsrLib import ZPW2000A_ZN_PTSVA1
+from src.Module.TcsrLib import ZPW2000A_ZN_25Hz_Coding
+from src.Module.OutsideElement import CapC
+from src.Module.JumperWire import JumperWire
+
+from src.Method import generate_frqs
+from src.Method import get_c_nums
 
 
 class PreModel:
@@ -1503,7 +1510,6 @@ class PreModel_1125(PreModel):
         for ele in self.section_group4['区段1'].element.values():
             if isinstance(ele, CapC):
                 ele.z = para['Ccmp_z_change_chuan']
-
 
     def config_c_fault(self):
         para = self.parameter
