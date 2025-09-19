@@ -1,6 +1,15 @@
+from src.Module.BreakPoint import BreakPoint
 from src.Module.OutsideElement import SVA
-from src.Module.TcsrLib import *
-from src.Module.BreakPoint import *
+from src.AbstractClass.ElePack import ElePack
+
+from src.Module.TCSRBasic import Inside_iso_non_dead
+
+from src.Module.TcsrLib import ZPW2000A_QJ_Normal
+from src.Module.TcsrLib import ZPW2000A_ZN_PTSVA1
+from src.Module.TcsrLib import ZPW2000A_QJ_Belarus
+from src.Module.TcsrLib import ZPW2000A_QJ_non_dead_zone
+from src.Module.TcsrLib import ZPW2000A_QJ_Disperse
+from src.Module.TcsrLib import ZPW2000A_QJ_Digital
 
 
 # 绝缘节
@@ -162,3 +171,14 @@ class Joint_2000A_Electric_QJ_Disperse(Joint):
                   z=self.parameter['SVA_z'])
         self.add_child('SVA', ele)
         self.tcsr_cls = ZPW2000A_QJ_Disperse
+
+
+# 2000A区间数字化轨道电路电气绝缘节
+class Joint_2000A_Electric_QJ_Digital(Joint):
+    def set_element(self):
+        ele = SVA(parent_ins=self,
+                  name_base='SVA',
+                  posi=0,
+                  z=self.parameter['SVA_z'])
+        self.add_child('SVA', ele)
+        self.tcsr_cls = ZPW2000A_QJ_Digital

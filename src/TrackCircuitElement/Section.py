@@ -1,6 +1,31 @@
+from src.AbstractClass.ElePack import ElePack
+from src.TrackCircuitElement.Joint import Joint_2000A_Electric
+from src.TrackCircuitElement.Joint import Joint_Mechanical
+from src.TrackCircuitElement.Joint import Joint_2000A_Electric_Belarus
+from src.TrackCircuitElement.Joint import Joint_2000A_Electric_non_dead_zone
+from src.TrackCircuitElement.Joint import Joint_2000A_Electric_QJ_Disperse
+from src.TrackCircuitElement.Joint import Joint_2000A_Electric_QJ_Digital
+
+from src.Module.TCSRBasic import Inside_iso_non_dead
+
+from src.Module.TcsrLib import ZPW2000A_QJ_Normal
+from src.Module.TcsrLib import ZPW2000A_ZN_PTSVA1
+from src.Module.TcsrLib import ZPW2000A_YPMC_Normal
+from src.Module.TcsrLib import ZPW2000A_YPMC_add_cap
+from src.Module.TcsrLib import ZPW2000A_QJ_Belarus
+from src.Module.TcsrLib import ZPW2000A_ZN_BPLN
+from src.Module.TcsrLib import ZPW2000A_ZN_25Hz_Coding
+from src.Module.TcsrLib import ZPW2000A_QJ_non_dead_zone
+from src.Module.TcsrLib import ZPW2000A_ZN_Digital
+from src.Module.TcsrLib import ZPW2000A_ZN_Digital_Middle
+from src.Module.TcsrLib import ZPW2000A_ZN_Digital_Side
+from src.Module.TcsrLib import ZPW2000A_QJ_Disperse
+from src.Module.TcsrLib import ZPW2000A_QJ_Digital
+from src.Module.TcsrLib import ZPW2000A_ZN_Digital_adj
+from src.Module.TcsrLib import ZPW2000A_ZN_Digital_adj_Middle
+
 from src.Module.OutsideElement import CapC
 from src.Module.OutsideElement import TB
-from src.TrackCircuitElement.Joint import *
 import numpy as np
 
 
@@ -32,6 +57,15 @@ class Section(ElePack):
             sr_mod = ['接收', '发送']
         elif sr_mod_t == '不发码':
             sr_mod = ['不发码', '不发码']
+
+        elif sr_mod_t == '双端':
+            sr_mod = ['发送', '发送']
+
+        elif sr_mod_t == '道岔左接收':
+            sr_mod = ['岔尾', '岔尖']
+        elif sr_mod_t == '道岔右接收':
+            sr_mod = ['岔尖', '岔尾']
+
         m_len = s_len - (j_len[0] + j_len[1]) / 2
         init_list = m_len, j_len, c_num, j_typ, sr_mod, send_lv
         self.set_element(init_list)
@@ -491,3 +525,103 @@ class Section_ZPW2000A_QJ_Disperse(Section_ZPW2000A):
             else:
                 raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
         return j_clss, tcsr_clss
+
+
+# 2000A_区间换装TB
+class Section_ZPW2000A_QJ_With_TB(Section_ZPW2000A):
+    def __init__(self, parent_ins, name_base,
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
+        super().__init__(parent_ins, name_base,
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
+        self.m_type = '2000A_QJ_With_TB'
+
+        if c_num == 0 or c_num == 1:
+            raise KeyboardInterrupt("TB模式错误：'电容数量(含TB)'与'TB模式'矛盾")
+
+        c_left = self.element.pop('C1')
+        self.change_tb(c_name='none', tb_name='TB1', posi=c_left.posi_rlt)
+        c_right = self.element.pop('C%s' % c_num)
+        self.change_tb(c_name='none', tb_name='TB2', posi=c_right.posi_rlt)
+
+
+# 2000A_区间数字化
+class Section_ZPW2000A_QJ_Digital(Section_ZPW2000A):
+    def __init__(self, parent_ins, name_base,
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
+        super().__init__(parent_ins, name_base,
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
+        self.m_type = '2000A_QJ_Digital'
+
+    @staticmethod
+    def config_class(j_typs):
+        j_clss, tcsr_clss = [None, None], [None, None]
+        for num in range(2):
+            if j_typs[num] == '电气':
+                j_clss[num] = Joint_2000A_Electric_QJ_Digital
+                tcsr_clss[num] = ZPW2000A_QJ_Digital
+            elif j_typs[num] == '机械':
+                raise KeyboardInterrupt('2000A_QJ_Digital不支持机械绝缘节')
+            else:
+                raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
+        return j_clss, tcsr_clss
+
+
+# 2000A_站内数字化_调整表_一送一受
+class Section_ZPW2000A_ZN_Digital_adj_1_1(Section_ZPW2000A):
+    def __init__(self, parent_ins, name_base,
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
+        super().__init__(parent_ins, name_base,
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
+        self.m_type = '2000A_ZN_Digital_adj_1_1'
+
+    @staticmethod
+    def config_class(j_typs):
+        j_clss, tcsr_clss = [None, None], [None, None]
+        for num in range(2):
+            if j_typs[num] == '电气':
+                raise KeyboardInterrupt('2000A_ZN_Digital_adj不支持电气绝缘节')
+            elif j_typs[num] == '机械':
+                j_clss[num] = Joint_Mechanical
+                tcsr_clss[num] = ZPW2000A_ZN_Digital_adj
+            else:
+                raise KeyboardInterrupt("绝缘节类型异常：必须为'电气'或'机械'")
+        return j_clss, tcsr_clss
+
+
+# 2000A_站内数字化_调整表_两送一受
+class Section_ZPW2000A_ZN_Digital_adj_2_1(Section_ZPW2000A_ZN_Digital_adj_1_1):
+    def __init__(self, parent_ins, name_base,
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
+        super().__init__(parent_ins, name_base,
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
+        self.m_type = '2000A_ZN_Digital_adj_2_1'
+
+        cab_len = self.parameter['cab_len']
+        tcsr_name = '中间接收'
+        ele = ZPW2000A_ZN_Digital_adj_Middle(
+            parent_ins=self,
+            name_base=tcsr_name,
+            posi_flag=None,
+            cable_length=cab_len,
+            mode='接收',
+            level=send_lv
+        )
+        self.add_child(tcsr_name, ele)
+
+
+# 2000A_站内数字化_调整表_道岔
+class Section_ZPW2000A_ZN_Digital_adj_turnout(Section_ZPW2000A_ZN_Digital_adj_1_1):
+    def __init__(self, parent_ins, name_base,
+                 m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv):
+        super().__init__(parent_ins, name_base,
+                         m_frq, s_len, j_len, c_num, j_typ, sr_mod, send_lv)
+        self.m_type = '2000A_ZN_Digital_adj_turnout'
+
+        name_base = ''
+        for ele in self.element.values():
+            if isinstance(ele, ZPW2000A_ZN_Digital_adj):
+                if ele.mode == '岔尖':
+                    name_base = ele.name_base
+
+        if name_base != '':
+            self.element.pop(name_base)
