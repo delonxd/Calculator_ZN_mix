@@ -1,6 +1,8 @@
-from src.AbstractClass.ElePack import *
-from src.Module.JumperWire import *
-from src.Model.SingleLineModel import *
+from src.AbstractClass.ElePack import ElePack
+from src.Module.JumperWire import JumperWire
+from src.Model.SingleLineModel import Node
+from src.Model.SingleLineModel import NodeGroup
+
 import numpy as np
 import pandas as pd
 import itertools
@@ -67,16 +69,16 @@ def get_c_num(freq, length):
     elif length > 300:
         index = int((length - 251) / 50)
     else:
-        index  = 0
+        index = 0
 
-    CcmpTable1 = [0, 5, 6, 7, 8, 9, 10, 10, 11, 12, 13, 14, 15, 15, 16, 17, 18, 19, 20, 20, 21, 22, 23, 24, 25]
-    CcmpTable2 = [0, 4, 5, 5, 6, 7,  7,  8,  8,  9, 10, 10, 11, 12, 12, 13, 13, 14, 15, 15, 16, 17, 17, 18, 18]
+    table1 = [0, 5, 6, 7, 8, 9, 10, 10, 11, 12, 13, 14, 15, 15, 16, 17, 18, 19, 20, 20, 21, 22, 23, 24, 25]
+    table2 = [0, 4, 5, 5, 6, 7,  7,  8,  8,  9, 10, 10, 11, 12, 12, 13, 13, 14, 15, 15, 16, 17, 17, 18, 18]
 
     freq = freq.value
     if freq == 1700 or freq == 2000:
-        table = CcmpTable1
+        table = table1
     elif freq == 2300 or freq == 2600:
-        table = CcmpTable2
+        table = table2
     else:
         table = []
 
@@ -214,7 +216,6 @@ def check_input(df):
     para['CABLE_LENGTH'] = [7.5, 10]
     para['C_NUM'] = [0, 1, 2, 3, 4, 5, 6, 7]
     para['TB_MODE'] = ['双端TB', '左端单TB', '右端单TB', '无TB']
-
 
     num_len = len(list(df['序号']))
     for temp_temp in range(num_len):
@@ -753,13 +754,12 @@ def init_input_1125():
 
     # print(df_input)
 
-    ret = pd.DataFrame(columns=columns_header())
-    counter = 1
-    index = 1
+    # ret = pd.DataFrame(columns=columns_header())
+    # counter = 1
+    # index = 1
 
     # freq_zhu = [1700, 2000, 2300, 2600]
     # freq_bei = [1700, 2000, 2300, 2600]
-
 
     freq_zhu = [2300]
     freq_bei = [2300]
@@ -843,7 +843,6 @@ def init_input_1125():
                     row['主串电缆长度(km)'] = 10
                     row['被串电缆长度(km)'] = 10
 
-
                     row['主串电容数(含TB)'] = cnum_zhu
                     row['被串电容数(含TB)'] = cnum_bei
 
@@ -872,7 +871,6 @@ def init_input_1125():
 
 def get_cnum_value_1125(sec_type, length, freq):
     cnum = None
-    cvalue = None
     level = None
     if sec_type in ['站内-有选频', '站内-无选频']:
         cvalue = 25
@@ -957,12 +955,12 @@ def init_input_1128():
 
     # print(df_input)
 
-    ret = pd.DataFrame(columns=columns_header())
-    counter = 1
-    index = 1
-
-    freq_zhu = [2600]
-    freq_bei = [2300]
+    # ret = pd.DataFrame(columns=columns_header())
+    # counter = 1
+    # index = 1
+    #
+    # freq_zhu = [2600]
+    # freq_bei = [2300]
     # freq_zhu = [1700]
     # freq_bei = [1700]
 
@@ -1017,9 +1015,9 @@ def init_input_1128():
         zhu_sr_mode = scene[6]
         bei_sr_mode = scene[7]
 
-        for offset in range(-200, 201, 10):
         # for offset in [0]:
         # for offset in [scene[4]]:
+        for offset in range(-200, 201, 10):
 
             row = pd.Series(index=columns_header(), dtype='object')
 
@@ -1065,7 +1063,6 @@ def init_input_1128():
             row['主串电缆长度(km)'] = 10
             row['被串电缆长度(km)'] = 10
 
-
             row['主串电容数(含TB)'] = zhu_cnum
             row['被串电容数(含TB)'] = bei_cnum
 
@@ -1089,7 +1086,6 @@ def init_input_1128():
             index += 1
     ret = pd.DataFrame(list0)
     return ret
-
 
 
 if __name__ == '__main__':
