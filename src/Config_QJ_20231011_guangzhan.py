@@ -1,19 +1,25 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+from src.ImpedanceParaType import ImpedanceMultiFreq
 from src.FrequencyType import Freq
+from src.ConstantType import Constant
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
+from src.TrackCircuitElement.LineGroup import LineGroup
+
 from src.Model.PreModel import PreModel
+from src.Method import write_to_excel
 
 import os
 import time
+import itertools
+
 import pandas as pd
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib import cm
+# from matplotlib import cm
+
 # # plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
 # plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']  # 用来正常显示中文标签
 # # plt.rcParams['font.sans-serif'] = ['consolas']  # 用来正常显示中文标签
@@ -38,58 +44,190 @@ def get_guangzhan_info():
     #     ('0162BG-2', 2000, 400, 6),
     #     ('0178AG', 2600, 700, 8),
     # ]
+    #
+    # info_line1 = [
+    #     -244,
+    #     ('广湛NS1LQAG', 2000, 537, 9),
+    #     ('广湛5578CG', 2600, 470, 6),
+    #     ('广湛5578BG', 2000, 625, 10),
+    #     ('广湛5578AG', 2600, 745, 9),
+    #     ('广湛5560CG', 2000, 505, 9),
+    #     ('广湛5560BG', 2600, 625, 8),
+    #     ('广湛5560AG', 2000, 760, 13),
+    #     ('广湛5542CG', 2600, 490, 6),
+    #     ('广湛5542BG', 2000, 560, 10),
+    #     ('广湛5542AG', 2600, 800, 10),
+    # ]
 
-    info_line1 = [
-        -244,
-        ('广湛NS1LQAG', 2000, 537, 9),
-        ('广湛5578CG', 2600, 470, 6),
-        ('广湛5578BG', 2000, 625, 10),
-        ('广湛5578AG', 2600, 745, 9),
-        ('广湛5560CG', 2000, 505, 9),
-        ('广湛5560BG', 2600, 625, 8),
-        ('广湛5560AG', 2000, 760, 13),
-        ('广湛5542CG', 2600, 490, 6),
-        ('广湛5542BG', 2000, 560, 10),
-        ('广湛5542AG', 2600, 800, 10),
+    # info_line1 = [
+    #     351,
+    #     ('广湛0118CG', 2000, 537, 9),
+    #     ('广湛0132AG', 2600, 470, 6),
+    #     ('广湛0132BG', 2000, 625, 10),
+    #     ('广湛0148AG', 2600, 745, 9),
+    #     ('广湛0148BG', 2000, 505, 9),
+    #     ('广湛0148CG', 2600, 625, 8),
+    #     ('广湛0162AG', 2000, 760, 13),
+    #     ('广湛0162BG', 2600, 490, 6),
+    #     ('广湛0176AG', 2000, 560, 10),
+    #     ('广湛0176BG', 2600, 800, 10),
+    # ]
+    #
+    # info_line2 = [
+    #     431,
+    #     ('南广NS1LQAG', 2000, 537, 9),
+    #     ('南广5578CG', 2600, 470, 6),
+    #     ('南广5578BG', 2000, 625, 10),
+    #     ('南广5578AG', 2600, 745, 9),
+    #     ('南广5560CG', 2000, 505, 9),
+    #     ('南广5560BG', 2600, 625, 8),
+    #     ('南广5560AG', 2000, 760, 13),
+    #     ('南广5542CG', 2600, 490, 6),
+    #     ('南广5542BG', 2000, 560, 10),
+    #     ('南广5542AG', 2600, 800, 10),
+    # ]
+    #
+    # info_line3 = [
+    #     141,
+    #     ('贵广S1LQBG', 2600, 464, 6),
+    #     ('贵广S1LQAG', 2000, 464, 8),
+    #     ('贵广8420DG', 2600, 625, 8),
+    #     ('贵广8420CG', 2000, 745, 12),
+    #     ('贵广8420BG', 2600, 505, 7),
+    #     ('贵广8420AG', 2000, 625, 10),
+    #     ('贵广8394CG', 2600, 766, 10),
+    #     ('贵广8394BG', 2000, 490, 8),
+    #     ('贵广8394AG', 2600, 550, 7),
+    #     ('贵广8376CG', 2000, 810, 14),
+    # ]
+
+    info_test_1 = [
+        0,
+        ('广湛0132BG', 2000, 625, 10),
+        ('广湛0148AG', 2600, 745, 9),
     ]
 
-    info_line2 = [
-        -294,
-        ('南广NS1LQAG', 2000, 537, 9),
+    info_test_2 = [
+        -470,
         ('南广5578CG', 2600, 470, 6),
         ('南广5578BG', 2000, 625, 10),
         ('南广5578AG', 2600, 745, 9),
         ('南广5560CG', 2000, 505, 9),
-        ('南广5560BG', 2600, 625, 8),
-        ('南广5560AG', 2000, 760, 13),
-        ('南广5542CG', 2600, 490, 6),
-        ('南广5542BG', 2000, 560, 10),
-        ('南广5542AG', 2600, 800, 10),
-    ]
-
-    info_line3 = [
-        -615,
-        ('S1LQBG', 2600, 464, 6),
-        ('S1LQAG', 2000, 464, 8),
-        ('8420DG', 2600, 625, 8),
-        ('8420CG', 2000, 745, 12),
-        ('8420BG', 2600, 505, 7),
-        ('8420AG', 2000, 625, 10),
-        ('8394CG', 2600, 766, 10),
-        ('8394BG', 2000, 490, 8),
-        ('8394AG', 2600, 550, 7),
-        ('8376CG', 2000, 810, 14),
     ]
 
     ret = []
-    ret.extend(get_line_info(info_line1, info_line2))
-    ret.extend(get_line_info(info_line2, info_line1))
+    # ret.extend(get_line_info(info_line1, info_line2))
+    # ret.extend(get_line_info(info_line2, info_line1))
     # ret.extend(get_line_info(info_line2, info_line3))
     # ret.extend(get_line_info(info_line3, info_line2))
+    for offset in [-50, -40]:
+        info_test_1[0] = offset
+        ret.extend(get_line_info(info_test_1, info_test_2))
 
-    # ret = ret[:1]
+    # ret = ret[1:2]
 
     return ret
+
+
+def get_guangzhan_zhu_sht():
+    src_zhu = [
+        ('NS1LQAG', 2000, 537, 9),
+        ('5578CG', 2600, 470, 6),
+        ('5578BG', 2000, 625, 10),
+        ('5578AG', 2600, 745, 9),
+        ('5560CG', 2000, 505, 9),
+        ('5560BG', 2600, 625, 8),
+        ('5560AG', 2000, 760, 13),
+        ('5542CG', 2600, 490, 6),
+        ('5542BG', 2000, 560, 10),
+        ('5542AG', 2600, 800, 10),
+    ]
+
+    src_bei = [
+        ('-', 2000, 537, 9),
+        ('-', 2600, 470, 6),
+        ('-', 2000, 625, 10),
+        ('-', 2600, 745, 9),
+        ('-', 2000, 505, 9),
+        ('-', 2600, 625, 8),
+        ('-', 2000, 760, 13),
+        ('-', 2600, 490, 6),
+        ('-', 2000, 560, 10),
+        ('-', 2600, 800, 10),
+    ]
+
+    ret = []
+    for index, zhu_sec in enumerate(src_zhu):
+        bei_sec = src_bei[index]
+
+        info_line1 = [0, zhu_sec]
+        info_line2 = [0, bei_sec]
+        ret.extend(get_line_info(info_line1, info_line2))
+
+    return ret
+
+
+def get_guangzhan_zhu_sht2():
+    ret = []
+    for length in [300, 400, 500, 600, 700, 800]:
+        for freq in [1700, 2000, 2300, 2600]:
+            c_num = config_c_num_high_speed(freq, length)
+            info_line1 = [0, ('-', freq, length, c_num)]
+            info_line2 = [0, ('-', freq, length, c_num)]
+
+            ret.extend(get_line_info(info_line1, info_line2))
+    return ret
+
+
+def config_c_num_high_speed(freq_value, length):
+
+    if 0 < length <= 300:
+        key = 0
+    elif length > 300:
+        key = int((length - 251) / 50)
+    else:
+        raise KeyboardInterrupt('config_c_num error: 区段长度错误')
+
+    table = {
+        0: [0, 0, 0, 0],
+        1: [5, 5, 4, 4],
+        2: [6, 6, 5, 5],
+        3: [7, 7, 5, 5],
+        4: [8, 8, 6, 6],
+        5: [9, 9, 7, 7],
+        6: [10, 10, 7, 7],
+        7: [10, 10, 8, 8],
+        8: [11, 11, 8, 8],
+        9: [12, 12, 9, 9],
+        10: [13, 13, 10, 10],
+        11: [14, 14, 10, 10],
+        12: [15, 15, 11, 11],
+        13: [15, 15, 12, 12],
+        14: [16, 16, 12, 12],
+        15: [17, 17, 13, 13],
+        16: [18, 18, 13, 13],
+        17: [19, 19, 14, 14],
+        18: [20, 20, 15, 15],
+        19: [20, 20, 15, 15],
+        20: [21, 21, 16, 16],
+        21: [22, 22, 17, 17],
+        22: [23, 23, 17, 17],
+    }
+    if key not in table.keys():
+        raise KeyboardInterrupt('config_c_num error: 区段长度超长')
+
+    index_dict = {
+        1700: 0,
+        2000: 1,
+        2300: 2,
+        2600: 3,
+    }
+
+    if freq_value not in index_dict.keys():
+        raise KeyboardInterrupt('config_c_num error: 区段频率错误')
+
+    c_num = table[key][index_dict[freq_value]]
+    return c_num
 
 
 def get_guangzhan_test_info():
@@ -203,21 +341,31 @@ def config_input_20231011_guangzhan():
         '被串相对位置',
         '主串方向',
         '被串方向',
+        '被串分路区段',
+        'include_joint',
     ]
 
     direction_list = [
-        ('左发', '左发'),
-        ('左发', '右发'),
-        ('右发', '左发'),
+        # ('左发', '左发'),
+        # ('左发', '右发'),
+        # ('右发', '左发'),
         ('右发', '右发'),
     ]
 
     mode_list = [
-        '主串调整被串分路',
+        # '主串调整被串分路',
         '主被串同时分路',
     ]
 
+    # sht_sec_mode = 'all'
+    sht_sec_mode = 'split'
+
+    # include_joint = True
+    include_joint = False
+
     src = get_guangzhan_info()
+    # src = get_guangzhan_zhu_sht()
+    # src = get_guangzhan_zhu_sht2()
     # src = get_guangzhan_test_info()
 
     df = pd.DataFrame(index=columns, dtype='object')
@@ -227,7 +375,6 @@ def config_input_20231011_guangzhan():
         for val in src:
 
             for direction in direction_list:
-                counter += 1
 
                 s0 = pd.Series(name=counter, index=columns)
 
@@ -254,9 +401,29 @@ def config_input_20231011_guangzhan():
                 s0['主串方向'] = direction[0]
                 s0['被串方向'] = direction[1]
 
-                print('generate row: %s --> %s' % (counter, s0.tolist()))
+                s0['include_joint'] = include_joint
 
-                df = pd.concat([df, s0], axis=1)
+                if sht_sec_mode == 'all':
+                    s_tmp = s0.copy()
+                    s_tmp['被串分路区段'] = 'all'
+
+                    counter += 1
+                    s_tmp.name = counter
+                    s_tmp['序号'] = s_tmp.name
+                    print('generate row: %s --> %s' % (counter, s_tmp.tolist()))
+                    df = pd.concat([df, s_tmp], axis=1)
+
+                elif sht_sec_mode == 'split':
+                    sec_num = len(s0['被串区段'])
+                    for sec_index in range(sec_num):
+                        s_tmp = s0.copy()
+                        s_tmp['被串分路区段'] = sec_index
+
+                        counter += 1
+                        s_tmp.name = counter
+                        s_tmp['序号'] = s_tmp.name
+                        print('generate row: %s --> %s' % (counter, s_tmp.tolist()))
+                        df = pd.concat([df, s_tmp], axis=1)
 
                 # if counter == 4:
                 #     return df.transpose()
@@ -271,6 +438,7 @@ def config_headlist_20231011_guangzhan():
         '序号',
         '备注',
         '分路模式',
+        '分路起止',
 
         '耦合系数(μH/km)',
 
@@ -315,6 +483,72 @@ def config_headlist_20231011_guangzhan():
         '电源电压',
 
         '被串最大干扰电流(A)', '被串最大干扰位置(m)',
+        # '故障位置', '故障类型',
+        # '干扰值变化',
+    ]
+
+    return head_list
+
+
+# 配置表头
+def config_headlist_20231225_zhu_sht():
+    head_list = [
+        '序号',
+        '备注',
+        # '分路模式',
+
+        # '耦合系数(μH/km)',
+
+        # '线路名称', '车站名称',
+        '主串区段',
+        # '被串区段',
+
+        # '线间距(m)',
+        # '并行长度(m)',
+        # '被串相对位置(m)',
+
+        '主串方向',
+        # '被串方向',
+        # '线间距(m)',
+        # '耦合系数(μH/km)',
+        # '并行长度(m)',
+
+        # '调谐区错位(m)',
+        '主串区段长度(m)',
+        # '被串区段长度(m)',
+        # '被串相对位置(m)',
+
+        # '主串左端坐标', '被串左端坐标',
+
+        # '主串区段类型', '被串区段类型',
+        '主串频率(Hz)',
+        # '被串频率(Hz)',
+
+        # '主串电容数(含TB)', '被串电容数(含TB)',
+        '主串电容数',
+        # '被串电容数',
+        '主串电容值(μF)',
+        # '被串电容值(μF)',
+
+        # '主串电容数量列表', '被串电容数量列表',
+        # '主串电容容值列表', '被串电容容值列表',
+
+        '钢轨电阻(Ω/km)', '钢轨电感(H/km)',
+
+        '主串道床电阻(Ω·km)',
+        # '被串道床电阻(Ω·km)',
+        '主串分路电阻(Ω)',
+        # '被串分路电阻(Ω)',
+
+        '主串电缆长度(km)',
+        # '被串电缆长度(km)',
+
+        '分路间隔(m)',
+
+        '主串电平级',
+        '电源电压',
+
+        # '被串最大干扰电流(A)', '被串最大干扰位置(m)',
         # '故障位置', '故障类型',
         # '干扰值变化',
     ]
@@ -491,8 +725,35 @@ def config_row_data_20231011_guangzhan(df_input, para, data):
 
     # 分路间隔
     data['分路间隔(m)'] = 1
-    data['分路起点'] = offset - 14.5
-    data['分路终点'] = offset + sum(length2) + 14.5
+    # data['分路起点'] = offset - 14.5
+    # data['分路终点'] = offset + sum(length2) + 14.5
+
+    sht_sec = data['被串分路区段'] = df_input['被串分路区段']
+    if sht_sec == 'all':
+        data['分路起点'] = offset
+        data['分路终点'] = offset + sum(length2)
+    else:
+        data['被串相对位置(m)'] = offset + sum(length2[:sht_sec])
+        data['被串区段'] = data['被串区段'][sht_sec]
+        data['被串区段长度(m)'] = data['被串区段长度(m)'][sht_sec]
+        data['被串频率(Hz)'] = data['被串频率(Hz)'][sht_sec]
+        data['被串电容数'] = data['被串电容数'][sht_sec]
+
+        data['分路起点'] = data['被串相对位置(m)']
+        data['分路终点'] = data['分路起点'] + length2[sht_sec]
+
+    include_joint = df_input['include_joint']
+
+    if include_joint is True:
+        data['分路起止'] = '被串分路包含调谐区'
+        data['分路起点'] = data['分路起点'] - 14.5
+        data['分路终点'] = data['分路终点'] + 14.5
+    elif include_joint is False:
+        data['分路起止'] = '被串分路不包含调谐区'
+        data['分路起点'] = data['分路起点'] + 14.5
+        data['分路终点'] = data['分路终点'] - 14.5
+    else:
+        raise KeyboardInterrupt("include_joint error 应为'bool' 类型")
 
     # # focus_sec = '3778G'
     # focus_sec = '5578BG'
@@ -717,7 +978,272 @@ def analyse_complex_add():
     df2.to_excel(path2, sheet_name='result', index=False)
 
 
+def config_complex_add2():
+    dir_path = 'C:\\Users\\李继隆\\Desktop\\广湛六线并行\\20240311_遍历仿真'
+    path1 = os.path.join(dir_path, '广湛错位80m_广湛南广.xlsx')
+    path2 = os.path.join(dir_path, '广湛错位80m_南广贵广.xlsx')
+
+    sec_bei_list = [
+        '南广NS1LQAG',
+        '南广5578CG',
+        '南广5578BG',
+        '南广5578AG',
+        '南广5560CG',
+        '南广5560BG',
+        '南广5560AG',
+        '南广5542CG',
+        '南广5542BG',
+        '南广5542AG',
+    ]
+
+    freq_list = [
+        2000,
+        2600,
+    ]
+
+    sr_list = [
+        '左发',
+        '右发',
+    ]
+
+    # df_input1 = pd.read_excel(path1, sheet_name=None)
+    # df_input2 = pd.read_excel(path2, sheet_name=None)
+    # with pd.ExcelWriter(new_path) as writer:
+    #     for sheet_name, df_output in df_input1.items():
+    #         df_output.to_excel(writer, sheet_name='_'.join(['1', sheet_name]), index=False)
+    #
+    #     for sheet_name, df_output in df_input2.items():
+    #         df_output.to_excel(writer, sheet_name='_'.join(['2', sheet_name]), index=False)
+
+    df_input1 = pd.read_excel(path1, sheet_name='数据输出')
+    print('#' * 30)
+    df_input2 = pd.read_excel(path2, sheet_name='数据输出')
+    print('#' * 30)
+    df_input1_i_trk = pd.read_excel(path1, sheet_name='被串钢轨电流')
+    print('#' * 30)
+    df_input2_i_trk = pd.read_excel(path2, sheet_name='被串钢轨电流')
+    print('#' * 30)
+
+    iter_list = list(itertools.product(
+        freq_list, sr_list))
+
+    for sec_bei in sec_bei_list[:]:
+
+        df_output1 = pd.DataFrame()
+        df_output2 = pd.DataFrame()
+        df_output3 = pd.DataFrame()
+        df_output1_i_trk = pd.DataFrame()
+        df_output2_i_trk = pd.DataFrame()
+        df_output3_i_trk = pd.DataFrame()
+
+        new_path = os.path.join(dir_path, '广湛错位80m_二对一\\广湛错位80m_二对一_%s.xlsx' % sec_bei)
+        counter = 0
+
+        for freq_zhu, sr_bei in iter_list:
+            list1 = df_input1.loc[
+                (df_input1["被串区段"] == sec_bei) &
+                (df_input1["被串方向"] == sr_bei) &
+                (df_input1["主串频率(Hz)"] == freq_zhu)
+            ]['序号'].tolist()
+
+            list2 = df_input2.loc[
+                (df_input2["被串区段"] == sec_bei) &
+                (df_input2["被串方向"] == sr_bei) &
+                (df_input2["主串频率(Hz)"] == freq_zhu)
+            ]['序号'].tolist()
+
+            print(list1, list2)
+
+            for index1, index2 in itertools.product(list1, list2):
+
+                s1 = df_input1.iloc[index1, :]
+                s2 = df_input2.iloc[index2, :]
+                s1_i_trk = df_input1_i_trk.iloc[index1, :].copy().dropna()
+                s2_i_trk = df_input2_i_trk.iloc[index2, :].copy().dropna()
+                s3_i_trk = s1_i_trk + s2_i_trk
+
+                s3_columns = [
+                    '序号',
+                    '备注',
+
+                    '南广区段',
+                    '南广区段长度(m)',
+                    '南广方向',
+                    '南广区段频率(Hz)',
+                    '干扰信号(广湛/贵广)频率(Hz)',
+
+                    '广湛南广耦合系数(μH/km)',
+                    '广湛区段',
+                    '广湛区段长度(m)',
+                    '广湛相对位置(m)',
+                    '广湛方向',
+                    '广湛电平级',
+                    '广湛是否分路',
+
+                    '贵广南广耦合系数(μH/km)',
+                    '贵广区段',
+                    '贵广区段长度(m)',
+                    '贵广相对位置(m)',
+                    '贵广方向',
+                    '贵广电平级',
+                    '贵广是否分路',
+
+                    '最大叠加干扰电流(A)',
+                    '最大叠加干扰位置(m)',
+                ]
+
+                sht_mode = {
+                    '主串调整被串分路': '调整',
+                    '主被串同时分路': '同时分路',
+                }
+
+                sr_mode = {
+                    '右发': '正向',
+                    '左发': '反向',
+                }
+
+                s3 = pd.Series(index=s3_columns)
+
+                s3['序号'] = counter
+                s3['备注'] = '广湛六线并行'
+
+                s3['南广区段'] = s1['被串区段']
+                s3['南广区段长度(m)'] = s1['被串区段长度(m)']
+                s3['南广方向'] = sr_mode[s1['被串方向']]
+                s3['南广区段频率(Hz)'] = s1['被串频率(Hz)']
+                s3['干扰信号(广湛/贵广)频率(Hz)'] = s1['主串频率(Hz)']
+
+                s3['广湛南广耦合系数(μH/km)'] = s1['耦合系数(μH/km)']
+                s3['广湛区段'] = s1['主串区段']
+                s3['广湛区段长度(m)'] = s1['主串区段长度(m)']
+                s3['广湛相对位置(m)'] = -s1['被串相对位置(m)']
+                s3['广湛方向'] = sr_mode[s1['主串方向']]
+                s3['广湛电平级'] = s1['主串电平级']
+                s3['广湛是否分路'] = '广湛%s' % sht_mode[s1['分路模式']]
+
+                s3['贵广南广耦合系数(μH/km)'] = s2['耦合系数(μH/km)']
+                s3['贵广区段'] = s2['主串区段']
+                s3['贵广区段长度(m)'] = s2['主串区段长度(m)']
+                s3['贵广相对位置(m)'] = -s2['被串相对位置(m)']
+                s3['贵广方向'] = sr_mode[s2['主串方向']]
+                s3['贵广电平级'] = s2['主串电平级']
+                s3['贵广是否分路'] = '贵广%s' % sht_mode[s2['分路模式']]
+
+                i_trk_list = s3_i_trk.tolist()
+
+                s3['广湛最大干扰电流(A)'] = s1['被串最大干扰电流(A)']
+                s3['广湛最大干扰位置(m)'] = s1['被串最大干扰位置(m)']
+
+                s3['贵广最大干扰电流(A)'] = s2['被串最大干扰电流(A)']
+                s3['贵广最大干扰位置(m)'] = s2['被串最大干扰位置(m)']
+
+                s3['最大叠加干扰电流(A)'] = max(i_trk_list)
+                s3['最大叠加干扰位置(m)'] = round(i_trk_list.index(max(i_trk_list)))
+
+                df_output1 = pd.concat([df_output1, s1], axis=1, sort=False)
+                df_output2 = pd.concat([df_output2, s2], axis=1, sort=False)
+                df_output3 = pd.concat([df_output3, s3], axis=1, sort=False)
+                df_output1_i_trk = pd.concat([df_output1_i_trk, s1_i_trk], axis=1, sort=False)
+                df_output2_i_trk = pd.concat([df_output2_i_trk, s2_i_trk], axis=1, sort=False)
+                df_output3_i_trk = pd.concat([df_output3_i_trk, s3_i_trk], axis=1, sort=False)
+                counter += 1
+
+            print('#' * 30)
+
+        df_output1 = df_output1.transpose()
+        df_output2 = df_output2.transpose()
+        df_output3 = df_output3.transpose()
+        df_output1_i_trk = df_output1_i_trk.transpose()
+        df_output2_i_trk = df_output2_i_trk.transpose()
+        df_output3_i_trk = df_output3_i_trk.transpose()
+
+        print(df_output1)
+        print(df_output2)
+        print(df_output3)
+        print(df_output1_i_trk)
+        print(df_output2_i_trk)
+        print(df_output3_i_trk)
+
+        writer = pd.ExcelWriter(new_path, engine='xlsxwriter')
+
+        workbook = writer.book
+        header_format = workbook.add_format({
+            'bold': True,  # 字体加粗
+            'text_wrap': True,  # 是否自动换行
+            'valign': 'vcenter',  # 垂直对齐方式
+            'align': 'center',  # 水平对齐方式
+            'border': 1})
+
+        write_to_excel(df=df_output1, writer=writer, sheet_name="数据输出_广湛对南广", hfmt=header_format)
+        write_to_excel(df=df_output2, writer=writer, sheet_name="数据输出_贵广对南广", hfmt=header_format)
+        write_to_excel(df=df_output3, writer=writer, sheet_name="数据输出_二对一", hfmt=header_format)
+
+        df_output1_i_trk.to_excel(writer, sheet_name='被串钢轨电流_广湛对南广', index=False)
+        df_output2_i_trk.to_excel(writer, sheet_name='被串钢轨电流_贵广对南广', index=False)
+        df_output3_i_trk.to_excel(writer, sheet_name='被串钢轨电流_二对一', index=False)
+
+        writer.save()
+
+    # print(df_input1)
+    # path = 'C:\\Users\\李继隆\\Desktop\\广湛六线并行\\20240311_遍历仿真\\
+    # df_data1 = pd.read_excel(path, sheet_name='数据输出')
+    #
+    # path = 'C:\\Users\\李继隆\\Desktop\\广湛六线并行\\20240311_遍历仿真\\广湛六线并行_广湛错位80m.xlsx'
+    # df_data2 = pd.read_excel(path, sheet_name='数据输出')
+
+
+def combine_df():
+    sec_bei_list = [
+        '南广NS1LQAG',
+        '南广5578CG',
+        '南广5578BG',
+        '南广5578AG',
+        '南广5560CG',
+        '南广5560BG',
+        '南广5560AG',
+        '南广5542CG',
+        '南广5542BG',
+        '南广5542AG',
+    ]
+    dir_path = 'C:\\Users\\李继隆\\Desktop\\广湛六线并行\\20240311_遍历仿真'
+
+    df_data = pd.DataFrame()
+    df_i_trk = pd.DataFrame()
+
+    for sec_bei in sec_bei_list[:]:
+
+        path = os.path.join(dir_path, '广湛错位80m_二对一\\广湛错位80m_二对一_%s.xlsx' % sec_bei)
+        df_input1 = pd.read_excel(path, sheet_name='数据输出_二对一')
+        print('#' * 30)
+        df_input2 = pd.read_excel(path, sheet_name='被串钢轨电流_二对一')
+        print('#' * 30)
+
+        df_data = pd.concat([df_data, df_input1], axis=0, sort=False)
+        df_i_trk = pd.concat([df_i_trk, df_input2], axis=0, sort=False)
+
+    # print(df_data)
+    # print(df_i_trk)
+
+    new_path = os.path.join(dir_path, '广湛错位80m_二对一\\广湛错位80m_二对一_全区段.xlsx')
+    writer = pd.ExcelWriter(new_path, engine='xlsxwriter')
+
+    workbook = writer.book
+    header_format = workbook.add_format({
+        'bold': True,  # 字体加粗
+        'text_wrap': True,  # 是否自动换行
+        'valign': 'vcenter',  # 垂直对齐方式
+        'align': 'center',  # 水平对齐方式
+        'border': 1})
+
+    write_to_excel(df=df_data, writer=writer, sheet_name="数据输出_二对一", hfmt=header_format)
+    df_i_trk.to_excel(writer, sheet_name='被串钢轨电流_二对一', index=False)
+
+    writer.save()
+
+
 if __name__ == '__main__':
     # draw_image_20230904_digital()
     # draw_image_2021023_guangzhan()
-    analyse_complex_add()
+    # analyse_complex_add()
+    # config_complex_add2()
+    combine_df()

@@ -1,10 +1,22 @@
-from src.logMethod import *
-from src.Data2Excel import *
-from src.Config_QJ_20231011_guangzhan import *
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.Model.MainModel import MainModel
+from src.Model.ModelParameter import ModelParameter
 
-import pandas as pd
-import time
+from src.Method import write_to_excel
+from src.Method import get_i_trk
+
+from src.Data2Excel import SheetDataGroup
+from src.logMethod import MainLog
+
+from src.Config_QJ_20231011_guangzhan import config_input_20231011_guangzhan
+from src.Config_QJ_20231011_guangzhan import config_headlist_20231011_guangzhan
+from src.Config_QJ_20231011_guangzhan import config_row_data_20231011_guangzhan
+from src.Config_QJ_20231011_guangzhan import PreModel_QJ_20231011_guangzhan
+
 import os
+import time
+import pandas as pd
+import numpy as np
 
 
 def main_cal(_, path2, path3):
@@ -20,13 +32,13 @@ def main_cal(_, path2, path3):
     df_input = config_input_20231011_guangzhan()
 
     df_input = df_input.where(df_input.notnull(), None)
+    work_path = path3
+    para = ModelParameter(workpath=work_path)
     num_len = len(list(df_input['序号']))
 
     #################################################################################
 
     # 初始化变量
-    work_path = path3
-    para = ModelParameter(workpath=work_path)
 
     para['MAX_CURRENT'] = {
         1700: 197,
@@ -166,7 +178,7 @@ def main_cal(_, path2, path3):
             # m1.equs.creat_matrix()
             # m1.equs.solve_matrix()
 
-            # i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
+            i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
             i_sht_bei = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
 
             i_sht_bei_complex = md.lg['线路4']['列车1']['分路电阻1']['I'].value
@@ -220,7 +232,7 @@ def main_cal(_, path2, path3):
             #################################################################################
 
             # data2excel.add_data(sheet_name="主串钢轨电流", data1=i_trk_zhu)
-            # data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
+            data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
             data2excel.add_data(sheet_name="被串钢轨电流", data1=i_trk_bei)
             data2excel.add_data(sheet_name="被串分路电流", data1=i_sht_bei)
             data2excel.add_data(sheet_name="被串分路点左侧钢轨电流", data1=i_trk_l)
@@ -326,7 +338,7 @@ def main_cal(_, path2, path3):
         # "被串分路点左侧钢轨电流",
         # "被串分路点右侧钢轨电流",
         # "主串钢轨电流",
-        # "主串分路电流",
+        "主串分路电流",
         # "主串轨面电压",
         # "主串SVA'电流",
         # "被串钢轨电流折算后",
