@@ -1,9 +1,16 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+
+from src.Module.TcsrLib import ZPW2000A_ZN_25Hz_Coding
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
+
 import pandas as pd
 
 
@@ -95,12 +102,12 @@ def config_input_20250818_25hz_coding():
 
     pick_sec = [
         [0, 2],
-        # [0, 3],
-        # [1, 2],
+        [0, 3],
+        [1, 2],
         [1, 3],
         [2, 0],
-        # [2, 1],
-        # [3, 0],
+        [2, 1],
+        [3, 0],
         [3, 1],
     ]
 
@@ -201,12 +208,12 @@ def config_headlist_20250818_25hz_coding():
         # '占车位置(m)',
 
         '主串频率(Hz)',
-        # '被串频率(Hz)',
+        '被串频率(Hz)',
 
 
         '主串电容数(含TB)', '被串电容数(含TB)',
         '主串电容值(μF)',
-        # '被串电容值(μF)',
+        '被串电容值(μF)',
 
         '钢轨电阻(Ω/km)', '钢轨电感(H/km)',
         '主串道床电阻(Ω·km)', '被串道床电阻(Ω·km)',
@@ -216,7 +223,7 @@ def config_headlist_20250818_25hz_coding():
         '主串电缆长度(km)', '被串电缆长度(km)',
         '分路模式',
         '主串分路电阻(Ω)', '被串分路电阻(Ω)',
-        '占车分路电阻(Ω)',
+        # '占车分路电阻(Ω)',
 
         '主串电平级',
         '电源电压',
@@ -224,10 +231,10 @@ def config_headlist_20250818_25hz_coding():
         '分路间隔(m)',
 
         '主串FT1U输出电压(V)',
-        # '被串FT1U输出电压(V)',
+        '被串FT1U输出电压(V)',
 
         '主串调整电阻(Ω)',
-        # '被串调整电阻(Ω)',
+        '被串调整电阻(Ω)',
 
         # '被串是否发码',
         # 'FT1-U二次侧输出电压(V)',
