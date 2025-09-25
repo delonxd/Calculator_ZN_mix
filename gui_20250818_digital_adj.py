@@ -1,4 +1,4 @@
-import tkinter.messagebox
+# import tkinter.messagebox
 from MainCalculator_ZN_20250818_digital_adj import main_cal_20250818_digital_adj
 
 import threading
@@ -46,7 +46,8 @@ class MainWindow:
         # path = 'C:/Users/李继隆/PycharmProjects/Calculator_ZN_mix/邻线干扰单独核算区段输入模板-V1.0.xlsx'
 
         # path = os.getcwd() + '\\邻线干扰单独核算区段输入模板-V1.0.xlsx'
-        path = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送两受.xlsx'
+        # path = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送两受.xlsx'
+        path = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送一受.xlsx'
 
         self.entry1 = tk.Entry(self.main_frame, width=90)
         self.entry1.insert(0, path)
@@ -140,7 +141,10 @@ class MainWindow:
     def generate_output_path(self, mode, path1):
 
         timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
-        file_name = f"车站数字化调整表输出_{mode}_{timestamp}_.xlsx"
+
+        txt = os.path.splitext(os.path.basename(path1))[0]
+        file_name = f"车站数字化调整表输出_{mode}_{timestamp}_{txt}.xlsx"
+
         path2 = '/'.join([os.path.dirname(path1), file_name])
 
         self.entry2.config(state=tk.NORMAL)
