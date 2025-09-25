@@ -30,7 +30,7 @@ import numpy as np
 ########################################################################################################################
 
 # 配置输入
-def config_input_20250818_digital(mode):
+def config_input_20250818_digital(mode, path):
 
     if mode == '一送一受':
         columns = [
@@ -48,7 +48,7 @@ def config_input_20250818_digital(mode):
             '补偿电容总个数',
         ]
 
-        path = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送一受.xlsx'
+        # path = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送一受.xlsx'
         df_input = pd.read_excel(path)
 
         df = df_input.iloc[:, :13]
@@ -78,7 +78,7 @@ def config_input_20250818_digital(mode):
             '补偿电容总个数',
         ]
 
-        path = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——两送一受.xlsx'
+        # path = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——两送一受.xlsx'
         df_input = pd.read_excel(path)
 
         df = df_input.iloc[:, :16]
@@ -149,7 +149,7 @@ def config_input_20250818_digital(mode):
             '岔尾位置',
         ]
 
-        path = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送两受.xlsx'
+        # path = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送两受.xlsx'
         df_input = pd.read_excel(path)
 
         df = df_input.iloc[:, :16]
@@ -669,7 +669,7 @@ def get_pwr_level_digital_adj(min_i_trk, freq):
         ret = 1
     i_trk = min_i_trk * pwr_list[ret-1] / 132
 
-    print(ret, i_trk)
+    # print(ret, i_trk)
     return ret, i_trk
 
 

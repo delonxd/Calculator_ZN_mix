@@ -14,18 +14,22 @@ import os
 # import sys
 
 
-def main_cal(mode, output_path, work_path):
+def main_cal_20250818_digital_adj(mode, input_path, output_path):
     pd.set_option('display.max_columns', None)
     pd.set_option('display.expand_frame_repr', True)
     pd.set_option('display.unicode.ambiguous_as_wide', True)
     pd.set_option('display.unicode.east_asian_width', True)
     pd.set_option('display.width', 180)
 
+    MainLog.add_log_accurate(f'       mode --> {mode}')
+    MainLog.add_log_accurate(f' input path --> {input_path}')
+    MainLog.add_log_accurate(f'output path --> {output_path}')
+
     #################################################################################
 
     # 参数输入
 
-    df_input = config_input_20250818_digital(mode)
+    df_input = config_input_20250818_digital(mode, input_path)
     size = len(list(df_input['序号']))
 
     # 检查输入格式
@@ -41,7 +45,7 @@ def main_cal(mode, output_path, work_path):
     #################################################################################
 
     # 初始化变量
-    # work_path = os.getcwd()
+    work_path = os.getcwd()
     # work_path = path3
     para = ModelParameter(workpath=work_path)
 
@@ -146,14 +150,18 @@ def main_cal(mode, output_path, work_path):
 
     writer.save()
     # return 1
+    MainLog.add_log_accurate(f'complete.')
 
 
 if __name__ == '__main__':
 
     timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
-    path1 = f'20250530_车站数字化调整表\\仿真输出_{timestamp}.xlsx'
-    path2 = os.getcwd()
+    # path1 = ''
+    # # path1 = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送一受.xlsx'
+    # # path1 = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——两送一受.xlsx'
+    path1 = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送两受.xlsx'
+    path2 = f'20250530_车站数字化调整表\\仿真输出_{timestamp}.xlsx'
 
     # main_cal('一送一受', path1, path2)
     # main_cal('两送一受', path1, path2)
-    main_cal('一送两受', path1, path2)
+    main_cal_20250818_digital_adj('一送两受', path1, path2)
