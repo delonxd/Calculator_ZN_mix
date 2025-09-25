@@ -1,4 +1,4 @@
-from src.AbstractClass.ElePack import ElePack
+from src.TrackCircuitElement.Section import *
 
 
 # 区段组
