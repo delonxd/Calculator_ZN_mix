@@ -7,9 +7,9 @@ from src.Model.MainModel import MainModel
 from src.Model.ModelParameter import ModelParameter
 from src.ImpedanceParaType import ImpedanceMultiFreq
 
-from src.ConfigHeadList import config_headlist_0509_eerduosi
-from src.ConfigRowData import config_row_data_0509_eerduosi
-from src.Model.PreModel import PreModel_0509_eerduosi
+from src.Config_ZN_20230509_eerduosi import config_headlist_0509_eerduosi
+from src.Config_ZN_20230509_eerduosi import config_row_data_0509_eerduosi
+from src.Config_ZN_20230509_eerduosi import PreModel_0509_eerduosi
 
 import pandas as pd
 import numpy as np
