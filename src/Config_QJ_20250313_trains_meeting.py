@@ -1,11 +1,18 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+from src.Method import generate_frqs
+
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
+
+import pandas as pd
+import numpy as np
 
 
 # 配置输入
@@ -675,7 +682,7 @@ def draw_image_20250313_trains_meeting():
         max_i = 0
         size0 = data.index.size - 2
 
-        column_size = 0
+        # column_size = 0
 
         counter = 0
         for i, _ in enumerate(index):
@@ -689,7 +696,7 @@ def draw_image_20250313_trains_meeting():
             # yy = yy[sec_length:]
             # yy = yy[:-sec_length]
 
-            column_size = yy.size
+            # column_size = yy.size
             xx = np.arange(yy.size)
 
             width = 2
@@ -892,7 +899,7 @@ def draw_image2_20250313_trains_meeting():
     file = '区间会车_同向行驶_800m_主串2600Hz_被串1700Hz.xlsx'
     # file = '区间会车_800m_主串2600Hz_被串2300Hz.xlsx'
     df_input = pd.read_excel(root + file, '数据输出')
-    df_data = pd.read_excel(root + file, '被串钢轨电流')
+    # df_data = pd.read_excel(root + file, '被串钢轨电流')
 
     # fig = plt.figure(figsize=(16, 9), dpi=100)
     # fig.subplots_adjust(hspace=0.4)
