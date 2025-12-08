@@ -1,11 +1,17 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+from src.Method import generate_frqs
+
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
+
+import pandas as pd
 
 
 # 配置区间700m错位遍历
@@ -23,13 +29,13 @@ def config_input_20230908_offset():
         # '被串方向',
     ]
 
-    src_list = [
-        [2600, 1700, 500],
-        [2600, 1700, 600],
-        [2600, 1700, 700],
-        [2600, 1700, 800],
-        [2300, 2000, 500],
-    ]
+    # src_list = [
+    #     [2600, 1700, 500],
+    #     [2600, 1700, 600],
+    #     [2600, 1700, 700],
+    #     [2600, 1700, 800],
+    #     [2300, 2000, 500],
+    # ]
 
     src_list = [
         [2600, 2000, 500],
