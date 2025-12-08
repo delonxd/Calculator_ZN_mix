@@ -1,10 +1,21 @@
-from src.logMethod import *
-from src.Data2Excel import *
-from src.Config_QJ_20240105_jiayuguan import *
+
+from src.logMethod import MainLog
+from src.Data2Excel import SheetDataGroup
+from src.Method import get_i_trk, write_to_excel
+
+from src.Model.MainModel import MainModel
+from src.Model.ModelParameter import ModelParameter
+from src.ImpedanceParaType import ImpedanceMultiFreq
+
+from src.Config_QJ_20240105_jiayuguan import config_input_20240105_jiayuguan
+from src.Config_QJ_20240105_jiayuguan import config_headlist_20240105_jiayuguan
+from src.Config_QJ_20240105_jiayuguan import config_row_data_20240105_jiayuguan
+from src.Config_QJ_20240105_jiayuguan import PreModel_20240105_QJ_jiayuguan
+from src.Config_QJ_20240105_jiayuguan import draw_image_20240105_jiayuguan
 
 import pandas as pd
+import numpy as np
 import time
-import itertools
 import os
 
 
@@ -51,14 +62,14 @@ def main_cal(root, path2, path3):
     }
 
     # 钢轨阻抗
-    trk_2000A_21 = ImpedanceMultiFreq()
-    trk_2000A_21.rlc_s = {
+    trk_21 = ImpedanceMultiFreq()
+    trk_21.rlc_s = {
         1700: [1.177, 1.314e-3, None],
         2000: [1.306, 1.304e-3, None],
         2300: [1.435, 1.297e-3, None],
         2600: [1.558, 1.291e-3, None]}
 
-    para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
+    para['Trk_z'].rlc_s = trk_21.rlc_s
 
     para['Ccmp_z_change_zhu'] = ImpedanceMultiFreq()
     para['Ccmp_z_change_chuan'] = ImpedanceMultiFreq()
@@ -88,17 +99,17 @@ def main_cal(root, path2, path3):
 
     # 获取循环变量
 
-    clist1 = clist2 = clist3 = clist4 = clist5 = clist6 = [[]]
-
-    clist = list(itertools.product(
-        clist1, clist2, clist3, clist4, clist5, clist6))
+    # clist1 = clist2 = clist3 = clist4 = clist5 = clist6 = [[]]
+    #
+    # clist = list(itertools.product(
+    #     clist1, clist2, clist3, clist4, clist5, clist6))
 
     #################################################################################
 
-    columns_max = 0
+    # columns_max = 0
     counter = 1
 
-    pd_read_flag = True
+    # pd_read_flag = True
     # pd_read_flag = False
 
     MainLog.add_log_accurate('start calculate')
@@ -139,7 +150,7 @@ def main_cal(root, path2, path3):
 
         data2excel.add_new_row()
 
-        len_posi = 0
+        # len_posi = 0
 
         # 分路计算
 
@@ -159,7 +170,7 @@ def main_cal(root, path2, path3):
         else:
             raise KeyboardInterrupt("被串方向应填写'左发'或'右发'")
 
-        len_posi = max(len(posi_list), len_posi)
+        # len_posi = max(len(posi_list), len_posi)
 
         for posi_zhu in posi_list:
             para['分路位置'] = posi_zhu
@@ -317,7 +328,7 @@ def main_cal(root, path2, path3):
     # 修正表头
     # print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
-    posi_header = list(range(columns_max))
+    # posi_header = list(range(columns_max))
     # posi_header[0] = '发送端'
     # posi_header[0] = '主串发送端'
     # posi_header = None

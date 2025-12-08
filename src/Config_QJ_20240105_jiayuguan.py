@@ -1,17 +1,22 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import TrainMulti
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
 
+import pandas as pd
+import numpy as np
 import os
-import time
+
 import matplotlib.pyplot as plt
-from matplotlib import cm
-import matplotlib as mpl
+# from matplotlib import cm
 
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
 # plt.rcParams['font.sans-serif'] = ['consolas']  # 用来正常显示中文标签
