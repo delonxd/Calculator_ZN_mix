@@ -1,11 +1,17 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
+
+import pandas as pd
 
 
 def get_guangzhan_info():
@@ -23,18 +29,17 @@ def get_guangzhan_info():
     #     ('0178AG', 2600, 700, 8),
     # ]
 
-    # D2K11+802
-    info_line1 = [
-        802,
-        ('0117BG', 2600, 699, 8),
-        ('0117AG', 2000, 699, 11),
-        ('0131BG', 2600, 743, 9),
-        ('0131AG', 2000, 744, 12),
-        ('0147BG', 2600, 741, 9),
-        ('0147AG', 2000, 742, 12),
-        ('0161BG', 2600, 757, 10),
-    ]
-
+    # # D2K11+802
+    # info_line1 = [
+    #     802,
+    #     ('0117BG', 2600, 699, 8),
+    #     ('0117AG', 2000, 699, 11),
+    #     ('0131BG', 2600, 743, 9),
+    #     ('0131AG', 2000, 744, 12),
+    #     ('0147BG', 2600, 741, 9),
+    #     ('0147AG', 2000, 742, 12),
+    #     ('0161BG', 2600, 757, 10),
+    # ]
 
     # # D2K11+460
     # info_line2 = [
@@ -174,7 +179,8 @@ def get_line_info(line1, line2):
     line1.pop(0)
     line2.pop(0)
 
-    zhu_left = zhu_right = 0
+    # zhu_left = 0
+    zhu_right = 0
     res = []
     for sec_zhu in line1:
         zhu_left = zhu_right
@@ -183,7 +189,8 @@ def get_line_info(line1, line2):
         bei_list = []
         bei_offset = 0
 
-        bei_left = bei_right = offset
+        # bei_left = offset
+        bei_right = offset
         for sec_bei in line2:
             bei_left = bei_right
             bei_right = bei_left + sec_bei[2]

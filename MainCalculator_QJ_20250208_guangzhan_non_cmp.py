@@ -1,8 +1,18 @@
-from src.logMethod import *
-from src.Data2Excel import *
-from src.Config_QJ_20250208_guangzhan_non_cmp import *
+from src.logMethod import MainLog
+from src.Data2Excel import SheetDataGroup
+from src.Method import get_i_trk, write_to_excel
+
+from src.Model.MainModel import MainModel
+from src.Model.ModelParameter import ModelParameter
+from src.ImpedanceParaType import ImpedanceMultiFreq
+
+from src.Config_QJ_20250208_guangzhan_non_cmp import config_input_20250208_guangzhan_non_cmp
+from src.Config_QJ_20250208_guangzhan_non_cmp import config_headlist_20250208_guangzhan_non_cmp
+from src.Config_QJ_20250208_guangzhan_non_cmp import config_row_data_20250208_guangzhan_non_cmp
+from src.Config_QJ_20250208_guangzhan_non_cmp import PreModel_QJ_20250208_guangzhan_non_cmp
 
 import pandas as pd
+import numpy as np
 import time
 import os
 
@@ -169,7 +179,7 @@ def main_cal(_, path2, path3):
             i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
             i_sht_bei = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
 
-            i_sht_bei_complex = md.lg['线路4']['列车1']['分路电阻1']['I'].value
+            # i_sht_bei_complex = md.lg['线路4']['列车1']['分路电阻1']['I'].value
 
             # i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu, direct='右')
             # i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
@@ -186,8 +196,8 @@ def main_cal(_, path2, path3):
             else:
                 i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
 
-            i_trk_l = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
-            i_trk_r = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
+            # i_trk_l = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
+            # i_trk_r = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
 
             # i1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I1'].value
             # i2 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I2'].value
@@ -352,4 +362,3 @@ if __name__ == '__main__':
              '%s\\仿真输出_广湛六线并行_%s.xlsx' % (sub_name, timestamp),
              os.getcwd())
     # main(sys.argv[1], sys.argv[2], sys.argv[3])
-
