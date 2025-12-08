@@ -1,8 +1,10 @@
 from src.logMethod import MainLog
 from src.Data2Excel import SheetDataGroup
-from src.Method import ImpedanceMultiFreq, get_i_trk, write_to_excel
+from src.Method import get_i_trk, write_to_excel
 
-from src.Model.PreModel import MainModel, ModelParameter
+from src.Model.MainModel import MainModel
+from src.Model.ModelParameter import ModelParameter
+from src.ImpedanceParaType import ImpedanceMultiFreq
 
 from src.Config_QJ_20250827_digital import config_input_20250827_qj_digital
 from src.Config_QJ_20250827_digital import config_headlist_20250827_qj_digital
@@ -15,7 +17,7 @@ import time
 import os
 
 
-def main_cal(path1, path2, path3):
+def main_cal(_, path2, path3):
     pd.set_option('display.max_columns', None)
     pd.set_option('display.expand_frame_repr', True)
     pd.set_option('display.unicode.ambiguous_as_wide', True)
@@ -58,14 +60,14 @@ def main_cal(path1, path2, path3):
     }
 
     # 钢轨阻抗
-    trk_2000A_21 = ImpedanceMultiFreq()
-    trk_2000A_21.rlc_s = {
+    trk_21 = ImpedanceMultiFreq()
+    trk_21.rlc_s = {
         1700: [1.177, 1.314e-3, None],
         2000: [1.306, 1.304e-3, None],
         2300: [1.435, 1.297e-3, None],
         2600: [1.558, 1.291e-3, None]}
 
-    para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
+    para['Trk_z'].rlc_s = trk_21.rlc_s
 
     para['Ccmp_z_change_zhu'] = ImpedanceMultiFreq()
     para['Ccmp_z_change_chuan'] = ImpedanceMultiFreq()
@@ -105,7 +107,7 @@ def main_cal(path1, path2, path3):
     columns_max = 0
     counter = 1
 
-    pd_read_flag = True
+    # pd_read_flag = True
     # pd_read_flag = False
 
     MainLog.add_log_accurate('start calculate')
@@ -202,7 +204,7 @@ def main_cal(path1, path2, path3):
             # m1.equs.creat_matrix()
             # m1.equs.solve_matrix()
 
-            i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
+            # i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
             i_sht_bei = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
 
             if data['主串方向'] == '右发':
@@ -271,7 +273,7 @@ def main_cal(path1, path2, path3):
             columns_max = len_posi
 
         i_trk_list = data2excel.data_dict["被串钢轨电流"][-1]
-        i_sht_list = data2excel.data_dict["被串分路电流"][-1]
+        # i_sht_list = data2excel.data_dict["被串分路电流"][-1]
 
         # i_sht_list_zhu = data2excel.data_dict["主串分路电流"][-1]
 
@@ -280,7 +282,7 @@ def main_cal(path1, path2, path3):
         # data['主串入口电流(A)'] = i_sht_list_zhu[-1]
         data['被串最大干扰位置(m)'] = round(i_trk_list.index(max(i_trk_list))*interval)
         max_i = data['被串最大干扰电流(A)'] * 1000
-        MAX_I = para['MAX_CURRENT'][data['主串频率(Hz)']]
+        # MAX_I = para['MAX_CURRENT'][data['主串频率(Hz)']]
 
         # if data['故障位置'] == '无':
         #     max_i_normal = max_i
@@ -330,7 +332,7 @@ def main_cal(path1, path2, path3):
     # 修正表头
     # print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
-    posi_header = list(range(columns_max))
+    # posi_header = list(range(columns_max))
     # posi_header[0] = '发送端'
     # posi_header[0] = '主串发送端'
     # posi_header = None
@@ -397,4 +399,3 @@ if __name__ == '__main__':
         f'{file}\\仿真输出_区间数字化_{timestamp}.xlsx',
         os.getcwd(),
     )
-

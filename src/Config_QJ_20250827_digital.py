@@ -1,23 +1,26 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+from src.Method import generate_frqs
+
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
-from src.logMethod import *
 
-from openpyxl import Workbook, load_workbook
-from openpyxl.styles import PatternFill, Alignment, Font, Border, Side
-
-import re
-import os
-import time
+import itertools
 import pandas as pd
-import numpy as np
+
+# from openpyxl import Workbook, load_workbook
+# from openpyxl.styles import PatternFill, Alignment, Font, Border, Side
+
 import matplotlib.pyplot as plt
-from matplotlib import cm
+# from matplotlib import cm
+
 plt.rcParams['font.sans-serif'] = ['SimSun']
 plt.rcParams['mathtext.fontset'] = 'stix'
 plt.rcParams['axes.unicode_minus'] = False
