@@ -1,19 +1,22 @@
-from src.TrackCircuitElement.SectionGroup import *
-# from src.TrackCircuitElement.Train import *
-# from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
-from src.FrequencyType import Freq
-from src.Model.PreModel import PreModel
-from src.logMethod import *
 
-import os
-import time
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
+from src.FrequencyType import Freq
+
+from src.Module.TcsrLib import ZPW2000A_ZN_Digital
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
+from src.Model.PreModel import PreModel
+
 import pandas as pd
 import numpy as np
+
 import matplotlib.pyplot as plt
-from matplotlib import cm
+# from matplotlib import cm
 
 plt.rcParams['font.sans-serif'] = ['SimSun']
 plt.rcParams['mathtext.fontset'] = 'stix'
