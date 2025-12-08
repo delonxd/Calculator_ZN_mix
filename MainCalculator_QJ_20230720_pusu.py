@@ -1,24 +1,23 @@
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
-from src.Model.PreModel import *
-from src.FrequencyType import Freq
-from src.ConstantType import *
-from src.Method import *
-from src.logMethod import *
-from src.ConfigHeadList import *
-from src.Data2Excel import *
-from src.RowData import RowData
-from src.ConfigRowData import *
-from src.ConfigInput import *
+from src.logMethod import MainLog
+from src.Data2Excel import SheetDataGroup
+from src.Method import get_i_trk, write_to_excel
+
+from src.Model.MainModel import MainModel
+from src.Model.ModelParameter import ModelParameter
+from src.ImpedanceParaType import ImpedanceMultiFreq
+
+from src.ConfigInput import config_input_20230720_pusu
+from src.ConfigHeadList import config_headlist_20230720_pusu
+from src.ConfigRowData import config_row_data_20230720_pusu
+from src.Model.PreModel import PreModel_20230720_pusu
 
 import pandas as pd
+import numpy as np
 import time
-import itertools
 import os
-import sys
 
 
-def main_cal(path1, path2, path3, sec_type, sec_length):
+def main_cal(_, path2, path3, sec_type, sec_length):
     pd.set_option('display.max_columns', None)
     pd.set_option('display.expand_frame_repr', True)
     pd.set_option('display.unicode.ambiguous_as_wide', True)
@@ -70,8 +69,8 @@ def main_cal(path1, path2, path3, sec_type, sec_length):
     }
 
     # 钢轨阻抗
-    trk_2000A_21 = ImpedanceMultiFreq()
-    trk_2000A_21.rlc_s = {
+    trk_21 = ImpedanceMultiFreq()
+    trk_21.rlc_s = {
         1700: [1.177, 1.314e-3, None],
         2000: [1.306, 1.304e-3, None],
         2300: [1.435, 1.297e-3, None],
@@ -96,7 +95,7 @@ def main_cal(path1, path2, path3, sec_type, sec_length):
     #     2300: [2.16, 1.16e-3, None],
     #     2600: [2.33, 1.15e-3, None]}
 
-    para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
+    para['Trk_z'].rlc_s = trk_21.rlc_s
 
     para['Ccmp_z_change_zhu'] = ImpedanceMultiFreq()
     para['Ccmp_z_change_chuan'] = ImpedanceMultiFreq()
@@ -137,10 +136,10 @@ def main_cal(path1, path2, path3, sec_type, sec_length):
 
     # 获取循环变量
 
-    clist1 = clist2 = clist3 = clist4 = clist5 = clist6 = [[]]
-
-    clist = list(itertools.product(
-        clist1, clist2, clist3, clist4, clist5, clist6))
+    # clist1 = clist2 = clist3 = clist4 = clist5 = clist6 = [[]]
+    #
+    # clist = list(itertools.product(
+    #     clist1, clist2, clist3, clist4, clist5, clist6))
 
     #################################################################################
 
@@ -150,7 +149,7 @@ def main_cal(path1, path2, path3, sec_type, sec_length):
     # temp_temp = 0
     # cv1, cv2, cv3, cv4, cv5, cv6 = [0] * 6
 
-    pd_read_flag = True
+    # pd_read_flag = True
     # pd_read_flag = False
 
     # num_len = 1
@@ -315,7 +314,7 @@ def main_cal(path1, path2, path3, sec_type, sec_length):
             columns_max = len_posi
 
         i_trk_list = data2excel.data_dict["被串钢轨电流"][-1]
-        i_sht_list = data2excel.data_dict["被串分路电流"][-1]
+        # i_sht_list = data2excel.data_dict["被串分路电流"][-1]
 
         # i_sht_list_zhu = data2excel.data_dict["主串分路电流"][-1]
 
@@ -324,7 +323,7 @@ def main_cal(path1, path2, path3, sec_type, sec_length):
         # data['主串入口电流(A)'] = i_sht_list_zhu[-1]
         data['被串最大干扰位置(m)'] = round(i_trk_list.index(max(i_trk_list))*interval)
         max_i = data['被串最大干扰电流(A)'] * 1000
-        MAX_I = para['MAX_CURRENT'][data['主串频率(Hz)']]
+        # MAX_I = para['MAX_CURRENT'][data['主串频率(Hz)']]
 
         # if data['故障位置'] == '无':
         #     max_i_normal = max_i
@@ -373,7 +372,7 @@ def main_cal(path1, path2, path3, sec_type, sec_length):
     # 修正表头
     # print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
-    posi_header = list(range(columns_max))
+    # posi_header = list(range(columns_max))
     # posi_header[0] = '发送端'
     # posi_header[0] = '主串发送端'
     # posi_header = None
@@ -452,10 +451,10 @@ if __name__ == '__main__':
 
             sub3 = '%sm' % val2
 
-            path1 = ''
-            path2 = '%s仿真输出_%s_%s_%s_%s.xlsx' % (sub0, timestamp, sub1, sub2, sub3)
-            path3 = os.getcwd()
+            p1 = ''
+            p2 = '%s仿真输出_%s_%s_%s_%s.xlsx' % (sub0, timestamp, sub1, sub2, sub3)
+            p3 = os.getcwd()
 
-            main_cal(path1, path2, path3, val1, val2)
+            main_cal(p1, p2, p3, val1, val2)
 
     # main(sys.argv[1], sys.argv[2], sys.argv[3])
