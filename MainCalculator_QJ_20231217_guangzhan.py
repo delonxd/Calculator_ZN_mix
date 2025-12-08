@@ -1,8 +1,19 @@
-from src.logMethod import *
-from src.Data2Excel import *
-from src.Config_QJ_20231217_guangzhan import *
+
+from src.logMethod import MainLog
+from src.Data2Excel import SheetDataGroup
+from src.Method import get_i_trk, write_to_excel
+
+from src.Model.MainModel import MainModel
+from src.Model.ModelParameter import ModelParameter
+from src.ImpedanceParaType import ImpedanceMultiFreq
+
+from src.Config_QJ_20231217_guangzhan import config_input_20231217_guangzhan
+from src.Config_QJ_20231217_guangzhan import config_headlist_20231217_guangzhan
+from src.Config_QJ_20231217_guangzhan import config_row_data_20231217_guangzhan
+from src.Config_QJ_20231217_guangzhan import PreModel_QJ_20231217_guangzhan
 
 import pandas as pd
+import numpy as np
 import time
 import os
 
@@ -190,8 +201,8 @@ def main_cal(_, path2, path3):
             else:
                 i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
 
-            i_trk_l = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
-            i_trk_r = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
+            # i_trk_l = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
+            # i_trk_r = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
 
             # i1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I1'].value
             # i2 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I2'].value
@@ -368,7 +379,7 @@ def write2excel_main(dir_path, data2excel, excel_data, head_list):
 
     # 保存到本地excel
     # str1 = '20231011_广湛六线并行'
-    str2 = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    # str2 = time.strftime("%Y%m%d%H%M%S", time.localtime())
 
     str2 = df_data.loc[0, '解决办法']
 

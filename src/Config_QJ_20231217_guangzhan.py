@@ -1,11 +1,16 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
+
+import pandas as pd
 
 
 def get_guangzhan_info():
@@ -37,19 +42,19 @@ def get_guangzhan_info():
         ('5542AG', 2600, 800, 10),
     ]
 
-    info_line3 = [
-        -615,
-        ('S1LQBG', 2600, 464, 6),
-        ('S1LQAG', 2000, 464, 8),
-        ('8420DG', 2600, 625, 8),
-        ('8420CG', 2000, 745, 12),
-        ('8420BG', 2600, 505, 7),
-        ('8420AG', 2000, 625, 10),
-        ('8394CG', 2600, 766, 10),
-        ('8394BG', 2000, 490, 8),
-        ('8394AG', 2600, 550, 7),
-        ('8376CG', 2000, 810, 14),
-    ]
+    # info_line3 = [
+    #     -615,
+    #     ('S1LQBG', 2600, 464, 6),
+    #     ('S1LQAG', 2000, 464, 8),
+    #     ('8420DG', 2600, 625, 8),
+    #     ('8420CG', 2000, 745, 12),
+    #     ('8420BG', 2600, 505, 7),
+    #     ('8420AG', 2000, 625, 10),
+    #     ('8394CG', 2600, 766, 10),
+    #     ('8394BG', 2000, 490, 8),
+    #     ('8394AG', 2600, 550, 7),
+    #     ('8376CG', 2000, 810, 14),
+    # ]
 
     ret = []
     ret.extend(get_line_info(info_line1, info_line2))
@@ -198,23 +203,25 @@ def get_guangzhan_info_deduct_cmp():
     ret = []
 
     # 1 南广重点
-    focus_ng_list = ['5578BG', '5578AG']
-    # focus_ng_list = ['5578AG']
+    # focus_ng_list = ['5578BG', '5578AG']
+    focus_ng_list = ['5578BG']
 
     # 2 广湛频率
     gz_freq_list = [2600, 2000]
     # gz_freq_list = [2000]
 
     # 3 广湛区段长度
-    gz_length_list = [500, 600]
+    # gz_length_list = [500, 600]
+    gz_length_list = [500]
 
     # 4 主串被串线路
-    mode_list = ['广湛对南广', '南广对广湛']
-    # mode_list = ['广湛对南广']
+    # mode_list = ['广湛对南广', '南广对广湛']
+    mode_list = ['广湛对南广']
     # mode_list = ['南广对广湛']
 
     # 5 广湛电容布置
-    gz_cmp_list = ['电容数减1', '电容数减2']
+    # gz_cmp_list = ['电容数减1', '电容数减2']
+    gz_cmp_list = ['电容数正常']
 
     for gz_cmp in gz_cmp_list:
 
@@ -248,6 +255,8 @@ def get_guangzhan_info_deduct_cmp():
                         offset_list = list(range(-gz_length-gz_length, ng_length-gz_length, 50))
                         offset_list.append(ng_length-gz_length)
 
+                        offset_list = [-300]
+
                         for offset in offset_list:
 
                             freq_side = Freq(gz_freq).change_freq()
@@ -263,6 +272,8 @@ def get_guangzhan_info_deduct_cmp():
                                 deduct = 1
                             elif gz_cmp == '电容数减2':
                                 deduct = 2
+                            elif gz_cmp == '电容数正常':
+                                deduct = 0
                             else:
                                 raise KeyboardInterrupt('deduct error')
 
@@ -365,7 +376,8 @@ def get_line_info(line1, line2):
     line1.pop(0)
     line2.pop(0)
 
-    zhu_left = zhu_right = 0
+    # zhu_left = 0
+    zhu_right = 0
     res = []
     for sec_zhu in line1:
         zhu_left = zhu_right
@@ -374,7 +386,8 @@ def get_line_info(line1, line2):
         bei_list = []
         bei_offset = 0
 
-        bei_left = bei_right = offset
+        # bei_left = offset
+        bei_right = offset
         for sec_bei in line2:
             bei_left = bei_right
             bei_right = bei_left + sec_bei[2]
@@ -423,13 +436,13 @@ def config_input_20231217_guangzhan():
 
     mode_list = [
         '主串调整被串分路',
-        '主被串同时分路',
+        # '主被串同时分路',
     ]
 
     # src = get_guangzhan_info()
     # src = get_guangzhan_info_no_cmp()
-    src = get_guangzhan_info_replace_c_with_TB()
-    # src = get_guangzhan_info_deduct_cmp()
+    # src = get_guangzhan_info_replace_c_with_TB()
+    src = get_guangzhan_info_deduct_cmp()
 
     df = pd.DataFrame(index=columns, dtype='object')
 
