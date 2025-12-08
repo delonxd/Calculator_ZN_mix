@@ -1,10 +1,17 @@
-from src.Model.PreModel import *
+from src.Data2Excel import SheetDataGroup
+from src.Method import get_i_trk, write_to_excel
+
+from src.Model.MainModel import MainModel
+from src.Model.ModelParameter import ModelParameter
+from src.Model.PreModel import PreModel_V001
+from src.ImpedanceParaType import ImpedanceMultiFreq
+
 from src.Config_ZN_20240305_daqin import regular_input_20240305_daqin
-from src.ConfigHeadList import *
-from src.Data2Excel import *
+from src.ConfigHeadList import config_headlist_ZN_mix
 from src.RowData import RowData
 
 import pandas as pd
+import numpy as np
 import time
 import os
 
