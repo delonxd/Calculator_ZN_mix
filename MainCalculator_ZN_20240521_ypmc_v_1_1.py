@@ -1,18 +1,20 @@
-from src.Model.PreModel import PreModel
-from src.Model.ModelParameter import ModelParameter
+
+from src.logMethod import MainLog
+from src.Data2Excel import SheetDataGroup
+from src.Method import get_i_trk, write_to_excel
+
 from src.Model.MainModel import MainModel
-from src.Method import *
-from src.logMethod import *
-from src.Data2Excel import *
+from src.Model.ModelParameter import ModelParameter
+from src.ImpedanceParaType import ImpedanceMultiFreq
 
 from src.Config_ZN_20240521_ypmc_v_1_1 import config_headlist_20240521_ypmc_v_1_1
 from src.Config_ZN_20240521_ypmc_v_1_1 import config_row_data_20240521_ypmc_v_1_1
 from src.Config_ZN_20240521_ypmc_v_1_1 import PreModel_ZN_20240521_ypmc_v_1_1
 
 import pandas as pd
+import numpy as np
 import time
 import os
-import sys
 
 
 def main_cal():
@@ -24,7 +26,7 @@ def main_cal():
 
     #################################################################################
 
-    input_path = '邻线干扰参数输入_移频脉冲_V004.xlsx'
+    input_path = '邻线干扰参数输入_移频脉冲_v1.1.xlsx'
 
     # 参数输入
     df_input = pd.read_excel(input_path)
@@ -37,7 +39,7 @@ def main_cal():
     localtime = time.localtime()
     timestamp = time.strftime("%Y%m%d%H%M%S", localtime)
     # print(time.strftime("%Y-%m-%d %H:%M:%S", localtime))
-    output_path = '仿真输出_移频脉冲_%s.xlsx' % timestamp
+    output_path = '仿真输出_移频脉冲v1.1_%s.xlsx' % timestamp
 
     #################################################################################
 
@@ -53,14 +55,14 @@ def main_cal():
     }
 
     # 钢轨阻抗
-    trk_2000A_21 = ImpedanceMultiFreq()
-    trk_2000A_21.rlc_s = {
+    trk_21 = ImpedanceMultiFreq()
+    trk_21.rlc_s = {
         1700: [1.177, 1.314e-3, None],
         2000: [1.306, 1.304e-3, None],
         2300: [1.435, 1.297e-3, None],
         2600: [1.558, 1.291e-3, None]}
 
-    para['Trk_z'].rlc_s = trk_2000A_21.rlc_s
+    para['Trk_z'].rlc_s = trk_21.rlc_s
 
     para['Ccmp_z_change_zhu'] = ImpedanceMultiFreq()
     para['Ccmp_z_change_chuan'] = ImpedanceMultiFreq()
@@ -172,6 +174,11 @@ def main_cal():
             #     i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
             #     v_rcv_bei = md.lg['线路4']['地面']['区段1']['右调谐单元']['1接收器']['U'].value_c
 
+            if data['主串方向'] == '右发':
+                i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu, direct='右')
+            else:
+                i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu, direct='左')
+
             if data['被串方向'] == '右发':
                 i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
             else:
@@ -210,8 +217,8 @@ def main_cal():
 
             #################################################################################
 
-            # data2excel.add_data(sheet_name="主串钢轨电流", data1=i_trk_zhu)
-            # data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
+            data2excel.add_data(sheet_name="主串钢轨电流", data1=i_trk_zhu)
+            data2excel.add_data(sheet_name="主串分路电流", data1=i_sht_zhu)
             data2excel.add_data(sheet_name="被串钢轨电流", data1=i_trk_bei)
             data2excel.add_data(sheet_name="被串分路电流", data1=i_sht_bei)
 
@@ -219,7 +226,7 @@ def main_cal():
             columns_max = len_posi
 
         i_trk_list = data2excel.data_dict["被串钢轨电流"][-1]
-        i_sht_list = data2excel.data_dict["被串分路电流"][-1]
+        # i_sht_list = data2excel.data_dict["被串分路电流"][-1]
 
         # i_sht_list_zhu = data2excel.data_dict["主串分路电流"][-1]
 
@@ -261,8 +268,8 @@ def main_cal():
     data2excel.config_header()
     data2excel["被串钢轨电流"].header[0] = '被串发送端'
     data2excel["被串分路电流"].header[0] = '被串发送端'
-    # data2excel["主串钢轨电流"].header[0] = '被串发送端'
-    # data2excel["主串分路电流"].header[0] = '被串发送端'
+    data2excel["主串钢轨电流"].header[0] = '被串发送端'
+    data2excel["主串分路电流"].header[0] = '被串发送端'
     # data2excel["主串轨面电压"].header[0] = '主串发送端'
 
     df_data = pd.DataFrame(excel_data, columns=head_list)
@@ -286,8 +293,8 @@ def main_cal():
     names = [
         "被串钢轨电流",
         "被串分路电流",
-        # "主串钢轨电流",
-        # "主串分路电流",
+        "主串钢轨电流",
+        "主串分路电流",
     ]
 
     # data2excel.write2excel(sheet_names=names, header=None, writer1=writer)

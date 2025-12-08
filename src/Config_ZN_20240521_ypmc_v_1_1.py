@@ -1,10 +1,15 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+
+from src.Module.TcsrLib import ZPW2000A_YPMC_Normal
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
 
 
@@ -19,7 +24,7 @@ def config_headlist_20240521_ypmc_v_1_1():
 
         '主串区段长度(m)', '被串区段长度(m)',
 
-        '钢轨电阻(Ω/km)', '钢轨电感(H/km)',
+        '钢轨电阻(Ω/km)', '钢轨电感(mH/km)',
 
         '耦合系数(μH/km)',
         '主串频率(Hz)', '被串频率(Hz)',
@@ -126,8 +131,22 @@ def config_row_data_20240521_ypmc_v_1_1(df_input, para, data):
     para['Rd'].value = df_input['主串道床电阻(Ω·km)']
 
     # 钢轨阻抗
-    data['钢轨电阻(Ω/km)'] = round(para['Trk_z'].rlc_s[freq][0], 10)
-    data['钢轨电感(H/km)'] = round(para['Trk_z'].rlc_s[freq][1], 10)
+
+    r_trk = data['钢轨电阻(Ω/km)'] = df_input['钢轨电阻(Ω/km)']
+    l_trk = data['钢轨电感(mH/km)'] = df_input['钢轨电感(mH/km)']
+
+    if r_trk is not None and l_trk is not None:
+        l_trk = l_trk * 1e-3
+        z_trk = ImpedanceMultiFreq()
+        z_trk.rlc_s = {
+            1700: [r_trk, l_trk, None],
+            2000: [r_trk, l_trk, None],
+            2300: [r_trk, l_trk, None],
+            2600: [r_trk, l_trk, None]}
+        para['Trk_z'] = z_trk
+
+    # data['钢轨电阻(Ω/km)'] = round(para['Trk_z'].rlc_s[freq][0], 10)
+    # data['钢轨电感(H/km)'] = round(para['Trk_z'].rlc_s[freq][1], 10)
 
     para['主串钢轨阻抗'] = para['Trk_z']
     para['被串钢轨阻抗'] = para['Trk_z']
@@ -152,8 +171,8 @@ def config_row_data_20240521_ypmc_v_1_1(df_input, para, data):
 
     # 分路电阻
     r_sht = 1e-7
-    data['主串分路电阻(Ω)'] = para['主串分路电阻'] = r_sht
-    data['被串分路电阻(Ω)'] = para['被串分路电阻'] = r_sht
+    data['主串分路电阻(Ω)'] = para['主串分路电阻'] = df_input['主串分路电阻(Ω)']
+    data['被串分路电阻(Ω)'] = para['被串分路电阻'] = df_input['被串分路电阻(Ω)']
 
     para['Rsht_z'] = r_sht
 
@@ -242,7 +261,7 @@ class PreModel_ZN_20240521_ypmc_v_1_1(PreModel):
                            m_typs=['2000A_YPMC'],
                            c_nums=para['被串电容数'],
                            sr_mods=[para['sr_mod_被']],
-                           send_lvs=[send_level] ,
+                           send_lvs=[send_level],
                            parameter=parameter)
 
         # sg3['区段1'].load_TB_mode(para['主串TB模式'])
