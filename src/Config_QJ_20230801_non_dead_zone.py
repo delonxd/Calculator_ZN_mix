@@ -1,17 +1,28 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
-from src.FrequencyType import Freq
-from src.Model.PreModel import PreModel
-from src.logMethod import *
-from src.Data2Excel import *
+from src.logMethod import MainLog
+from src.Data2Excel import SheetDataGroup
+from src.Method import write_to_excel
 
-import os
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
+from src.FrequencyType import Freq
+from src.Method import generate_frqs
+
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
+from src.Model.PreModel import PreModel
+
+import itertools
+import pandas as pd
 import time
+import os
+
 import matplotlib.pyplot as plt
+# from matplotlib import cm
+
 plt.rcParams['font.sans-serif'] = ['SimSun']
 plt.rcParams['mathtext.fontset'] = 'stix'
 plt.rcParams['axes.unicode_minus'] = False
@@ -638,7 +649,7 @@ def draw_image_20230801_non_dead_zone2():
 
     # 读取数据
 
-    path1 = '%s%s' % (root, '无死区邻线干扰_长度遍历2.xlsx')
+    # path1 = '%s%s' % (root, '无死区邻线干扰_长度遍历2.xlsx')
     path2 = '%s%s' % (root, '无死区邻线干扰_长度遍历2.xlsx')
     # path2 = '%s%s' % (root, '2000A邻线干扰_长度遍历2.xlsx')
 
