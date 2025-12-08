@@ -1,9 +1,11 @@
 
 from src.logMethod import MainLog
 from src.Data2Excel import SheetDataGroup
-from src.Method import ImpedanceMultiFreq, get_i_trk, write_to_excel
+from src.Method import get_i_trk, write_to_excel
 
-from src.Model.PreModel import MainModel, ModelParameter
+from src.Model.MainModel import MainModel
+from src.Model.ModelParameter import ModelParameter
+from src.ImpedanceParaType import ImpedanceMultiFreq
 
 from src.Config_ZN_20250724_25Hz_coding import config_input_20250724_25hz_coding
 from src.Config_ZN_20250724_25Hz_coding import config_headlist_20250724_25hz_coding
