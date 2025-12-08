@@ -6,10 +6,10 @@ from src.Model.MainModel import MainModel
 from src.Model.ModelParameter import ModelParameter
 from src.ImpedanceParaType import ImpedanceMultiFreq
 
-from src.ConfigInput import config_input_20230720_pusu
-from src.ConfigHeadList import config_headlist_20230720_pusu
-from src.ConfigRowData import config_row_data_20230720_pusu
-from src.Model.PreModel import PreModel_20230720_pusu
+from src.Config_QJ_20230720_pusu import config_input_20230720_pusu
+from src.Config_QJ_20230720_pusu import config_headlist_20230720_pusu
+from src.Config_QJ_20230720_pusu import config_row_data_20230720_pusu
+from src.Config_QJ_20230720_pusu import PreModel_20230720_pusu
 
 import pandas as pd
 import numpy as np
