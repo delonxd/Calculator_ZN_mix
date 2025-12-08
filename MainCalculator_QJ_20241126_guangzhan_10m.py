@@ -1,8 +1,18 @@
-from src.logMethod import *
-from src.Data2Excel import *
-from src.Config_QJ_20241126_guangzhan_10m import *
+from src.logMethod import MainLog
+from src.Data2Excel import SheetDataGroup
+from src.Method import get_i_trk, write_to_excel
+
+from src.Model.MainModel import MainModel
+from src.Model.ModelParameter import ModelParameter
+from src.ImpedanceParaType import ImpedanceMultiFreq
+
+from src.Config_QJ_20241126_guangzhan_10m import config_input_20241126_guangzhan_10m
+from src.Config_QJ_20241126_guangzhan_10m import config_headlist_20241126_guangzhan_10m
+from src.Config_QJ_20241126_guangzhan_10m import config_row_data_20241126_guangzhan_10m
+from src.Config_QJ_20241126_guangzhan_10m import PreModel_QJ_20241126_guangzhan_10m
 
 import pandas as pd
+import numpy as np
 import time
 import os
 
@@ -169,7 +179,7 @@ def main_cal(_, path2, path3):
             i_sht_zhu = md.lg['线路3']['列车2']['分路电阻1']['I'].value_c
             i_sht_bei = md.lg['线路4']['列车1']['分路电阻1']['I'].value_c
 
-            i_sht_bei_complex = md.lg['线路4']['列车1']['分路电阻1']['I'].value
+            # i_sht_bei_complex = md.lg['线路4']['列车1']['分路电阻1']['I'].value
 
             # i_trk_zhu = get_i_trk(line=m1['线路3'], posi=posi_zhu, direct='右')
             # i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
@@ -186,8 +196,8 @@ def main_cal(_, path2, path3):
             else:
                 i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
 
-            i_trk_l = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
-            i_trk_r = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
+            # i_trk_l = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
+            # i_trk_r = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
 
             # i1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I1'].value
             # i2 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I2'].value
@@ -247,7 +257,14 @@ def main_cal(_, path2, path3):
         # data['主串出口电流(A)'] = i_sht_list_zhu[0]
         # data['主串入口电流(A)'] = i_sht_list_zhu[-1]
         data['被串最大干扰位置(m)'] = round(i_trk_list.index(max(i_trk_list))*interval)
-        max_i = data['被串最大干扰电流(A)'] * 1000
+        # max_i = data['被串最大干扰电流(A)'] * 1000
+
+        i_trk_list2 = i_trk_list[29:-29]
+        data['(不含调谐区)被串最大干扰电流(A)'] = max(i_trk_list2)
+        data['(不含调谐区)被串最大干扰位置(m)'] = round(i_trk_list2.index(max(i_trk_list2))*interval)
+
+        for val in i_trk_list2:
+            data2excel.add_data(sheet_name="(不含调谐区)被串钢轨电流", data1=val)
 
         # MAX_I = para['MAX_CURRENT'][data['主串频率(Hz)']]
 
@@ -258,6 +275,7 @@ def main_cal(_, path2, path3):
         #
         # print('%.2fmA, %.2f%%' % (max_i, data['干扰值变化'] * 100))
 
+        max_i = data['(不含调谐区)被串最大干扰电流(A)'] * 1000
         MainLog.add_log_accurate('最大干扰电流 --> %.2fmA' % max_i)
 
         # if max_i > MAX_I:
@@ -292,6 +310,7 @@ def main_cal(_, path2, path3):
     data2excel.config_header()
     data2excel["被串分路电流"].header[0] = '被串左端'
     data2excel["被串钢轨电流"].header[0] = '被串左端'
+    data2excel["(不含调谐区)被串钢轨电流"].header[0] = '被串左端'
     # data2excel["被串分路点左侧钢轨电流"].header[0] = '被串左端'
     # data2excel["被串分路点右侧钢轨电流"].header[0] = '被串左端'
     # data2excel["被串分路电流复数"].header[0] = '被串左端'
@@ -322,6 +341,7 @@ def main_cal(_, path2, path3):
     names = [
         "被串分路电流",
         "被串钢轨电流",
+        "(不含调谐区)被串钢轨电流",
         # "被串分路电流复数",
         # "被串分路点左侧钢轨电流",
         # "被串分路点右侧钢轨电流",
@@ -352,4 +372,3 @@ if __name__ == '__main__':
              '%s\\仿真输出_广湛六线并行_%s.xlsx' % (sub_name, timestamp),
              os.getcwd())
     # main(sys.argv[1], sys.argv[2], sys.argv[3])
-

@@ -1,68 +1,147 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
+
+import pandas as pd
 
 
 def get_guangzhan_info():
+    # # info_line1 = [
+    # #     -36,
+    # #     ('0132AG', 2000, 475, 8),
+    # #     ('0132BG', 2600, 475, 6),
+    # #     ('0132CG', 2000, 500, 8),
+    # #     ('0148AG', 2600, 400, 5),
+    # #     ('0148BG', 2000, 600, 10),
+    # #     ('0148CG', 2600, 500, 6),
+    # #     ('0162AG', 2000, 551, 10),
+    # #     ('0162BG-1', 2600, 551, 7),
+    # #     ('0162BG-2', 2000, 400, 6),
+    # #     ('0178AG', 2600, 700, 8),
+    # # ]
+    #
+    # # D2K11+802
     # info_line1 = [
-    #     -36,
-    #     ('0132AG', 2000, 475, 8),
-    #     ('0132BG', 2600, 475, 6),
-    #     ('0132CG', 2000, 500, 8),
-    #     ('0148AG', 2600, 400, 5),
-    #     ('0148BG', 2000, 600, 10),
-    #     ('0148CG', 2600, 500, 6),
-    #     ('0162AG', 2000, 551, 10),
-    #     ('0162BG-1', 2600, 551, 7),
-    #     ('0162BG-2', 2000, 400, 6),
-    #     ('0178AG', 2600, 700, 8),
+    #     802,
+    #     ('0117BG', 2600, 699, 8),
+    #     ('0117AG', 2000, 699, 11),
+    #     ('0131BG', 2600, 743, 9),
+    #     ('0131AG', 2000, 744, 12),
+    #     ('0147BG', 2600, 741, 9),
+    #     ('0147AG', 2000, 742, 12),
+    #     ('0161BG', 2600, 757, 10),
+    # ]
+    #
+    # # # 广湛对位
+    # # # D2K11+460
+    # # info_line1 = [
+    # #     # 460,
+    # #     380,
+    # #     ('对位NS1LQAG', 2000, 537, 9),
+    # #     ('对位5578CG', 2600, 470, 6),
+    # #     ('对位5578BG', 2000, 625, 10),
+    # #     ('对位5578AG', 2600, 745, 9),
+    # #     ('对位5560CG', 2000, 505, 9),
+    # #     ('对位5560BG', 2600, 625, 8),
+    # #     ('对位5560AG', 2000, 760, 13),
+    # #     ('对位5542CG', 2600, 490, 6),
+    # #     ('对位5542BG', 2000, 560, 10),
+    # #     ('对位5542AG', 2600, 800, 10),
+    # # ]
+    #
+    #
+    # # D2K11+460
+    # info_line2 = [
+    #     460,
+    #     ('NS1LQAG', 2000, 537, 9),
+    #     ('5578CG', 2600, 470, 6),
+    #     ('5578BG', 2000, 625, 10),
+    #     ('5578AG', 2600, 745, 9),
+    #     ('5560CG', 2000, 505, 9),
+    #     ('5560BG', 2600, 625, 8),
+    #     ('5560AG', 2000, 760, 13),
+    #     ('5542CG', 2600, 490, 6),
+    #     ('5542BG', 2000, 560, 10),
+    #     ('5542AG', 2600, 800, 10),
+    # ]
+    #
+    # # D2K11+141
+    # info_line3 = [
+    #     141,
+    #     ('S1LQBG', 2600, 464, 6),
+    #     ('S1LQAG', 2000, 464, 8),
+    #     ('8420DG', 2600, 625, 8),
+    #     ('8420CG', 2000, 745, 12),
+    #     ('8420BG', 2600, 505, 7),
+    #     ('8420AG', 2000, 625, 10),
+    #     ('8394CG', 2600, 766, 10),
+    #     ('8394BG', 2000, 490, 8),
+    #     ('8394AG', 2600, 550, 7),
+    #     ('8376CG', 2000, 810, 14),
+    # ]
+    #
+    # # D2K11+902
+    # info_line5 = [
+    #     902,
+    #     ('广湛0119BG', 2600, 599, 7),
+    # ]
+    #
+    # # D2K11+443
+    # info_line6 = [
+    #     443,
+    #     ('南广NS1LQAG', 2000, 537, 9),
+    #     ('南广5578CG', 2600, 470, 6),
+    # ]
+    #
+    # # D2K15+429
+    # info_line7 = [
+    #     1429,
+    #     ('广湛0147AG', 2000, 681, 11),
+    #     ('广湛0161CG', 2600, 560, 7),
+    # ]
+    #
+    # # D2K14+940
+    # info_line8 = [
+    #     940,
+    #     ('南广5560AG', 2000, 760, 13),
+    #     ('南广5542CG', 2600, 490, 6),
+    #     ('南广5542BG', 2000, 560, 10),
     # ]
 
-    # D2K11+802
+    # 下行线
+    # 广湛DK2+246（Y1K2+254）
     info_line1 = [
-        802,
-        ('0117BG', 2600, 699, 8),
-        ('0117AG', 2000, 699, 11),
-        ('0131BG', 2600, 743, 9),
-        ('0131AG', 2000, 744, 12),
-        ('0147BG', 2600, 741, 9),
-        ('0147AG', 2000, 742, 12),
-        ('0161BG', 2600, 757, 10),
+        (2254, '0028BG', 2300, 566, 7),
+        (2812, '0040AG', 1700, 604, 10),
+        (3416, '0040BG', 2300, 604, 8),
+        (4020, '0052AG', 1700, 603, 10),
+        (4623, '0052BG', 2300, 602, 8),
+        (5233, '0064AG', 1700, 610, 10),
+        (5843, '0064BG', 2300, 610, 8),
+        (6453, '0076AG', 1700, 589, 10),
+        (7042, '0076BG', 2300, 589, 7),
+        (7631, '0088AG', 1700, 615, 10),
     ]
 
-    # D2K11+460
+    # 南广DK2+500
     info_line2 = [
-        460,
-        ('NS1LQAG', 2000, 537, 9),
-        ('5578CG', 2600, 470, 6),
-        ('5578BG', 2000, 625, 10),
-        ('5578AG', 2600, 745, 9),
-        ('5560CG', 2000, 505, 9),
-        ('5560BG', 2600, 625, 8),
-        ('5560AG', 2000, 760, 13),
-        ('5542CG', 2600, 490, 6),
-        ('5542BG', 2000, 560, 10),
-        ('5542AG', 2600, 800, 10),
-    ]
-
-    # D2K11+141
-    info_line3 = [
-        141,
-        ('S1LQBG', 2600, 464, 6),
-        ('S1LQAG', 2000, 464, 8),
-        ('8420DG', 2600, 625, 8),
-        ('8420CG', 2000, 745, 12),
-        ('8420BG', 2600, 505, 7),
-        ('8420AG', 2000, 625, 10),
-        ('8394CG', 2600, 766, 10),
-        ('8394BG', 2000, 490, 8),
-        ('8394AG', 2600, 550, 7),
-        ('8376CG', 2000, 810, 14),
+        (2500, '0023BG', 2300, 550, 7),
+        (3050, '0023AG', 1700, 550, 9),
+        (3600, '0035G', 2300, 971, 12),
+        (4571, '0045BG', 1700, 560, 10),
+        (5129, '0045AG', 2300, 561, 7),
+        (5690, '0057DG', 1700, 551, 10),
+        (6241, '0057CG', 2300, 600, 7),
+        (6841, '0057BG', 1700, 550, 9),
+        (7391, '0057AG', 2300, 550, 7),
     ]
 
     ret = []
@@ -70,6 +149,8 @@ def get_guangzhan_info():
     ret.extend(get_line_info(info_line2, info_line1))
     # ret.extend(get_line_info(info_line2, info_line3))
     # ret.extend(get_line_info(info_line3, info_line2))
+    # ret.extend(get_line_info(info_line5, info_line6))
+    # ret.extend(get_line_info(info_line7, info_line8))
 
     return ret
 
@@ -79,23 +160,27 @@ def get_line_info(line1, line2):
     line1 = line1.copy()
     line2 = line2.copy()
 
-    offset = line2[0] - line1[0]
-    line1.pop(0)
-    line2.pop(0)
+    # offset = line2[0] - line1[0]
+    # line1.pop(0)
+    # line2.pop(0)
 
-    zhu_left = zhu_right = 0
+    # zhu_left = zhu_right = 0
     res = []
+
+    zhu_right = 0
     for sec_zhu in line1:
-        zhu_left = zhu_right
-        zhu_right = zhu_left + sec_zhu[2]
+        zhu_left = zhu_right if sec_zhu[0] is None else sec_zhu[0]
+        zhu_right = zhu_left + sec_zhu[3]
 
         bei_list = []
         bei_offset = 0
 
-        bei_left = bei_right = offset
+        # bei_left = bei_right = offset
+        bei_right = 0
         for sec_bei in line2:
-            bei_left = bei_right
-            bei_right = bei_left + sec_bei[2]
+            # bei_left = bei_right
+            bei_left = bei_right if sec_bei[0] is None else sec_bei[0]
+            bei_right = bei_left + sec_bei[3]
 
             if bei_right < (zhu_left - 60):
                 continue
@@ -106,9 +191,9 @@ def get_line_info(line1, line2):
             if len(bei_list) == 0:
                 bei_offset = bei_left - zhu_left
 
-            bei_list.append(sec_bei)
+            bei_list.append(sec_bei[1:])
 
-        res.append((sec_zhu, bei_list, bei_offset))
+        res.append((sec_zhu[1:], bei_list, bei_offset))
 
     return res
 
@@ -135,9 +220,9 @@ def config_input_20241126_guangzhan_10m():
     ]
 
     direction_list = [
-        # ('左发', '左发'),
-        # ('左发', '右发'),
-        # ('右发', '左发'),
+        ('左发', '左发'),
+        ('左发', '右发'),
+        ('右发', '左发'),
         ('右发', '右发'),
     ]
 
@@ -214,7 +299,7 @@ def config_input_20241126_guangzhan_10m():
                         print('generate row: %s --> %s' % (counter, s_tmp.tolist()))
                         df = pd.concat([df, s_tmp], axis=1)
 
-                # if counter == 4:
+                # if counter == 1:
                 #     return df.transpose()
 
     df = df.transpose()
@@ -272,6 +357,7 @@ def config_headlist_20241126_guangzhan_10m():
         '电源电压',
 
         '被串最大干扰电流(A)', '被串最大干扰位置(m)',
+        '(不含调谐区)被串最大干扰电流(A)', '(不含调谐区)被串最大干扰位置(m)',
         # '故障位置', '故障类型',
         # '干扰值变化',
     ]
@@ -314,7 +400,8 @@ def config_row_data_20241126_guangzhan_10m(df_input, para, data):
     data['序号'] = para['序号'] = df_input['序号']
 
     # 备注
-    data['备注'] = para['备注'] = '广湛六线并行'
+    # data['备注'] = para['备注'] = '广湛六线并行'
+    data['备注'] = para['备注'] = '广湛下行线'
     data['分路模式'] = df_input['分路模式']
 
     # 区段名
@@ -334,7 +421,7 @@ def config_row_data_20241126_guangzhan_10m(df_input, para, data):
     para['offset_bei'] = offset
 
     # 耦合系数
-    data['耦合系数(μH/km)'] = para['耦合系数'] = 5.1
+    data['耦合系数(μH/km)'] = para['耦合系数'] = 21
 
     # 区段频率
     para['freq_主'] = freq = df_input['主串频率']
