@@ -1,11 +1,18 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+from src.Method import generate_frqs
+
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
+
+import pandas as pd
 
 
 # 配置输入
@@ -511,3 +518,60 @@ class PreModel_QJ_20240408_double_line(PreModel):
         self.lg = LineGroup(self.l3, self.l4, name_base='线路组')
         self.lg.special_point = self.parameter['special_point']
         self.lg.refresh()
+
+
+def write_to_excel2(df, writer, sheet_name, format_dict=None):
+    df.to_excel(writer, sheet_name=sheet_name, index=False)
+    if format_dict is not None:
+        workbook = writer.book
+        header_format = workbook.add_format(format_dict)
+
+        worksheet = writer.sheets[sheet_name]
+        for col_num, value in enumerate(df.columns.values):
+            worksheet.write(0, col_num, value, header_format)
+
+
+def generate_data_df():
+    import os
+    import time
+
+    sub_name = '..\\20240408_区间复线不同频遍历'
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+
+    dir_path = '%s\\仿真输出_区间复线不同频遍历_20241216114835' % sub_name
+    new_dir = '%s\\数据简化_区间复线不同频遍历_%s' % (sub_name, timestamp)
+
+    if not os.path.exists(new_dir):
+        os.makedirs(new_dir)
+
+    for file in os.listdir(dir_path):
+        if file[-5:] != '.xlsx':
+            continue
+
+        file_path = os.path.join(dir_path, file)
+        print('copy %s' % file_path)
+
+        base_name = os.path.basename(file_path)
+        new_path = os.path.join(new_dir, base_name)
+        df_input = pd.read_excel(file_path, sheet_name=None)
+
+        writer = pd.ExcelWriter(new_path, engine='xlsxwriter')
+
+        for sheet_name, df_output in df_input.items():
+
+            format_dict = {
+                'bold': True,  # 字体加粗
+                'text_wrap': True,  # 是否自动换行
+                'valign': 'vcenter',  # 垂直对齐方式
+                'align': 'center',  # 水平对齐方式
+                'border': 1
+            }
+
+            if sheet_name[:4] in ['参数设置', '数据输出']:
+                write_to_excel2(df_output, writer, sheet_name, format_dict=format_dict)
+
+        writer.save()
+
+
+if __name__ == '__main__':
+    generate_data_df()
