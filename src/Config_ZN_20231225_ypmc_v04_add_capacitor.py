@@ -1,10 +1,15 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+
+from src.Module.TcsrLib import ZPW2000A_YPMC_add_cap
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
 
 
