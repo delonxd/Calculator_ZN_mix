@@ -1,6 +1,7 @@
 from src.ConstantType import Constant
 from src.FrequencyType import Freq
 from src.Method import generate_frqs
+from src.ImpedanceParaType import ImpedanceMultiFreq
 
 from src.Module.OutsideElement import CapC
 
@@ -9,8 +10,6 @@ from src.TrackCircuitElement.LineGroup import LineGroup
 from src.TrackCircuitElement.Train import Train
 from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
-
-from src.ConfigRowData import config_c_pack_20230720
 
 import itertools
 import pandas as pd
@@ -259,6 +258,151 @@ def config_row_data_20230720_pusu(df_input, para, data):
     data['分路间隔(m)'] = 1
     data['分路起点'] = offset - 14.5
     data['分路终点'] = offset + length2 + 14.5
+
+
+def config_c_num(freq: Freq, length, sec_type):
+    freq_value = freq.value
+
+    if 0 < length <= 300:
+        key = 0
+    elif length > 300:
+        key = int((length - 251) / 50)
+    else:
+        raise KeyboardInterrupt('config_c_num error: 区段长度错误')
+
+    table_j = {
+        0: [0, 0, 0, 0],
+        1: [4, 4, 3, 3],
+        2: [4, 4, 4, 4],
+        3: [5, 5, 5, 6],
+        4: [6, 6, 6, 6],
+        5: [6, 6, 6, 6],
+        6: [6, 7, 6, 7],
+        7: [7, 7, 7, 7],
+        8: [8, 8, 8, 8],
+        9: [8, 8, 8, 8],
+        10: [9, 9, 9, 9],
+        11: [9, 9, 9, 9],
+        12: [9, 9, 9, 9],
+        13: [10, 10, 10, 10],
+        14: [10, 10, 10, 10],
+        15: [11, 11, 11, 11],
+        16: [11, 11, 11, 11],
+        17: [12, 12, 12, 12],
+        18: [12, 12, 12, 14],
+        19: [13, 13, 13, 15],
+        20: [14, 14, 16, 16],
+        21: [16, 16, 18, 20],
+        22: [18, 18, 18, 20],
+    }
+
+    table_t = {
+        0: [0, 0, 0, 0],
+        1: [5, 5, 4, 4],
+        2: [6, 6, 5, 5],
+        3: [7, 7, 5, 5],
+        4: [8, 8, 6, 6],
+        5: [9, 9, 7, 7],
+        6: [10, 10, 7, 7],
+        7: [10, 10, 8, 8],
+        8: [11, 11, 8, 8],
+        9: [12, 12, 9, 9],
+        10: [13, 13, 10, 10],
+        11: [14, 14, 10, 10],
+        12: [15, 15, 11, 11],
+        13: [15, 15, 12, 12],
+        14: [16, 16, 12, 12],
+        15: [17, 17, 13, 13],
+        16: [18, 18, 13, 13],
+        17: [19, 19, 14, 14],
+        18: [20, 20, 15, 15],
+        19: [20, 20, 15, 15],
+        20: [21, 21, 16, 16],
+        21: [22, 22, 17, 17],
+        22: [23, 23, 17, 17],
+    }
+
+    if sec_type == '普速':
+        table = table_j
+    elif sec_type == '高铁':
+        table = table_t
+    else:
+        raise KeyboardInterrupt('config_c_num error: 区段类型错误')
+
+    if key not in table.keys():
+        raise KeyboardInterrupt('config_c_num error: 区段长度超长')
+
+    index_dict = {
+        1700: 0,
+        2000: 1,
+        2300: 2,
+        2600: 3,
+    }
+
+    if freq_value not in index_dict.keys():
+        raise KeyboardInterrupt('config_c_num error: 区段频率错误')
+
+    c_num = table[key][index_dict[freq_value]]
+    return c_num
+
+
+def config_c_value(freq: Freq, sec_type):
+    freq_value = freq.value
+
+    value_dict = {
+        1700: 55,
+        2000: 50,
+        2300: 46,
+        2600: 40,
+    }
+
+    if freq_value not in value_dict.keys():
+        raise KeyboardInterrupt('config_c_value_imp error: 区段频率错误')
+
+    if sec_type == '普速':
+        c_value = value_dict[freq_value]
+    elif sec_type == '高铁':
+        c_value = 25
+    else:
+        raise KeyboardInterrupt('config_c_value_imp error: 区段类型错误')
+
+    return c_value
+
+
+def config_c_pack_20230720(freq_list, length_list, sec_type):
+    if len(freq_list) != len(length_list):
+        raise KeyboardInterrupt('config_c_list_20230720_pusu error: 列表长度不等')
+
+    c_num_list = []
+    c_imp_list = []
+    c_val_list = []
+
+    for index in range(len(freq_list)):
+        freq = freq_list[index]
+        length = length_list[index]
+
+        c_num = config_c_num(freq, length, sec_type)
+        c_val = config_c_value(freq, sec_type)
+
+        val_tmp = c_val * 1e-6
+        c_imp = ImpedanceMultiFreq()
+        c_imp.rlc_s = {
+            1700: [10e-3, None, val_tmp],
+            2000: [10e-3, None, val_tmp],
+            2300: [10e-3, None, val_tmp],
+            2600: [10e-3, None, val_tmp]}
+
+        c_num_list.append(c_num)
+        c_val_list.append(c_val)
+        c_imp_list.append(c_imp)
+
+    ret = {
+        '电容数量列表': c_num_list,
+        '电容容值列表': c_val_list,
+        '电容阻抗列表': c_imp_list,
+    }
+
+    return ret
 
 
 class PreModel_20230720_pusu(PreModel):
