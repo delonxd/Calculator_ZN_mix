@@ -1,11 +1,18 @@
-from src.TrackCircuitElement.SectionGroup import *
-# from src.TrackCircuitElement.Train import *
-# from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+
+from src.Module.TcsrLib import ZPW2000A_ZN_25Hz_Coding
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
+
+import pandas as pd
 
 
 def config_input_20241220_xiayuanzhan():
@@ -71,11 +78,18 @@ def config_input_20241220_xiayuanzhan():
 
     df = pd.DataFrame(index=columns, dtype='object')
 
+    # sec_list = [
+    #     ['I-IVG2', 817, 2000, 9, '左发', 40, 100, 0],
+    #     ['I-IVG1', 816, 2000, 9, '左发', 40, 100, 817],
+    #     ['I10G', 954, 2000, 10, '左发', 60, 100, 255],
+    #     ['I8G', 1066, 2600, 11, '左发', 60, 50, 193],
+    # ]
+
     sec_list = [
-        ['I-IVG2', 817, 2000, 9, '左发', 40, 100, 0],
-        ['I-IVG1', 816, 2000, 9, '左发', 40, 100, 817],
-        ['I10G', 954, 2000, 10, '左发', 60, 100, 255],
-        ['I8G', 1066, 2600, 11, '左发', 60, 50, 193],
+        ['I-IVG2', 817, 2600, 9, '左发', 40, 100, 0, 60],
+        ['I-IVG1', 816, 2600, 9, '左发', 40, 100, 817, 60],
+        ['I10G', 954, 2000, 10, '左发', 60, 100, 252, 80],
+        ['I8G', 1066, 2600, 11, '左发', 60, 50, 193, 60],
     ]
 
     condition_list = [
@@ -114,8 +128,8 @@ def config_input_20241220_xiayuanzhan():
 
             s0['主串电容数(含TB)'] = sec_zhu[3]
             s0['被串电容数(含TB)'] = sec_bei[3]
-            s0['主串电容值(μF)'] = 80
-            s0['被串电容值(μF)'] = 60
+            s0['主串电容值(μF)'] = sec_zhu[8]
+            s0['被串电容值(μF)'] = sec_bei[8]
 
             s0['主串道床电阻(Ω·km)'] = 10000
             s0['被串道床电阻(Ω·km)'] = 10000
@@ -123,8 +137,8 @@ def config_input_20241220_xiayuanzhan():
             s0['主串方向'] = sec_zhu[4]
             s0['被串方向'] = sec_bei[4]
 
-            s0['主串电缆长度(km)'] = 10
-            s0['被串电缆长度(km)'] = 10
+            s0['主串电缆长度(km)'] = 2
+            s0['被串电缆长度(km)'] = 2
 
             s0['分路模式'] = condition[0]
             s0['分路电阻(Ω)'] = 1e-7
@@ -195,13 +209,12 @@ def config_headlist_20241220_xiayuanzhan():
         '钢轨电阻(Ω/km)', '钢轨电感(H/km)',
         '主串道床电阻(Ω·km)', '被串道床电阻(Ω·km)',
 
-        '主串方向', '被串方向',
         # '主串TB模式', '被串TB模式',
 
         '主串电缆长度(km)', '被串电缆长度(km)',
         '分路模式',
         '主串分路电阻(Ω)', '被串分路电阻(Ω)',
-
+        '占车分路电阻(Ω)',
 
         '主串电平级',
         '电源电压',
@@ -369,6 +382,8 @@ def config_row_data_20241220_xiayuanzhan(df_input, para, data):
     else:
         raise KeyboardInterrupt('分路模式错误')
 
+    data['占车分路电阻(Ω)'] = para['占车分路电阻'] = 1e-7
+    # data['占车分路电阻(Ω)'] = para['占车分路电阻'] = 1e10
     para['Rsht_z'] = r_sht
 
     # data['主串分路电阻(Ω)'] = para['主串分路电阻'] = df_input['分路电阻(Ω)']
@@ -703,18 +718,20 @@ class PreModel_20241220_ZN_xiayuanzhan(PreModel):
         for ele in self.section_group3['区段1'].element.values():
             if isinstance(ele, ZPW2000A_ZN_25Hz_Coding):
                 ele['3调整电阻'].z = para['主串调整阻抗']
+                ele['4Cab'].length = para['主串电缆长度']
                 if ele.mode == '发送':
                     ele['2FT1u'].n = para['主串FT1U变比']
 
         for ele in self.section_group4['区段1'].element.values():
             if isinstance(ele, ZPW2000A_ZN_25Hz_Coding):
                 ele['3调整电阻'].z = para['被串调整阻抗']
+                ele['4Cab'].length = para['被串电缆长度']
                 if ele.mode == '发送':
                     ele['2FT1u'].n = para['被串FT1U变比']
 
     def change_r_shunt(self):
         para = self.parameter
-        self.train0['分路电阻1'].z = para['被串分路电阻']
+        self.train0['分路电阻1'].z = para['占车分路电阻']
         self.train1['分路电阻1'].z = para['被串分路电阻']
         self.train2['分路电阻1'].z = para['主串分路电阻']
 

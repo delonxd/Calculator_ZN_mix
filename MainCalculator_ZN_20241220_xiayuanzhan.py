@@ -1,25 +1,21 @@
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
-from src.Model.PreModel import *
-from src.FrequencyType import Freq
-from src.ConstantType import *
-from src.Method import *
-from src.logMethod import *
-from src.ConfigHeadList import *
-from src.Data2Excel import *
-from src.RowData import RowData
-from src.ConfigRowData import *
-# from src.ConfigInput import *
+
+from src.logMethod import MainLog
+from src.Data2Excel import SheetDataGroup
+from src.Method import get_i_trk, write_to_excel
+
+from src.Model.MainModel import MainModel
+from src.Model.ModelParameter import ModelParameter
+from src.ImpedanceParaType import ImpedanceMultiFreq
+
 from src.Config_ZN_20241220_xiayuanzhan import config_input_20241220_xiayuanzhan
 from src.Config_ZN_20241220_xiayuanzhan import config_headlist_20241220_xiayuanzhan
 from src.Config_ZN_20241220_xiayuanzhan import config_row_data_20241220_xiayuanzhan
 from src.Config_ZN_20241220_xiayuanzhan import PreModel_20241220_ZN_xiayuanzhan
 
 import pandas as pd
+import numpy as np
 import time
-import itertools
 import os
-import sys
 
 
 def main_cal(input_path, output_path, work_path):
