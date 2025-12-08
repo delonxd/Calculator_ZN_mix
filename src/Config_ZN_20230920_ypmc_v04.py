@@ -1,10 +1,14 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+
+from src.Module.TcsrLib import ZPW2000A_YPMC_Normal
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
 
 
@@ -243,7 +247,7 @@ class PreModel_20230901_ZN_ypmc_v04(PreModel):
                            m_typs=['2000A_YPMC'],
                            c_nums=para['被串电容数'],
                            sr_mods=[para['sr_mod_被']],
-                           send_lvs=[send_level] ,
+                           send_lvs=[send_level],
                            parameter=parameter)
 
         # sg3['区段1'].load_TB_mode(para['主串TB模式'])
