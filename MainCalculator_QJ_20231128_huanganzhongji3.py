@@ -1,8 +1,19 @@
-from src.logMethod import *
-from src.Data2Excel import *
-from src.Config_QJ_20231128_huanganzhongji3 import *
+from src.logMethod import MainLog
+from src.Data2Excel import SheetDataGroup
+from src.Method import get_i_trk
+
+from src.Model.MainModel import MainModel
+from src.Model.ModelParameter import ModelParameter
+from src.ImpedanceParaType import ImpedanceMultiFreq
+
+from src.Config_QJ_20231128_huanganzhongji3 import config_input_20231128_huangan
+from src.Config_QJ_20231128_huanganzhongji3 import config_headlist_20231128_huangan
+from src.Config_QJ_20231128_huanganzhongji3 import config_row_data_20231128_huangan
+from src.Config_QJ_20231128_huanganzhongji3 import PreModel_QJ_20231128_huangan
+from src.Config_QJ_20231128_huanganzhongji3 import save2excel_20231205_huangan
 
 import pandas as pd
+import numpy as np
 import time
 import os
 
@@ -14,6 +25,7 @@ def main_cal(_, path2, path3):
     pd.set_option('display.unicode.east_asian_width', True)
     pd.set_option('display.width', 180)
 
+    _ = path2
     #################################################################################
 
     # 参数输入
@@ -187,8 +199,8 @@ def main_cal(_, path2, path3):
             else:
                 i_trk_bei = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
 
-            i_trk_l = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
-            i_trk_r = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
+            # i_trk_l = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='左')
+            # i_trk_r = get_i_trk(line=m1['线路4'], posi=posi_bei, direct='右')
 
             # i1 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I1'].value
             # i2 = md.lg['线路3']['地面']['区段1']['右调谐单元']['6SVA1']['I2'].value

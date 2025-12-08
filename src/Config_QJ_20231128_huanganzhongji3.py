@@ -1,19 +1,21 @@
-from src.TrackCircuitElement.SectionGroup import *
-from src.TrackCircuitElement.Train import *
-from src.TrackCircuitElement.Line import *
-from src.TrackCircuitElement.LineGroup import *
-from src.Model.MainModel import *
-from src.Model.ModelParameter import *
+from src.ImpedanceParaType import ImpedanceMultiFreq
+from src.ConstantType import Constant
 from src.FrequencyType import Freq
+from src.Method import write_to_excel
+
+from src.Module.OutsideElement import CapC
+
+from src.TrackCircuitElement.SectionGroup import SectionGroup
+from src.TrackCircuitElement.LineGroup import LineGroup
+from src.TrackCircuitElement.Train import Train
+from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
 
-import os
-import time
 import pandas as pd
-import numpy as np
-import matplotlib
+
 import matplotlib.pyplot as plt
-from matplotlib import cm
+# from matplotlib import cm
+
 # # plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
 # plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']  # 用来正常显示中文标签
 # # plt.rcParams['font.sans-serif'] = ['consolas']  # 用来正常显示中文标签
@@ -65,7 +67,8 @@ def get_line_info(line1, line2):
     line1.pop(0)
     line2.pop(0)
 
-    zhu_left = zhu_right = 0
+    # zhu_left = 0
+    zhu_right = 0
     res = []
     for sec_zhu in line1:
         zhu_left = zhu_right
@@ -74,7 +77,8 @@ def get_line_info(line1, line2):
         bei_list = []
         bei_offset = 0
 
-        bei_left = bei_right = offset
+        # bei_left = offset
+        bei_right = offset
         for sec_bei in line2:
             bei_left = bei_right
             bei_right = bei_left + sec_bei[2]
@@ -599,7 +603,6 @@ def save2excel_20231205_huangan(path, data_output, head_list, data_detail):
 
     data_detail.write2excel(sheet_names=names, writer=writer)
     writer.save()
-
 
 
 if __name__ == '__main__':
