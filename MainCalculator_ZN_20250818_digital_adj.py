@@ -155,13 +155,38 @@ def main_cal_20250818_digital_adj(mode, input_path, output_path):
 
 if __name__ == '__main__':
 
-    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
-    # path1 = ''
-    # # path1 = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送一受.xlsx'
-    # # path1 = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——两送一受.xlsx'
-    path1 = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送两受.xlsx'
-    path2 = f'20250530_车站数字化调整表\\仿真输出_{timestamp}.xlsx'
+    # timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    # # path1 = ''
+    # # # path1 = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送一受.xlsx'
+    # # # path1 = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——两送一受.xlsx'
+    # path1 = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送两受.xlsx'
+    # path2 = f'20250530_车站数字化调整表\\仿真输出_{timestamp}.xlsx'
+    #
+    # # main_cal('一送一受', path1, path2)
+    # # main_cal('两送一受', path1, path2)
+    # main_cal_20250818_digital_adj('一送两受', path1, path2)
 
-    # main_cal('一送一受', path1, path2)
-    # main_cal('两送一受', path1, path2)
-    main_cal_20250818_digital_adj('一送两受', path1, path2)
+    # path_dict = {
+    #     '一送一受': 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送一受.xlsx',
+    #     '两送一受': 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——两送一受.xlsx',
+    #     '一送两受': 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\车站数字化调整表——一送两受.xlsx',
+    # }
+    #
+    # for cnd, path1 in path_dict.items():
+    #     timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    #     path2 = f'20250530_车站数字化调整表\\仿真输出_{timestamp}_{cnd}.xlsx'
+    #     main_cal_20250818_digital_adj(cnd, path1, path2)
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    cnd = '两送一受'
+    # cnd = '一送一受'
+    # path1 = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\参数输入_蒙元_一送一受.xlsx'
+    # path2 = f'20250530_车站数字化调整表\\仿真输出_{timestamp}_蒙元_{cnd}.xlsx'
+    # path1 = 'C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\参数输入_一送一受_核对.xlsx'
+    # path2 = f'20250530_车站数字化调整表\\仿真输出_{timestamp}_核对_{cnd}.xlsx'
+
+    dir1 = "C:\\Users\\李继隆\\Desktop\\车站数字化调整表\\蒙元站"
+    path1 = f"{dir1}\\蒙元点石沟装车站_{cnd}_核对.xlsx"
+    path2 = f"{dir1}\\仿真输出_蒙元点石沟装车站_{cnd}_核对_{timestamp}.xlsx"
+
+    main_cal_20250818_digital_adj(cnd, path1, path2)

@@ -231,8 +231,6 @@ def config_headlist_20250818_digital(mode):
             '补偿电容(μF)',
             '轨道电路长度(m)',
             '补偿电容总个数',
-            '岔尖位置',
-            '岔尾位置',
 
             '功出电平级',
             'Krv',
@@ -317,6 +315,9 @@ def config_headlist_20250818_digital(mode):
             '补偿电容(μF)',
             '轨道电路长度(m)',
             '补偿电容总个数',
+
+            '岔尖位置',
+            '岔尾位置',
 
             '功出电平级',
             'Krv1',
@@ -426,6 +427,10 @@ def config_row_data_digital_adj(df_input, para, data, mode):
     para['钢轨阻抗'] = para['Trk_z']
 
     # 电缆参数
+    para['Cable_R'] = Constant(43)
+    para['Cable_L'] = Constant(825e-6)
+    para['Cable_C'] = Constant(28e-9)
+
     data['电缆电阻最大(Ω/km)'] = 45
     data['电缆电阻最小(Ω/km)'] = 43
     data['电缆电容最大(F/km)'] = 28e-9
@@ -485,6 +490,30 @@ def config_row_data_digital_adj(df_input, para, data, mode):
     for i in range(1, 11, 1):
         para['z_pwr_车站数字化'][i] = z_pwr
 
+    # 接收端
+    z_rcv1 = ImpedanceMultiFreq()
+    z_rcv1.rlc_s = {
+        1700: (23e3, None, None),
+        2000: (23e3, None, None),
+        2300: (23e3, None, None),
+        2600: (23e3, None, None)}
+
+    z_rcv2 = ImpedanceMultiFreq()
+    z_rcv2.rlc_s = {
+        1700: (1.21, 3.3e-3, None),
+        2000: (1.21, 3.3e-3, None),
+        2300: (1.21, 3.3e-3, None),
+        2600: (1.21, 3.3e-3, None)}
+
+    para['z_rcv_车站数字化'] = z_rcv1 // z_rcv2
+
+    # para['z_rcv_车站数字化'] = ImpedanceMultiFreq()
+    # para['z_rcv_车站数字化'].rlc_p = {
+    #     1700: (23e3, 3.370340e-3, None),
+    #     2000: (23e3, 3.366127e-3, None),
+    #     2300: (23e3, 3.363013e-3, None),
+    #     2600: (23e3, 3.366739e-3, None)}
+
     # 防雷变压器
     para['FL_z1_车站数字化'] = ImpedanceMultiFreq()
     para['FL_z1_车站数字化'].rlc_s = {
@@ -499,7 +528,8 @@ def config_row_data_digital_adj(df_input, para, data, mode):
         2000: [3560, 323.73e-3, None],
         2300: [3920, 296.38e-3, None],
         2600: [4240, 275.18e-3, None]}
-    n = 1/1.095
+    # n = 1/1.095
+    n = 1/1.04
     para['FL_n_车站数字化'] = {
         1700: n,
         2000: n,
@@ -515,23 +545,24 @@ def config_row_data_digital_adj(df_input, para, data, mode):
         2300: [0.22246, None, 598.29 * 1e-9],
         2600: [0.47802, None, 598.01 * 1e-9],
     }
+
     # 扼流变压器
     data['室外传输单元变比'] = para['变压器变比'] = n = df_input['室外传输单元变比']
 
     if n == 10:
         para['EL_0425_发送_zs'] = ImpedanceMultiFreq()
         para['EL_0425_发送_zs'].rlc_s = {
-            1700: [1.74, 954.3e-6, None],
-            2000: [1.84, 949.0e-6, None],
-            2300: [1.94, 944.8e-6, None],
-            2600: [2.04, 941.4e-6, None]}
+            1700: [3.744, 0.994e-3, None],
+            2000: [3.862, 0.986e-3, None],
+            2300: [3.980, 0.980e-3, None],
+            2600: [4.099, 0.975e-3, None]}
 
         para['EL_0425_发送_zm'] = ImpedanceMultiFreq()
         para['EL_0425_发送_zm'].rlc_s = {
-            1700: [30.46, 37.02e-3, None],
-            2000: [44.32, 37.47e-3, None],
-            2300: [58.35, 38.02e-3, None],
-            2600: [75.18, 38.72e-3, None]}
+            1700: [34.26, 38.35e-3, None],
+            2000: [46.35, 38.97e-3, None],
+            2300: [61.11, 39.77e-3, None],
+            2600: [79.37, 40.77e-3, None]}
         para['EL_0425_n'] = {
             1700: n,
             2000: n,
@@ -557,7 +588,6 @@ def config_row_data_digital_adj(df_input, para, data, mode):
     }
 
     if mode == '一送一受':
-
         # 发码方向
         data['发码方向'] = para['sr_mod'] = '右发'
 
@@ -651,7 +681,8 @@ def calculate_row_data_adj(df_input, para, data, data2excel, mode):
 
 # 获取功出电平级
 def get_pwr_level_digital_adj(min_i_trk, freq):
-    pwr_list = [132, 117, 102, 90, 80, 70, 54, 47, 40, 27]
+    # pwr_list = [132, 117, 102, 90, 80, 70, 54, 47, 40, 27]
+    pwr_list = [135, 115, 100, 90, 80, 70, 60, 50, 40, 30]
     max_current = {
         1700: 0.5,
         2000: 0.5,
@@ -672,6 +703,18 @@ def get_pwr_level_digital_adj(min_i_trk, freq):
     # print(ret, i_trk)
     return ret, i_trk
 
+
+# ########################################################################################################################
+#
+# # 获取调整电缆长度
+# def get_cable_length_adj(length, mode):
+#     if mode == '最小':
+#         ret =
+#     elif mode == '最大':
+#         ret =
+#     else:
+#         raise KeyboardInterrupt('调整电缆长度')
+#
 
 ########################################################################################################################
 
