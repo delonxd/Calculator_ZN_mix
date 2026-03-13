@@ -31,6 +31,13 @@ class TPortCable(TPortCircuitPi):
 
     def get_coeffs(self, freq):
         length = float(self.length)
+        if length == 0:
+            self.equ1.varb_list = [self['U1'], self['U2']]
+            self.equ2.varb_list = [self['I1'], self['I2']]
+            self.equ1.coeff_list = np.array([1, -1])
+            self.equ2.coeff_list = np.array([1, -1])
+            return self.equs
+
         w = 2 * np.pi * freq
         z0 = float(self.R) + 1j * w * float(self.L)
         y0 = 10e-10 + 1j * w * float(self.C)

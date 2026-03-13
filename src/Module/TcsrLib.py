@@ -614,7 +614,7 @@ class ZPW2000A_ZN_Digital(TCSR):
                                                   para['EL_0425_发送_zm'],
                                                   para['EL_0425_n']))
 
-        self.add_child('7CA', TcsrCA(self, '7CA', para['CA_z_站内']))
+        self.add_child('7CA', TcsrCA(self, '7CA', para['z_CA_车站数字化']))
         self.md_list = self.get_md_list([])
         self.config_varb()
 
@@ -772,14 +772,17 @@ class ZPW2000A_ZN_Digital_adj(TCSR):
         self.flag_ele_unit = True
         self.mode = mode
         self.send_level = level
-        self.u_list_max = [144, 129, 114, 98, 88, 78, 62, 53, 46, 33]
-        self.u_list_min = [132, 117, 102, 90, 80, 70, 54, 47, 40, 27]
+        # self.u_list_max = [144, 129, 114, 98, 88, 78, 62, 53, 46, 33]
+        # self.u_list_min = [132, 117, 102, 90, 80, 70, 54, 47, 40, 27]
+
+        self.u_list_max = [148, 127, 111, 99, 89, 78, 68, 57, 47, 36]
+        self.u_list_min = [135, 115, 100, 90, 80, 70, 60, 50, 40, 30]
 
         if self.mode == '发送':
             self.add_child('1发送器', TcsrPower(self, '1发送器', para['z_pwr_车站数字化']))
 
         elif self.mode == '接收' or self.mode == '岔尾':
-            self.add_child('1接收器', TcsrReceiver(self, '1接收器', para['Z_rcv']))
+            self.add_child('1接收器', TcsrReceiver(self, '1接收器', para['z_rcv_车站数字化']))
 
         elif self.mode == '岔尖':
             return
@@ -792,9 +795,9 @@ class ZPW2000A_ZN_Digital_adj(TCSR):
 
         self.add_child('3防雷', TcsrTransformerOpenShort(
             self, '3防雷',
-            para['FL_z1_发送端'],
-            para['FL_z2_发送端'],
-            para['FL_n_发送端'],
+            para['FL_z1_车站数字化'],
+            para['FL_z2_车站数字化'],
+            para['FL_n_车站数字化'],
         ))
 
         self.add_child('4实际电缆', TPortCable(
