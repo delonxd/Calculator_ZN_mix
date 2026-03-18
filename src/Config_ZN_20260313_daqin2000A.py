@@ -1,4 +1,3 @@
-
 from src.ImpedanceParaType import ImpedanceMultiFreq
 from src.ConstantType import Constant
 from src.FrequencyType import Freq
@@ -12,17 +11,7 @@ from src.TrackCircuitElement.Line import Line
 from src.Model.PreModel import PreModel
 
 import pandas as pd
-import numpy as np
-import time
-import os
-
-import matplotlib.pyplot as plt
-from matplotlib import cm
-import matplotlib as mpl
-
-plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
-# plt.rcParams['font.sans-serif'] = ['consolas']  # 用来正常显示中文标签
-plt.rcParams['axes.unicode_minus'] = False
+import itertools
 
 
 def config_input_20260313_daqin_2000a():
@@ -62,9 +51,20 @@ def config_input_20260313_daqin_2000a():
 
     df = pd.DataFrame(index=columns, dtype='object')
     # [名称, 类型, 长度, 相对位置, 频率, 电容数, 电容值]
+    # sec_list = [
+    #     ['IG', 'BPLN', 856, 0, 2000, 9, 50],
+    #     ['IIG', 'PT', 826, 0, 2600, 9, 50],
+    # ]
+
     sec_list = [
-        ['IG', 'BPLN', 856, 0, 2000, 9, 50],
-        ['IIG', 'PT', 826, 0, 2600, 9, 50],
+        ['IG', 'BPLN', 400, 0, 2000, 4, 25],
+        ['IIG', 'PT', 400, 0, 2600, 4, 25],
+        ['IG', 'BPLN', 350, 0, 2000, 4, 25],
+        ['IIG', 'PT', 350, 0, 2600, 4, 25],
+        ['IG', 'BPLN', 400, 0, 2000, 4, 50],
+        ['IIG', 'PT', 400, 0, 2600, 4, 50],
+        ['IG', 'BPLN', 350, 0, 2000, 4, 50],
+        ['IIG', 'PT', 350, 0, 2600, 4, 50],
     ]
 
     direction_list = [
@@ -74,6 +74,13 @@ def config_input_20260313_daqin_2000a():
         ['右发', '右发'],
     ]
 
+    freq_list = [
+        [2000, 2600],
+        [2600, 2000],
+        [1700, 2300],
+        [2300, 1700],
+    ]
+
     condition_list = [
         ['主串调整被串分路', '是'],
         # ['主串调整被串分路', '否'],
@@ -81,57 +88,74 @@ def config_input_20260313_daqin_2000a():
         # ['主被串同时分路', '否'],
     ]
 
-    counter = 1
-
-    pick_sec = [
+    pick_list = [
         [0, 1],
         [1, 0],
+        [2, 3],
+        [3, 2],
+        [4, 5],
+        [5, 4],
+        [6, 7],
+        [7, 6],
     ]
 
-    for val in pick_sec:
-        sec_zhu = sec_list[val[0]]
-        sec_bei = sec_list[val[1]]
+    clist = list(itertools.product(
+        pick_list,
+        freq_list,
+        direction_list,
+        condition_list,
+    ))
 
-        for dir_zhu, dir_bei in direction_list:
-            for condition in condition_list:
+    counter = 1
 
-                s0 = pd.Series(name=counter, index=columns)
+    for val in clist:
+        pick, freq, direction, condition = val
 
-                s0['序号'] = s0.name
-                s0['备注'] = ''
-                s0['主串区段'] = sec_zhu[0]
-                s0['被串区段'] = sec_bei[0]
-                s0['主串类型'] = sec_zhu[1]
-                s0['被串类型'] = sec_bei[1]
-                s0['主串方向'] = dir_zhu
-                s0['被串方向'] = dir_bei
-                s0['主串区段长度(m)'] = sec_zhu[2]
-                s0['被串区段长度(m)'] = sec_bei[2]
-                s0['被串相对位置(m)'] = sec_bei[3] - sec_zhu[3]
-                s0['耦合系数(μH/km)'] = 20
-                s0['主串电平级'] = 3
-                s0['主串频率(Hz)'] = sec_zhu[4]
-                s0['被串频率(Hz)'] = sec_bei[4]
-                s0['主串电缆长度(km)'] = 10
-                s0['被串电缆长度(km)'] = 10
-                s0['主串电容数(含TB)'] = sec_zhu[5]
-                s0['被串电容数(含TB)'] = sec_bei[5]
-                s0['主串电容值(μF)'] = sec_zhu[6]
-                s0['被串电容值(μF)'] = sec_bei[6]
-                s0['主串道床电阻(Ω·km)'] = 10000
-                s0['被串道床电阻(Ω·km)'] = 10000
-                s0['分路模式'] = condition[0]
-                s0['分路间隔(m)'] = 1
-                s0['分路电阻(Ω)'] = 1e-7
-                s0['主串TB模式'] = '无TB'
-                s0['被串TB模式'] = '无TB'
-                print('generate row: %s --> %s' % (counter, s0.tolist()))
+        sec_zhu = sec_list[pick[0]]
+        sec_bei = sec_list[pick[1]]
+        freq_zhu = freq[0]
+        freq_bei = freq[1]
+        dir_zhu = direction[0]
+        dir_bei = direction[1]
 
-                df = pd.concat([df, s0], axis=1)
-                counter += 1
+        s0 = pd.Series(name=counter, index=columns)
+
+        s0['序号'] = s0.name
+        s0['备注'] = ''
+        s0['主串区段'] = sec_zhu[0]
+        s0['被串区段'] = sec_bei[0]
+        s0['主串类型'] = sec_zhu[1]
+        s0['被串类型'] = sec_bei[1]
+        s0['主串方向'] = dir_zhu
+        s0['被串方向'] = dir_bei
+        s0['主串区段长度(m)'] = sec_zhu[2]
+        s0['被串区段长度(m)'] = sec_bei[2]
+        s0['被串相对位置(m)'] = sec_bei[3] - sec_zhu[3]
+        s0['耦合系数(μH/km)'] = 20
+        s0['主串电平级'] = 3
+        s0['主串频率(Hz)'] = freq_zhu
+        s0['被串频率(Hz)'] = freq_bei
+        s0['主串电缆长度(km)'] = 10
+        s0['被串电缆长度(km)'] = 10
+        s0['主串电容数(含TB)'] = sec_zhu[5]
+        s0['被串电容数(含TB)'] = sec_bei[5]
+        s0['主串电容值(μF)'] = sec_zhu[6]
+        s0['被串电容值(μF)'] = sec_bei[6]
+        s0['主串道床电阻(Ω·km)'] = 10000
+        s0['被串道床电阻(Ω·km)'] = 10000
+        s0['分路模式'] = condition[0]
+        s0['分路间隔(m)'] = 1
+        s0['分路电阻(Ω)'] = 1e-7
+        s0['主串TB模式'] = '无TB'
+        s0['被串TB模式'] = '无TB'
+        print('generate row: %s --> %s' % (counter, s0.tolist()))
+
+        df = pd.concat([df, s0], axis=1)
+        counter += 1
 
     df = df.transpose()
 
+    print(df)
     return df
 
 
