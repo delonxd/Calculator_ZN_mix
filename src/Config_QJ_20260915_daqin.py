@@ -15,7 +15,7 @@ from src.Model.PreModel import PreModel
 import pandas as pd
 
 
-def config_input_20260703_25hz_2000a_mix():
+def config_input_20260915_daqin():
     columns = [
         '序号',
         '备注',
@@ -106,30 +106,58 @@ def config_input_20260703_25hz_2000a_mix():
     # ]
 
     dict_l1 = {
-        '区段名': ['IG'],
-        '区段长度': [203],
-        '调谐区长度': [0, 0],
-        '区段频率': [2300],
-        '电容数': [0],
-        '电容容值': [25],
+        '区段名': ['1050G'],
+        '区段长度': [1305],
+        '调谐区长度': [29, 29],
+        '区段频率': [2600],
+        '电容数': [20],
+        '电容容值': [50],
         '相对位置': 0,
-        '区段类型': ['2000A_25Hz_Coding'],
-        '电缆长度': [5],
+        '区段类型': ['2000A'],
+        '电缆长度': [10],
         '发送电平级': [1],
-        '发送电压': [170],
+        '发送电压': ['最大'],
     }
 
     dict_l2 = {
-        '区段名': ['IIAG', 'IIBG'],
-        '区段长度': [684, 729],
-        '调谐区长度': [0, 29, 29],
+        '区段名': ['1075G', '1061G'],
+        '区段长度': [1288, 1362],
+        '调谐区长度': [29, 29, 29],
         '区段频率': [1700, 2300],
-        '电容数': [11, 9],
-        '电容容值': [25, 25],
-        '相对位置': 128-684,
+        '电容数': [14, 18],
+        '电容容值': [50, 50],
+        '相对位置': 150-1288,
         '区段类型': ['2000A', '2000A'],
         '电缆长度': [10, 10],
-        '发送电平级': [3, 3],
+        '发送电平级': [1, 1],
+        '发送电压': ['最大', '最大'],
+    }
+
+    dict_l3 = {
+        '区段名': ['3450G'],
+        '区段长度': [1350],
+        '调谐区长度': [29, 29],
+        '区段频率': [2600],
+        '电容数': [20],
+        '电容容值': [50],
+        '相对位置': 0,
+        '区段类型': ['2000A'],
+        '电缆长度': [10],
+        '发送电平级': [1],
+        '发送电压': ['最大'],
+    }
+
+    dict_l4 = {
+        '区段名': ['3475G', '3461G'],
+        '区段长度': [1400, 1300],
+        '调谐区长度': [29, 29, 29],
+        '区段频率': [1700, 2300],
+        '电容数': [18, 16],
+        '电容容值': [50, 50],
+        '相对位置': 100-1400,
+        '区段类型': ['2000A', '2000A'],
+        '电缆长度': [10, 10],
+        '发送电平级': [1, 1],
         '发送电压': ['最大', '最大'],
     }
 
@@ -159,16 +187,28 @@ def config_input_20260703_25hz_2000a_mix():
 
     l1 = [dict_l1[key] for key in dict_l1 if key in map_table]
     l2 = [dict_l2[key] for key in dict_l2 if key in map_table]
+    l3 = [dict_l3[key] for key in dict_l3 if key in map_table]
+    l4 = [dict_l4[key] for key in dict_l4 if key in map_table]
 
     sec1 = l1.copy()
     sec2 = l2.copy()
     sec3 = l2.copy()
+    sec3[6] = 138-1288
 
     sec1.append(0)
     sec2.append(0)
-    sec3.append(1)
+    sec3.append(0)
 
-    sec_list = [sec1, sec2, sec3]
+    sec4 = l3.copy()
+    sec5 = l3.copy()
+    sec5[9] = [2]
+    sec6 = l4.copy()
+
+    sec4.append(0)
+    sec5.append(0)
+    sec6.append(0)
+
+    sec_list = [sec1, sec2, sec3, sec4, sec5, sec6]
 
     condition_list = [
         ['主串调整被串分路', '否'],
@@ -191,8 +231,10 @@ def config_input_20260703_25hz_2000a_mix():
     pick_sec = [
         [0, 1],
         [0, 2],
-        [1, 0],
-        [2, 0],
+        [3, 5],
+        [4, 5],
+        # [1, 0],
+        # [2, 0],
     ]
 
     for index1, index2 in pick_sec:
@@ -231,7 +273,7 @@ def config_input_20260703_25hz_2000a_mix():
 
                 # s0['占车位置(m)'] = posi_zhu_0
 
-                s0['耦合系数(μH/km)'] = 20
+                s0['耦合系数(μH/km)'] = 21
 
                 s0['主串频率(Hz)'] = sec_zhu[map_table['区段频率']][index_zhu:index_zhu+1]
                 s0['被串频率(Hz)'] = sec_bei[map_table['区段频率']]
@@ -303,7 +345,7 @@ def config_input_20260703_25hz_2000a_mix():
 
 
 # 配置表头
-def config_headlist_20260703_25hz_2000a_mix():
+def config_headlist_20260915_daqin():
     head_list = [
         '序号',
         '备注',
@@ -349,13 +391,13 @@ def config_headlist_20260703_25hz_2000a_mix():
         # '主串调整电阻(Ω)',
         # '被串调整电阻(Ω)',
 
-        '被串是否发码',
-        'FT1-U二次侧输出电压(V)',
-
-        '调整电阻(Ω)',
-        '调整电感(H)',
-        '调整电容(F)',
-        '调整RLC模式',
+        # '被串是否发码',
+        # 'FT1-U二次侧输出电压(V)',
+        #
+        # '调整电阻(Ω)',
+        # '调整电感(H)',
+        # '调整电容(F)',
+        # '调整RLC模式',
 
         # 'NGL-C1(μF)',
         #
@@ -379,7 +421,7 @@ def config_headlist_20260703_25hz_2000a_mix():
 
 
 # 配置行数据
-def config_row_data_20260703_25hz_2000a_mix(df_input, para, data):
+def config_row_data_20260915_daqin(df_input, para, data):
     # 序号
     data['序号'] = para['序号'] = df_input['序号']
 
@@ -797,7 +839,7 @@ def get_c_imp(value):
     return ret
 
 
-class PreModel_20260703_25hz_2000a_mix(PreModel):
+class PreModel_20260915_daqin(PreModel):
     def __init__(self, parameter):
         # super().__init__(turnout_list, parameter)
         self.parameter = para = parameter

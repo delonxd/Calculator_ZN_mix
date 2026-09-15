@@ -6,10 +6,10 @@ from src.Model.MainModel import MainModel
 from src.Model.ModelParameter import ModelParameter
 from src.ImpedanceParaType import ImpedanceMultiFreq
 
-from src.Config_QJ_20260915_daqin import config_input_20260703_25hz_2000a_mix
-from src.Config_QJ_20260915_daqin import config_headlist_20260703_25hz_2000a_mix
-from src.Config_QJ_20260915_daqin import config_row_data_20260703_25hz_2000a_mix
-from src.Config_QJ_20260915_daqin import PreModel_20260703_25hz_2000a_mix
+from src.Config_QJ_20260915_daqin import config_input_20260915_daqin
+from src.Config_QJ_20260915_daqin import config_headlist_20260915_daqin
+from src.Config_QJ_20260915_daqin import config_row_data_20260915_daqin
+from src.Config_QJ_20260915_daqin import PreModel_20260915_daqin
 
 import pandas as pd
 import numpy as np
@@ -42,7 +42,7 @@ def main_cal(output_path, work_path):
 
     # df_input = pd.read_excel(input_path)
     # df_input = df_input.where(df_input.notnull(), None)
-    df_input = config_input_20260703_25hz_2000a_mix()
+    df_input = config_input_20260915_daqin()
     num_len = len(list(df_input['序号']))
 
     # 检查输入格式
@@ -94,7 +94,7 @@ def main_cal(output_path, work_path):
     #################################################################################
 
     # 获取表头
-    head_list = config_headlist_20260703_25hz_2000a_mix()
+    head_list = config_headlist_20260915_daqin()
 
     #################################################################################
 
@@ -158,7 +158,7 @@ def main_cal(output_path, work_path):
         df_input_row = df_input.iloc[temp_temp]
 
         # 配置数据
-        config_row_data_20260703_25hz_2000a_mix(df_input_row, para, data)
+        config_row_data_20260915_daqin(df_input_row, para, data)
 
         interval = data['分路间隔(m)']
 
@@ -167,7 +167,7 @@ def main_cal(output_path, work_path):
         len_posi = 0
 
         # 分路计算
-        md = PreModel_20260703_25hz_2000a_mix(parameter=para)
+        md = PreModel_20260915_daqin(parameter=para)
 
         md.add_train()
         # md.add_train_bei()
@@ -188,6 +188,7 @@ def main_cal(output_path, work_path):
 
         for posi_bei in posi_list:
             para['分路位置'] = posi_bei
+            MainLog.add_log_accurate(f'分路位置 --> {posi_bei}')
 
             md.train1.posi_rlt = posi_bei
             md.train1.set_posi_abs(0)
