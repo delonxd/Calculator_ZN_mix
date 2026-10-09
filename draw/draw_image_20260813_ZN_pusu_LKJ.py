@@ -728,7 +728,7 @@ def draw_image_4_1_6(parent_root):
 
                 df1 = df.loc[
                     (df["主串频率(Hz)"] == freq_zhu) &
-                    (df["被串电容间隔"] == c_mode_bei)
+                    (df["被串电容值配置"] == c_mode_bei)
                 ]
 
                 if len(df1.index) != 1:
@@ -736,11 +736,26 @@ def draw_image_4_1_6(parent_root):
 
                 yy1 = (df1.iloc[0, pre_size:].copy().dropna()*1000).tolist()
 
+                c_value_zhu = df1.iloc[0, :]['主串电容值(μF)']
+                c_value_bei = df1.iloc[0, :]['被串电容值(μF)']
+
+                ax_title = f'频率{freq_zhu}Hz-主串电容值{c_value_zhu}μF'
+
+                color_list = [
+                    'red',
+                    'orange',
+                    'blue',
+                    'green',
+                ]
+
                 line_style = '-'
-                color = cm.rainbow(i / len(interval_list))
+                color = color_list[i]
                 alpha = 1
                 width = 1
-                label = f'电容间隔{interval}'
+                if c_mode_bei == '普速既有':
+                    label = f'普速既有配置:{c_value_bei}μF'
+                else:
+                    label = f'{c_value_bei}μF'
 
                 ax.plot(xx1, yy1, linestyle=line_style, color=color, alpha=alpha, linewidth=width, label=label)
 
@@ -760,8 +775,8 @@ def draw_image_4_1_6(parent_root):
 
         #################################################################################################
         # 保存
-        # plt.show()
-        # raise KeyboardInterrupt()
+        plt.show()
+        raise KeyboardInterrupt()
 
         if not os.path.exists(res_dir):
             os.makedirs(res_dir)
