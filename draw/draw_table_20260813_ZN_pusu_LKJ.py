@@ -117,11 +117,11 @@ def table_005():
     print('纯 Matplotlib 单元格合并成功，图片已保存！')
     plt.show()
 
-def config_file(root, file):
+def config_file(root, file, sheet='数据输出'):
     # root = 'C:\\Users\\Delon\\Desktop\\普速列控邻线干扰\\数据汇总\\4-1-1遍历频率\\'
     # file = '仿真输出_20260813_普速列控_4-1-1遍历频率.xlsx'
 
-    df_data1 = pd.read_excel(root + file, '数据输出')
+    df_data1 = pd.read_excel(root + file, sheet)
     # df_data2 = pd.read_excel(root + file, '被串钢轨电流')
     # df_combine = pd.concat([df_data1, df_data2], axis=1)
 
@@ -158,7 +158,7 @@ def draw_line(
         y=y0, xmin=x0, xmax=x1, color=color, linewidth=linewidth, zorder=zorder,
     )
 
-def merge_duplicate(table, ax, data, index=0, mode='row'):
+def merge_duplicate(table, ax, data, index=0, mode='row', merge_list=None, max_span=np.inf):
     if mode == 'row':
         lst = data[index].copy()
     elif mode == 'col':
@@ -172,23 +172,26 @@ def merge_duplicate(table, ax, data, index=0, mode='row'):
     start = -1
     size = len(lst)
     lst.append(None)
-    merge_list = []
-    for i, val in enumerate(lst):
-        if i == 0:
-            start = 0
-            txt = val
-        else:
-            if val != txt or i == size:
-                if (i - start) > 1:
-                    if mode == 'row':
-                        tmp = [index, start, index, i-1, txt]
-                    elif mode == 'col':
-                        tmp = [start, index, i-1, index, txt]
-                    else:
-                        raise KeyboardInterrupt()
-                    merge_list.append(tmp)
-                start = i
+
+    if merge_list is None:
+        merge_list = []
+        for i, val in enumerate(lst):
+            if i == 0:
+                start = 0
                 txt = val
+            else:
+                span =  (i - start)
+                if val != txt or i == size or span>=max_span:
+                    if span > 1:
+                        if mode == 'row':
+                            tmp = [index, start, index, i-1, txt]
+                        elif mode == 'col':
+                            tmp = [start, index, i-1, index, txt]
+                        else:
+                            raise KeyboardInterrupt()
+                        merge_list.append(tmp)
+                    start = i
+                    txt = val
 
     for val in merge_list:
         matplotlib_merge(
@@ -272,12 +275,12 @@ def matplotlib_merge(
     )
 
 
-def config_ax(data, color='#e6f2ff'):
+def config_ax(data, color='#e6f2ff', width=7):
     v_height = 0.18
     v_pad = 0.1
     fig_height = v_height * len(data) + v_pad
 
-    fig, ax = plt.subplots(figsize=(7, fig_height), dpi=200)
+    fig, ax = plt.subplots(figsize=(width, fig_height), dpi=200)
     ax.axis('off')
     # ax.axis('tight')
     ax.set_position([0.02, 0, 0.96, 1])
@@ -317,6 +320,235 @@ def config_ax(data, color='#e6f2ff'):
     fig.canvas.draw()
 
     return fig, ax, table
+
+
+def get_ratio_table(df, col1, col1_list, col2, col2_list):
+    freq_zhu_list = [1700, 2000, 2300, 2600]
+
+    # df1 = pd.DataFrame(index=col1_list, columns=freq_zhu_list)
+    # df2 = pd.DataFrame(index=col1_list, columns=freq_zhu_list)
+    df1 = pd.DataFrame()
+    df2 = pd.DataFrame()
+
+    for i, freq_zhu in enumerate(freq_zhu_list):
+        s1 = df.loc[
+            (df["主串频率(Hz)"] == freq_zhu) &
+            (df[col1].isin(col1_list)) &
+            (df[col2] == col2_list[0])
+        ]['被串最大干扰电流(A)'].copy()
+        s1.index = col1_list
+        s1.name = freq_zhu
+
+        df1 = pd.concat([df1, s1], axis=1)
+
+        s2 = df.loc[
+            (df["主串频率(Hz)"] == freq_zhu) &
+            (df[col1].isin(col1_list)) &
+            (df[col2] == col2_list[1])
+        ]['被串最大干扰电流(A)'].copy()
+        s2.index = col1_list
+        s2.name = freq_zhu
+        df2 = pd.concat([df2, s2], axis=1)
+
+    df3 = df1 / df2 -1
+
+    print(df1)
+    print(df2)
+    print(df3)
+
+    return df1, df2, df3
+
+# 3-1模型准确性
+def draw_table_3_1(parent_root):
+    sub_dir = '3-1模型准确性'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'模型准确性核对.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成表格_%s' % timestamp
+
+    #################################################################################################
+    #################################################################################################
+    # 表格1
+
+    df0 = pd.read_excel(root + file, '测试值1')
+    fig_name = '3-1模型准确性表1'
+    fig_path = res_dir + f'\\{fig_name}.png'
+    data = df0.copy().values.tolist()
+
+    #################################################################################################
+    # 画表格
+    fig, ax, table = config_ax(data=data, width=5, color='whitesmoke')
+    n_rows = len(data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+
+    for row in range(n_rows):
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, start=2, edge='T', linewidth=1)
+
+        elif row == 2:
+            draw_line(table, ax, data, row, start=2, edge='T', linewidth=1)
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+
+        # elif row in [2, 8]:
+        #     draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+    #################################################################################################
+    #################################################################################################
+    # 表格2
+
+    df0, res_dir = config_file(root, file, sheet='测试值2')
+    fig_name = '3-1模型准确性表2'
+    fig_path = res_dir + f'\\{fig_name}.png'
+    data = df0.copy().values.tolist()
+
+    #################################################################################################
+    # 画表格
+    fig, ax, table = config_ax(data=data, width=5, color='whitesmoke')
+    n_rows = len(data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+
+    for row in range(n_rows):
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, start=2, edge='T', linewidth=1)
+
+        elif row == 2:
+            draw_line(table, ax, data, row, start=2, edge='T', linewidth=1)
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+
+# 3-2电码化参数表
+def draw_table_3_2(parent_root):
+    sub_dir = '3-2电码化参数表'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'电码化参数.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成表格_%s' % timestamp
+
+    #################################################################################################
+    #################################################################################################
+    # 表格1
+
+    df0 = pd.read_excel(root + file, 'Sheet3')
+    fig_name = '3-2电码化参数表1'
+    fig_path = res_dir + f'\\{fig_name}.png'
+    data = df0.copy().values.tolist()
+
+    #################################################################################################
+    # 画表格
+    fig, ax, table = config_ax(data=data, width=7, color='whitesmoke')
+    n_rows = len(data)
+
+    # for row in range(n_rows):
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+
+    for row in range(n_rows):
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row ==1:
+            draw_line(table, ax, data, row, start=2, edge='T', linewidth=1)
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+
+        elif row in [2, 8]:
+            draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+    # #################################################################################################
+    # #################################################################################################
+    # # 表格2
+    #
+    # df0, res_dir = config_file(root, file, sheet='Sheet2')
+    # fig_name = '3-2电码化参数表2'
+    # fig_path = res_dir + f'\\{fig_name}.png'
+    # data = df0.copy().values.tolist()
+    #
+    # #################################################################################################
+    # # 画表格
+    # fig, ax, table = config_ax(data=data, width=7)
+    # n_rows = len(data)
+    #
+    # for row in range(n_rows):
+    #     merge_duplicate(table=table, ax=ax, data=data, index=row, mode='row')
+    # merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    # merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+    #
+    # for row in range(n_rows):
+    #     if row == 0:
+    #         draw_line(table, ax, data, row, edge='T', linewidth=2)
+    #
+    #     elif row == n_rows - 1:
+    #         draw_line(table, ax, data, row, edge='B', linewidth=2)
+    #
+    #     elif row ==1:
+    #         draw_line(table, ax, data, row, start=2, edge='T', linewidth=1)
+    #         draw_line(table, ax, data, row, edge='B', linewidth=1)
+    #
+    # #################################################################################################
+    # # 保存
+    # # plt.show()
+    # # raise KeyboardInterrupt()
+    #
+    # if not os.path.exists(res_dir):
+    #     os.makedirs(res_dir)
+    #
+    # fig.savefig(fig_path)
 
 
 # 4-1-1遍历频率
@@ -590,6 +822,113 @@ def draw_table_4_1_3(parent_root):
     fig.savefig(fig_path)
 
 
+# 4-1-3遍历方向-百分比
+def draw_table_4_1_3_ratio(parent_root):
+    sub_dir = '4-1-3遍历方向'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成百分比表格_%s' % timestamp
+
+    #################################################################################################
+
+    df0 = pd.read_excel(root + file)
+    fig_name = '4-1-3遍历方向-百分比'
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    ret = pd.DataFrame()
+
+
+    col1 = '主串区段长度(m)'
+    col1_list = [400, 500, 600, 700, 800, 900, 1000]
+
+    col2 = '主串方向'
+    col2_list = ['左发', '右发']
+
+    df1, df2, df3 = get_ratio_table(
+        df0, col1, col1_list, col2, col2_list
+    )
+
+    header1 = ['区段长度', '发送方向']
+    header2 = ['区段长度', '发送方向']
+
+    for freq_zhu in [1700, 2000, 2300, 2600]:
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'变化率')
+
+    data = [
+        header1,
+        header2,
+    ]
+
+    show_table = {
+        '右发': '反向',
+        '左发': '同向',
+    }
+
+    for length in col1_list:
+        row1 = [f'{length}m', show_table[col2_list[0]]]
+        row2 = [f'{length}m', show_table[col2_list[1]]]
+
+        for freq_zhu in [1700, 2000, 2300, 2600]:
+            val1 = df1.loc[length, freq_zhu]
+            val2 = df2.loc[length, freq_zhu]
+            val3 = df3.loc[length, freq_zhu]
+            val1 = f"{(val1 * 1000):,.2f}"
+            val2 = f"{(val2 * 1000):,.2f}"
+            val3 = f"{(val3 * 100):,.2f}%"
+
+            row1.append(val1)
+            row1.append(val3)
+            row2.append(val2)
+            row2.append(val3)
+        data.append(row1)
+        data.append(row2)
+
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+    for i in range(4):
+        merge_duplicate(table=table, ax=ax, data=data, index=i*2+3, mode='col')
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=2, edge='T', linewidth=1)
+
+        elif row % 2 == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+
 # 4-1-4遍历分路模式
 def draw_table_4_1_4(parent_root):
     sub_dir = '4-1-4遍历分路模式'
@@ -657,6 +996,114 @@ def draw_table_4_1_4(parent_root):
     merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
     merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
     merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=2, edge='T', linewidth=1)
+
+        elif row % 2 == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+
+# 4-1-4遍历分路模式-百分比
+def draw_table_4_1_4_ratio(parent_root):
+    sub_dir = '4-1-4遍历分路模式'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成百分比表格_%s' % timestamp
+
+    #################################################################################################
+
+    df0 = pd.read_excel(root + file)
+    fig_name = '4-1-4遍历分路模式-百分比'
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    ret = pd.DataFrame()
+
+
+    col1 = '主串区段长度(m)'
+    col1_list = [400, 500, 600, 700, 800, 900, 1000]
+
+    col2 = '分路模式'
+    col2_list = ['主被串同时分路', '主串调整被串分路']
+
+    df1, df2, df3 = get_ratio_table(
+        df0, col1, col1_list, col2, col2_list
+    )
+
+    header1 = ['区段长度', '分路模式']
+    header2 = ['区段长度', '分路模式']
+
+    for freq_zhu in [1700, 2000, 2300, 2600]:
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'变化率')
+
+    data = [
+        header1,
+        header2,
+    ]
+
+    show_table = {
+        '主串调整被串分路': '主串调整',
+        '主被串同时分路': '同时分路',
+    }
+
+    for length in col1_list:
+        row1 = [f'{length}m', show_table[col2_list[0]]]
+        row2 = [f'{length}m', show_table[col2_list[1]]]
+
+        for freq_zhu in [1700, 2000, 2300, 2600]:
+            val1 = df1.loc[length, freq_zhu]
+            val2 = df2.loc[length, freq_zhu]
+            val3 = df3.loc[length, freq_zhu]
+            val1 = f"{(val1 * 1000):,.2f}"
+            val2 = f"{(val2 * 1000):,.2f}"
+            val3 = f"{(val3 * 100):,.2f}%"
+
+            row1.append(val1)
+            row1.append(val3)
+            row2.append(val2)
+            row2.append(val3)
+        data.append(row1)
+        data.append(row2)
+
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+
+    for i in range(4):
+        merge_duplicate(table=table, ax=ax, data=data, index=i*2+3, mode='col')
 
     n_rows = len(data)
     for row in range(n_rows):
@@ -784,6 +1231,92 @@ def draw_table_4_1_5(parent_root):
 
     fig.savefig(fig_path)
 
+# 4-1-5遍历电容间距-最大值
+def draw_table_4_1_5_max(parent_root):
+    sub_dir = '4-1-5遍历电容间距'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成最大值表格_%s' % timestamp
+
+    #################################################################################################
+
+    df0 = pd.read_excel(root + file)
+    fig_name = '4-1-5遍历电容间距-最大值'
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    header1 = ['区段长度']
+    header2 = ['区段长度']
+
+    for freq_zhu in [1700, 2000, 2300, 2600]:
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'最小值/mA')
+        # header2.append(f'电容间隔')
+
+    data = [
+        header1,
+        header2,
+    ]
+
+    length_list = [400, 500, 600, 700, 800, 900, 1000]
+    freq_zhu_list = [1700, 2000, 2300, 2600]
+    for j, sec_length in enumerate(length_list):
+        row = [f'{sec_length}m']
+
+        for i, freq_zhu in enumerate(freq_zhu_list):
+            df = df0.loc[
+                (df0["主串频率(Hz)"] == freq_zhu) &
+                (df0["主串区段长度(m)"] == sec_length)
+            ].copy()
+            val1 = df['被串最大干扰电流(A)'].max()
+            val2 = df['被串最大干扰电流(A)'].min()
+            # val2 = df.loc[df['被串最大干扰电流(A)'].idxmax(), '主串电容间隔']
+
+            val1 = f"{(val1 * 1000):,.2f}"
+            val2 = f"{(val2 * 1000):,.2f}"
+
+            row.append(val1)
+            row.append(val2)
+
+        data.append(row)
+
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=1, edge='T', linewidth=1)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
 
 # 4-1-6-1遍历电容容值主串
 def draw_table_4_1_6_1(parent_root):
@@ -887,6 +1420,8 @@ def draw_table_4_1_6_1(parent_root):
     fig.savefig(fig_path)
 
 
+
+
 # 4-1-7-1遍历调整电阻主串
 def draw_table_4_1_7_1(parent_root):
     sub_dir = '4-1-7-1遍历调整电阻主串'
@@ -970,6 +1505,217 @@ def draw_table_4_1_7_1(parent_root):
             draw_line(table, ax, data, row,start=3, edge='T', linewidth=1)
 
         elif row % 16 == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+# 4-1-7-1遍历调整电阻主串-百分比
+def draw_table_4_1_7_1_ratio(parent_root):
+    sub_dir = '4-1-7-1遍历调整电阻主串'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成百分比表格_%s' % timestamp
+
+    #################################################################################################
+
+    df0 = pd.read_excel(root + file)
+    fig_name = '4-1-7-1遍历调整电阻主串-百分比'
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    df0 = df0.loc[df0["被串调整电阻(Ω)"] == 100].copy()
+
+    col1 = '主串区段长度(m)'
+    col1_list = [400, 500, 600, 700, 800, 900, 1000]
+
+    col2 = '主串调整电阻(Ω)'
+    col2_list = [50, 200]
+
+    df1, df2, df3 = get_ratio_table(
+        df0, col1, col1_list, col2, col2_list
+    )
+
+    header1 = ['区段长度', '主串\n调整电阻']
+    header2 = ['区段长度', '主串\n调整电阻']
+
+    for freq_zhu in [1700, 2000, 2300, 2600]:
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'变化率')
+
+    data = [
+        header1,
+        header2,
+    ]
+
+    show_table = {
+        50: '50Ω',
+        200: '200Ω',
+    }
+
+    for length in col1_list:
+        row1 = [f'{length}m', show_table[col2_list[0]]]
+        row2 = [f'{length}m', show_table[col2_list[1]]]
+
+        for freq_zhu in [1700, 2000, 2300, 2600]:
+            val1 = df1.loc[length, freq_zhu]
+            val2 = df2.loc[length, freq_zhu]
+            val3 = df3.loc[length, freq_zhu]
+            val1 = f"{(val1 * 1000):,.2f}"
+            val2 = f"{(val2 * 1000):,.2f}"
+            val3 = f"{(val3 * 100):,.2f}%"
+
+            row1.append(val1)
+            row1.append(val3)
+            row2.append(val2)
+            row2.append(val3)
+        data.append(row1)
+        data.append(row2)
+
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+    for i in range(4):
+        merge_duplicate(table=table, ax=ax, data=data, index=i*2+3, mode='col', max_span=2)
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=2, edge='T', linewidth=1)
+
+        elif row % 2 == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+
+# 4-1-7-2遍历调整电阻被串-百分比
+def draw_table_4_1_7_2_ratio(parent_root):
+    sub_dir = '4-1-7-2遍历调整电阻被串'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成百分比表格_%s' % timestamp
+
+    #################################################################################################
+
+    df0 = pd.read_excel(root + file)
+    fig_name = '4-1-7-2遍历调整电阻被串-百分比'
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    df0 = df0.loc[df0["主串调整电阻(Ω)"] == 100].copy()
+
+    col1 = '主串区段长度(m)'
+    col1_list = [400, 500, 600, 700, 800, 900, 1000]
+
+    col2 = '被串调整电阻(Ω)'
+    col2_list = [200, 50]
+
+    df1, df2, df3 = get_ratio_table(
+        df0, col1, col1_list, col2, col2_list
+    )
+
+    header1 = ['区段长度', '被串\n调整电阻']
+    header2 = ['区段长度', '被串\n调整电阻']
+
+    for freq_zhu in [1700, 2000, 2300, 2600]:
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'变化率')
+
+    data = [
+        header1,
+        header2,
+    ]
+
+    show_table = {
+        50: '50Ω',
+        200: '200Ω',
+    }
+
+    for length in col1_list:
+        row1 = [f'{length}m', show_table[col2_list[0]]]
+        row2 = [f'{length}m', show_table[col2_list[1]]]
+
+        for freq_zhu in [1700, 2000, 2300, 2600]:
+            val1 = df1.loc[length, freq_zhu]
+            val2 = df2.loc[length, freq_zhu]
+            val3 = df3.loc[length, freq_zhu]
+            val1 = f"{(val1 * 1000):,.2f}"
+            val2 = f"{(val2 * 1000):,.2f}"
+            val3 = f"{(val3 * 100):,.2f}%"
+
+            row1.append(val1)
+            row1.append(val3)
+            row2.append(val2)
+            row2.append(val3)
+        data.append(row1)
+        data.append(row2)
+
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+    for i in range(4):
+        merge_duplicate(table=table, ax=ax, data=data, index=i*2+3, mode='col', max_span=2)
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=2, edge='T', linewidth=1)
+
+        elif row % 2 == 1:
             draw_line(table, ax, data, row, edge='B', linewidth=0.2)
 
     #################################################################################################
@@ -1079,6 +1825,217 @@ def draw_table_4_1_8_1(parent_root):
     fig.savefig(fig_path)
 
 
+# 4-1-8-1遍历FT1U输出电压主串-百分比
+def draw_table_4_1_8_1_ratio(parent_root):
+    sub_dir = '4-1-8-1遍历FT1U输出电压主串'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成百分比表格_%s' % timestamp
+
+    #################################################################################################
+
+    df0 = pd.read_excel(root + file)
+    fig_name = '4-1-8-1遍历FT1U输出电压主串-百分比'
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    df0 = df0.loc[df0["被串FT1U输出电压(V)"] == 60].copy()
+
+    col1 = '主串区段长度(m)'
+    col1_list = [400, 500, 600, 700, 800, 900, 1000]
+
+    col2 = '主串FT1U输出电压(V)'
+    col2_list = [100, 60]
+
+    df1, df2, df3 = get_ratio_table(
+        df0, col1, col1_list, col2, col2_list
+    )
+
+    header1 = ['区段长度', '主串\nFT1U电压']
+    header2 = ['区段长度', '主串\nFT1U电压']
+
+    for freq_zhu in [1700, 2000, 2300, 2600]:
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'变化率')
+
+    data = [
+        header1,
+        header2,
+    ]
+
+    show_table = {
+        60: '60V',
+        100: '100V',
+    }
+
+    for length in col1_list:
+        row1 = [f'{length}m', show_table[col2_list[0]]]
+        row2 = [f'{length}m', show_table[col2_list[1]]]
+
+        for freq_zhu in [1700, 2000, 2300, 2600]:
+            val1 = df1.loc[length, freq_zhu]
+            val2 = df2.loc[length, freq_zhu]
+            val3 = df3.loc[length, freq_zhu]
+            val1 = f"{(val1 * 1000):,.2f}"
+            val2 = f"{(val2 * 1000):,.2f}"
+            val3 = f"{(val3 * 100):,.2f}%"
+
+            row1.append(val1)
+            row1.append(val3)
+            row2.append(val2)
+            row2.append(val3)
+        data.append(row1)
+        data.append(row2)
+
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+    for i in range(4):
+        merge_duplicate(table=table, ax=ax, data=data, index=i*2+3, mode='col', max_span=2)
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=2, edge='T', linewidth=1)
+
+        elif row % 2 == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+# 4-1-8-2遍历FT1U输出电压被串-百分比
+def draw_table_4_1_8_2_ratio(parent_root):
+    sub_dir = '4-1-8-2遍历FT1U输出电压被串'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成百分比表格_%s' % timestamp
+
+    #################################################################################################
+
+    df0 = pd.read_excel(root + file)
+    fig_name = '4-1-8-2遍历FT1U输出电压被串-百分比'
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    df0 = df0.loc[df0["主串FT1U输出电压(V)"] == 60].copy()
+
+    col1 = '主串区段长度(m)'
+    col1_list = [400, 500, 600, 700, 800, 900, 1000]
+
+    col2 = '被串FT1U输出电压(V)'
+    col2_list = [100, 60]
+
+    df1, df2, df3 = get_ratio_table(
+        df0, col1, col1_list, col2, col2_list
+    )
+
+    header1 = ['区段长度', '被串\nFT1U电压']
+    header2 = ['区段长度', '被串\nFT1U电压']
+
+    for freq_zhu in [1700, 2000, 2300, 2600]:
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'变化率')
+
+    data = [
+        header1,
+        header2,
+    ]
+
+    show_table = {
+        60: '60V',
+        100: '100V',
+    }
+
+    for length in col1_list:
+        row1 = [f'{length}m', show_table[col2_list[0]]]
+        row2 = [f'{length}m', show_table[col2_list[1]]]
+
+        for freq_zhu in [1700, 2000, 2300, 2600]:
+            val1 = df1.loc[length, freq_zhu]
+            val2 = df2.loc[length, freq_zhu]
+            val3 = df3.loc[length, freq_zhu]
+            val1 = f"{(val1 * 1000):,.2f}"
+            val2 = f"{(val2 * 1000):,.2f}"
+            val3 = f"{(val3 * 100):,.2f}%"
+
+            row1.append(val1)
+            row1.append(val3)
+            row2.append(val2)
+            row2.append(val3)
+        data.append(row1)
+        data.append(row2)
+
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+    for i in range(4):
+        merge_duplicate(table=table, ax=ax, data=data, index=i*2+3, mode='col', max_span=2)
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=2, edge='T', linewidth=1)
+
+        elif row % 2 == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+
 # 4-1-9遍历电缆长度
 def draw_table_4_1_9(parent_root):
     sub_dir = '4-1-9遍历电缆长度'
@@ -1160,6 +2117,110 @@ def draw_table_4_1_9(parent_root):
             draw_line(table, ax, data, row,start=2, edge='T', linewidth=1)
 
         elif row % 6 == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+# 4-1-9遍历电缆长度-百分比
+def draw_table_4_1_9_ratio(parent_root):
+    sub_dir = '4-1-9遍历电缆长度'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成百分比表格_%s' % timestamp
+
+    #################################################################################################
+
+    df0 = pd.read_excel(root + file)
+    fig_name = '4-1-9遍历电缆长度-百分比'
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    col1 = '主串区段长度(m)'
+    col1_list = [400, 500, 600, 700, 800, 900, 1000]
+
+    col2 = '主串电缆长度(km)'
+    col2_list = [5, 10]
+
+    df1, df2, df3 = get_ratio_table(
+        df0, col1, col1_list, col2, col2_list
+    )
+
+    header1 = ['区段长度', '电缆长度']
+    header2 = ['区段长度', '电缆长度']
+
+    for freq_zhu in [1700, 2000, 2300, 2600]:
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'变化率')
+
+    data = [
+        header1,
+        header2,
+    ]
+
+    show_table = {
+        5: '5km',
+        10: '10km',
+    }
+
+    for length in col1_list:
+        row1 = [f'{length}m', show_table[col2_list[0]]]
+        row2 = [f'{length}m', show_table[col2_list[1]]]
+
+        for freq_zhu in [1700, 2000, 2300, 2600]:
+            val1 = df1.loc[length, freq_zhu]
+            val2 = df2.loc[length, freq_zhu]
+            val3 = df3.loc[length, freq_zhu]
+            val1 = f"{(val1 * 1000):,.2f}"
+            val2 = f"{(val2 * 1000):,.2f}"
+            val3 = f"{(val3 * 100):,.2f}%"
+
+            row1.append(val1)
+            row1.append(val3)
+            row2.append(val2)
+            row2.append(val3)
+        data.append(row1)
+        data.append(row2)
+
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+
+    for i in range(4):
+        merge_duplicate(table=table, ax=ax, data=data, index=i*2+3, mode='col', max_span=2)
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=2, edge='T', linewidth=1)
+
+        elif row % 2 == 1:
             draw_line(table, ax, data, row, edge='B', linewidth=0.2)
 
     #################################################################################################
@@ -1268,6 +2329,110 @@ def draw_table_4_1_10(parent_root):
     fig.savefig(fig_path)
 
 
+# 4-1-10遍历被串是否发码-百分比
+def draw_table_4_1_10_ratio(parent_root):
+    sub_dir = '4-1-10遍历被串是否发码'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成百分比表格_%s' % timestamp
+
+    #################################################################################################
+
+    df0 = pd.read_excel(root + file)
+    fig_name = '4-1-10遍历被串是否发码-百分比'
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    col1 = '主串区段长度(m)'
+    col1_list = [400, 500, 600, 700, 800, 900, 1000]
+
+    col2 = '被串是否发码'
+    col2_list = ['不发码', '是']
+
+    df1, df2, df3 = get_ratio_table(
+        df0, col1, col1_list, col2, col2_list
+    )
+
+    header1 = ['区段长度', '被串\n是否发码']
+    header2 = ['区段长度', '被串\n是否发码']
+
+    for freq_zhu in [1700, 2000, 2300, 2600]:
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'变化率')
+
+    data = [
+        header1,
+        header2,
+    ]
+
+    show_table = {
+        '是': '发码',
+        '不发码': '不发码',
+    }
+
+    for length in col1_list:
+        row1 = [f'{length}m', show_table[col2_list[0]]]
+        row2 = [f'{length}m', show_table[col2_list[1]]]
+
+        for freq_zhu in [1700, 2000, 2300, 2600]:
+            val1 = df1.loc[length, freq_zhu]
+            val2 = df2.loc[length, freq_zhu]
+            val3 = df3.loc[length, freq_zhu]
+            val1 = f"{(val1 * 1000):,.2f}"
+            val2 = f"{(val2 * 1000):,.2f}"
+            val3 = f"{(val3 * 100):,.2f}%"
+
+            row1.append(val1)
+            row1.append(val3)
+            row2.append(val2)
+            row2.append(val3)
+        data.append(row1)
+        data.append(row2)
+
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+
+    for i in range(4):
+        merge_duplicate(table=table, ax=ax, data=data, index=i*2+3, mode='col', max_span=2)
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=2, edge='T', linewidth=1)
+
+        elif row % 2 == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
 # 4-2-1遍历错位
 def draw_table_4_2_1(parent_root):
     sub_dir = '4-2-1遍历错位'
@@ -1372,6 +2537,127 @@ def draw_table_4_2_1(parent_root):
 
         fig.savefig(fig_path)
 
+# 4-2-1遍历错位1-百分比
+def draw_table_4_2_1_ratio(parent_root):
+    sub_dir = '4-2-1遍历错位'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成百分比表格_%s' % timestamp
+
+    draw_table_4_2_1_ratio_basic(
+        root, file, res_dir,
+        fig_name='4-2-1遍历错位-百分比1',
+        col2_list=[-200, 0],
+    )
+
+    # fig_name = '4-2-1遍历错位-百分比'
+    draw_table_4_2_1_ratio_basic(
+        root, file, res_dir,
+        fig_name='4-2-1遍历错位-百分比2',
+        col2_list=[200, 0],
+    )
+
+
+def draw_table_4_2_1_ratio_basic(root, file, res_dir, fig_name, col2_list):
+
+    # fig_name = '4-2-1遍历错位-百分比'
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    df0 = pd.read_excel(root + file)
+
+
+    col1 = '主串区段长度(m)'
+    col1_list = [400, 500, 600, 700, 800, 900, 1000]
+
+    col2 = '被串相对位置(m)'
+    # col2_list = [-200, 0]
+
+    df1, df2, df3 = get_ratio_table(
+        df0, col1, col1_list, col2, col2_list
+    )
+
+    header1 = ['区段长度', '相对位置']
+    header2 = ['区段长度', '相对位置']
+
+    for freq_zhu in [1700, 2000, 2300, 2600]:
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'变化率')
+
+    data = [
+        header1,
+        header2,
+    ]
+
+    show_table = {
+        0: '对齐',
+        -200: '-200m',
+        200: '200m',
+    }
+
+    for length in col1_list:
+        row1 = [f'{length}m', show_table[col2_list[0]]]
+        row2 = [f'{length}m', show_table[col2_list[1]]]
+
+        for freq_zhu in [1700, 2000, 2300, 2600]:
+            val1 = df1.loc[length, freq_zhu]
+            val2 = df2.loc[length, freq_zhu]
+            val3 = df3.loc[length, freq_zhu]
+            val1 = f"{(val1 * 1000):,.2f}"
+            val2 = f"{(val2 * 1000):,.2f}"
+            val3 = f"{(val3 * 100):,.2f}%"
+
+            row1.append(val1)
+            row1.append(val3)
+            row2.append(val2)
+            row2.append(val3)
+        data.append(row1)
+        data.append(row2)
+
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data, color='#d9ead3')
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+
+    for i in range(4):
+        merge_duplicate(table=table, ax=ax, data=data, index=i*2+3, mode='col', max_span=2)
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=2, edge='T', linewidth=1)
+
+        elif row % 2 == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
 
 # 4-2-3遍历方向
 def draw_table_4_2_3(parent_root):
@@ -1382,8 +2668,9 @@ def draw_table_4_2_3(parent_root):
 
     list0 = [
         # [400, 600],
-        [600, 800],
-        [1000],
+        [600],
+        # [600, 800],
+        # [1000],
         # [400, 600, 800, 1000],
     ]
 
@@ -1621,8 +2908,9 @@ def draw_table_4_2_5(parent_root):
 
     list0 = [
         # [400, 600],
-        [600, 800],
-        [1000],
+        [600],
+        # [600, 800],
+        # [1000],
         # [400, 600, 800, 1000],
     ]
 
@@ -2285,6 +3573,92 @@ def draw_table_4_4_1(parent_root):
     fig.savefig(fig_path)
 
 
+# 4-4-1遍历主串电容容值-最大值
+def draw_table_4_4_1_max(parent_root):
+    sub_dir = '4-4-1遍历主串电容容值'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成最大值表格_%s' % timestamp
+
+    #################################################################################################
+
+    df0 = pd.read_excel(root + file)
+    fig_name = '4-4-1遍历主串电容容值-最大值'
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    header1 = ['区段长度']
+    header2 = ['区段长度']
+
+    for freq_zhu in [1700, 2000, 2300, 2600]:
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'电容值')
+
+    data = [
+        header1,
+        header2,
+    ]
+
+    length_list = [400, 500, 600, 700, 800, 900, 1000]
+    freq_zhu_list = [1700, 2000, 2300, 2600]
+    for j, sec_length in enumerate(length_list):
+        row = [f'{sec_length}m']
+
+        for i, freq_zhu in enumerate(freq_zhu_list):
+            df = df0.loc[
+                (df0["主串频率(Hz)"] == freq_zhu) &
+                (df0["主串区段长度(m)"] == sec_length)
+            ].copy()
+            val1 = df['被串最大干扰电流(A)'].max()
+            # val2 = df['被串最大干扰电流(A)'].min()
+            val2 = df.loc[df['被串最大干扰电流(A)'].idxmax(), '主串电容值(μF)']
+
+            val1 = f"{(val1 * 1000):,.2f}"
+            val2 = f"{val2}μF"
+
+            row.append(val1)
+            row.append(val2)
+
+        data.append(row)
+
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=1, edge='T', linewidth=1)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+
 # 4-4-2遍历被串电容容值
 def draw_table_4_4_2(parent_root):
     sub_dir = '4-4-2遍历被串电容容值'
@@ -2378,6 +3752,299 @@ def draw_table_4_4_2(parent_root):
 
     fig.savefig(fig_path)
 
+# 4-4-2遍历被串电容容值-最大值
+def draw_table_4_4_2_max(parent_root):
+    sub_dir = '4-4-2遍历被串电容容值'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成最大值表格_%s' % timestamp
+
+    #################################################################################################
+
+    df0 = pd.read_excel(root + file)
+    fig_name = '4-4-2遍历被串电容容值-最大值'
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    header1 = ['区段长度']
+    header2 = ['区段长度']
+
+    for freq_zhu in [1700, 2000, 2300, 2600]:
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'电容值')
+
+    data = [
+        header1,
+        header2,
+    ]
+
+    length_list = [400, 500, 600, 700, 800, 900, 1000]
+    freq_zhu_list = [1700, 2000, 2300, 2600]
+    for j, sec_length in enumerate(length_list):
+        row = [f'{sec_length}m']
+
+        for i, freq_zhu in enumerate(freq_zhu_list):
+            df = df0.loc[
+                (df0["主串频率(Hz)"] == freq_zhu) &
+                (df0["主串区段长度(m)"] == sec_length)
+            ].copy()
+            val1 = df['被串最大干扰电流(A)'].max()
+            # val2 = df['被串最大干扰电流(A)'].min()
+            val2 = df.loc[df['被串最大干扰电流(A)'].idxmax(), '被串电容值(μF)']
+
+            val1 = f"{(val1 * 1000):,.2f}"
+            val2 = f"{val2}μF"
+
+            row.append(val1)
+            row.append(val2)
+
+        data.append(row)
+
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data)
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=1, edge='T', linewidth=1)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+
+
+# 4-4-4不等长错位600m_800m_200m
+def draw_table_4_4_4(parent_root):
+    sub_dir = '4-4-4不等长错位600m_800m_200m'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    df0, res_dir = config_file(root, file)
+    fig_name = '4-4-4不等长错位600m_800m_200m'
+    # pre_size = len([col for col in df0.columns if not isinstance(col, (int, float))])
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    # list1 = [600]
+    # df0 = df0.loc[df0["主串区段长度(m)"].isin(list1)].copy()
+
+    length_zhu = 600
+    offset = 200
+
+    df0 = df0.loc[
+        (df0["主串区段长度(m)"] == length_zhu) &
+        (df0["分路模式"] == '主被串同时分路') &
+        (df0["被串相对位置(m)"] == offset)
+
+    ].copy()
+
+    ret = pd.DataFrame()
+
+    freq_zhu_list = [1700, 2000, 2300, 2600]
+
+    header1 = []
+    header2 = []
+
+    for i, freq_zhu in enumerate(freq_zhu_list):
+        df = df0.loc[df0["主串频率(Hz)"] == freq_zhu].copy()
+        df.index = range(df.shape[0])
+
+        if i == 0 :
+            s1 = df['主串方向'].astype(str)
+            s2 = df['被串方向'].astype(str)
+            s3 = df['被串是否发码'].astype(str)
+
+            ret = pd.concat([ret, s1], axis=1, sort=False)
+            ret = pd.concat([ret, s2], axis=1, sort=False)
+            ret = pd.concat([ret, s3], axis=1, sort=False)
+
+            header1 = ['主串方向', '被串方向', '被串\n是否发码']
+            header2 = ['主串方向', '被串方向', '被串\n是否发码']
+
+        s1 = df['被串最大干扰电流(A)'].copy()
+        s1 = s1 * 1000
+        s1 = s1.apply(lambda x: f"{x:,.2f}")
+        # s1.name = f'被串频率{freq_bei}Hz\n最大干扰电流(mA)'
+        ret = pd.concat([ret, s1], axis=1, sort=False)
+
+
+        s2 = df['被串最大干扰位置(m)'].copy()
+        s2 = s2.apply(lambda x: f"{x:,.0f}")
+        # s2.name = f'被串频率{freq_bei}Hz\n最大干扰位置(m)'
+        ret = pd.concat([ret, s2], axis=1, sort=False)
+
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'位置/m')
+
+    data = ret.values.tolist()
+    data = [header1] + [header2] + data
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data, color='#d9ead3')
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+    merge_duplicate(table=table, ax=ax, data=data, index=2, mode='col')
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows-1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row,start=3, edge='T', linewidth=1)
+
+        # elif row % 9 == 1:
+        #     draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
+
+# 4-4-5最不利配置
+def draw_table_4_4_5(parent_root):
+    sub_dir = '4-4-5最不利配置'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    df0, res_dir = config_file(root, file)
+    fig_name = '4-4-5最不利配置'
+    # pre_size = len([col for col in df0.columns if not isinstance(col, (int, float))])
+    fig_path = res_dir + f'\\{fig_name}.png'
+
+    # list1 = [600]
+    # df0 = df0.loc[df0["主串区段长度(m)"].isin(list1)].copy()
+
+    # length_zhu = 600
+    # offset = 200
+    #
+    # df0 = df0.loc[
+    #     (df0["主串区段长度(m)"] == length_zhu) &
+    #     (df0["分路模式"] == '主被串同时分路') &
+    #     (df0["被串相对位置(m)"] == offset)
+    #
+    #     ].copy()
+
+    ret = pd.DataFrame()
+
+    freq_zhu_list = [1700, 2000, 2300, 2600]
+
+    header1 = []
+    header2 = []
+
+    for i, freq_zhu in enumerate(freq_zhu_list):
+        df = df0.loc[df0["主串频率(Hz)"] == freq_zhu].copy()
+        df.index = range(df.shape[0])
+
+        if i == 0:
+            s1 = df['主串区段长度(m)'].astype(str)
+
+            ret = pd.concat([ret, s1], axis=1, sort=False)
+
+            header1 = ['区段长度']
+            header2 = ['区段长度']
+
+        s1 = df['被串最大干扰电流(A)'].copy()
+        s1 = s1 * 1000
+        s1 = s1.apply(lambda x: f"{x:,.2f}")
+        # s1.name = f'被串频率{freq_bei}Hz\n最大干扰电流(mA)'
+        ret = pd.concat([ret, s1], axis=1, sort=False)
+
+        s2 = df['被串最大干扰位置(m)'].copy()
+        s2 = s2.apply(lambda x: f"{x:,.0f}")
+        # s2.name = f'被串频率{freq_bei}Hz\n最大干扰位置(m)'
+        ret = pd.concat([ret, s2], axis=1, sort=False)
+
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header1.append(f'主串频率{freq_zhu}Hz')
+        header2.append(f'最大值/mA')
+        header2.append(f'位置/m')
+
+    data = ret.values.tolist()
+    data = [header1] + [header2] + data
+    for val in data:
+        print(val)
+
+    #################################################################################################
+    # 画表格
+
+    fig, ax, table = config_ax(data=data, color='#ffe4e1')
+
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='row')
+    merge_duplicate(table=table, ax=ax, data=data, index=0, mode='col')
+    # merge_duplicate(table=table, ax=ax, data=data, index=1, mode='col')
+    # merge_duplicate(table=table, ax=ax, data=data, index=2, mode='col')
+
+    n_rows = len(data)
+    for row in range(n_rows):
+
+        if row == 0:
+            draw_line(table, ax, data, row, edge='T', linewidth=2)
+
+        elif row == n_rows - 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=2)
+
+        elif row == 1:
+            draw_line(table, ax, data, row, edge='B', linewidth=1)
+            draw_line(table, ax, data, row, start=1, edge='T', linewidth=1)
+
+        # elif row % 9 == 1:
+        #     draw_line(table, ax, data, row, edge='B', linewidth=0.2)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path)
+
 
 def main():
     import matplotlib.font_manager as fm
@@ -2407,8 +4074,10 @@ def main():
     # parent_root = 'C:\\Users\\李继隆\\Desktop\\普速铁路新一代列控系统项目\\数据汇总'
 
 
+    # draw_table_3_1(parent_root)
+    # draw_table_3_2(parent_root)
     # draw_table_4_1_1(parent_root)
-    draw_table_4_1_2(parent_root)
+    # draw_table_4_1_2(parent_root)
     # draw_table_4_1_3(parent_root)
     # draw_table_4_1_4(parent_root)
     # draw_table_4_1_5(parent_root)
@@ -2427,6 +4096,22 @@ def main():
     # draw_table_4_3_5(parent_root)
     # draw_table_4_4_1(parent_root)
     # draw_table_4_4_2(parent_root)
+    # draw_table_4_4_4(parent_root)
+    draw_table_4_4_5(parent_root)
+
+    # draw_table_4_1_3_ratio(parent_root)
+    # draw_table_4_1_4_ratio(parent_root)
+    # draw_table_4_1_7_1_ratio(parent_root)
+    # draw_table_4_1_7_2_ratio(parent_root)
+    # draw_table_4_1_8_1_ratio(parent_root)
+    # draw_table_4_1_8_2_ratio(parent_root)
+    # draw_table_4_1_9_ratio(parent_root)
+    # draw_table_4_1_10_ratio(parent_root)
+    # draw_table_4_2_1_ratio(parent_root)
+
+    # draw_table_4_1_5_max(parent_root)
+    # draw_table_4_4_1_max(parent_root)
+    # draw_table_4_4_2_max(parent_root)
 
 
 if __name__ == '__main__':

@@ -25,7 +25,7 @@ def config_file(parent_root, sub_dir):
     return df_combine, res_dir
 
 
-def config_fig(fig, fig_title):
+def config_fig(fig, fig_title, x_label='被串分路位置/m', y_label='邻线干扰电流/mA'):
     ######################################################################################################
     # 主图设置
 
@@ -48,13 +48,13 @@ def config_fig(fig, fig_title):
 
     pos = bottom / 2
     plt.text(
-        0.5, pos, '被串分路位置/m',
+        0.5, pos, x_label,
         va='top', ha='center', transform=fig.transFigure,
         fontsize=10, weight='bold',
     )
 
     plt.text(
-        0.05, 0.5, '邻线干扰电流/mA',
+        0.05, 0.5, y_label,
         va='center', ha='center', transform=fig.transFigure,
         fontsize=10, weight='bold', rotation=90,
     )
@@ -364,6 +364,169 @@ def config_ax_4col(
             print(len(labels))
             # ax.legend(loc='upper right', fontsize=5, ncol=ncol)
             ax.legend(bbox_to_anchor=(1.05, 0.5), loc='center left', fontsize=5, borderaxespad=0.)
+
+
+
+# 3-1模型准确性1
+def draw_image_3_1(parent_root):
+
+    sub_dir = '3-1模型准确性'
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'模型准确性核对.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成图片_%s' % timestamp
+
+    #################################################################################################
+    #################################################################################################
+    # 图片1
+
+    df1 = pd.read_excel(root + file, '细化值')
+    df2 = pd.read_excel(root + file, '分路线电流')
+
+
+    xx1 = df1.iloc[:, 0].tolist()[4:]
+    xx1 = list(map(lambda x: 645-x, xx1))
+    yy1 = df1.iloc[:, 3].tolist()[4:]
+
+    xx2 = df2.columns.tolist()
+    xx2[0] = 0
+    yy2 = (df2.iloc[1, :]*1000).tolist()
+
+    # 配置 fig
+    fig = plt.figure(figsize=(6, 4), dpi=200)
+    fig_title = f'模型准确性核对1'
+    fig_path = res_dir + f'\\{fig_title}.png'
+
+    ax_list = []
+
+    ax = fig.add_subplot(1, 1, 1)
+    ax_list.append(ax)
+
+    ax_title = f'IIG(2000Hz)对IG(2300Hz)干扰-线间距4.6m'
+
+    ######################################################################################################
+    # 画线
+
+    width = 0.5
+    color = 'blue'
+    label = f'实测值'
+    ax.plot(
+        xx1, yy1, linestyle='-', alpha=1, linewidth=width,
+        marker='o',
+        markerfacecolor='none',
+        markeredgewidth=0.3,
+        color='blue', label=label,
+    )
+
+    color = 'red'
+    label = f'仿真值'
+    ax.plot(
+        xx2, yy2, linestyle='-', alpha=1, linewidth=width,
+        color=color, label=label,
+    )
+    ax.legend(
+        # bbox_to_anchor=(1.025, 0.5),
+        # loc='center left',
+        loc='upper right',
+        fontsize=8,
+        borderaxespad=0.,
+        # ncol=ncol,
+    )
+    ax.set_title(ax_title, pad=7, fontsize=10)
+    # ax.set_title(title, x=0.5, y=1.04, fontsize=30)
+    ax.xaxis.grid(True, which='major', linestyle='--')
+    ax.yaxis.grid(True, which='major', linestyle='--')
+
+    ax.set_xlabel('距离发送端距离(m)', fontsize=9)
+    ax.set_ylabel('邻线干扰量值(mA)', fontsize=9, rotation=90)
+
+    # config_fig(fig, fig_title)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path, transparent=True)
+
+    #################################################################################################
+    #################################################################################################
+    # 图片2
+
+    df1 = pd.read_excel(root + file, '细化值')
+    df2 = pd.read_excel(root + file, '分路线电流')
+
+    xx1 = df1.iloc[:, 0].tolist()[4:]
+    xx1 = list(map(lambda x: 645 - x, xx1))
+    yy1 = df1.iloc[:, 6].tolist()[4:]
+
+    xx2 = df2.columns.tolist()
+    xx2[0] = 0
+    yy2 = (df2.iloc[2, :] * 1000).tolist()
+
+    # 配置 fig
+    fig = plt.figure(figsize=(6, 4), dpi=200)
+    fig_title = f'模型准确性核对2'
+    fig_path = res_dir + f'\\{fig_title}.png'
+
+    ax_list = []
+
+    ax = fig.add_subplot(1, 1, 1)
+    ax_list.append(ax)
+
+    ax_title = f'4G(2600Hz)对IIG(2000Hz)干扰-线间距4.6m'
+
+    ######################################################################################################
+    # 画线
+
+    width = 0.5
+    color = 'blue'
+    label = f'实测值'
+    ax.plot(
+        xx1, yy1, linestyle='-', alpha=1, linewidth=width,
+        marker='o',
+        markerfacecolor='none',
+        markeredgewidth=0.3,
+        color='blue', label=label,
+    )
+
+    color = 'red'
+    label = f'仿真值'
+    ax.plot(
+        xx2, yy2, linestyle='-', alpha=1, linewidth=width,
+        color=color, label=label,
+    )
+    ax.legend(
+        # bbox_to_anchor=(1.025, 0.5),
+        # loc='center left',
+        loc='upper right',
+        fontsize=8,
+        borderaxespad=0.,
+        # ncol=ncol,
+    )
+    ax.set_title(ax_title, pad=7, fontsize=10)
+    # ax.set_title(title, x=0.5, y=1.04, fontsize=30)
+    ax.xaxis.grid(True, which='major', linestyle='--')
+    ax.yaxis.grid(True, which='major', linestyle='--')
+
+    ax.set_xlabel('距离发送端距离(m)', fontsize=9)
+    ax.set_ylabel('邻线干扰量值(mA)', fontsize=9, rotation=90)
+
+    # config_fig(fig, fig_title)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path, transparent=True)
 
 
 # 4-1-1遍历频率
@@ -1045,6 +1208,100 @@ def draw_image_4_1_5_4col(parent_root):
 
             config_ax_4col(ax, ax_title, sec_length, row, col, one_legend=True)
     config_fig_4col(fig, fig_title, ax_rows, ax_cols)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path, transparent=True)
+
+
+# 4-1-5遍历电容间距-散点图
+def draw_image_4_1_5_scatter(parent_root):
+    sub_dir = '4-1-5遍历电容间距'
+
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成散点图_%s' % timestamp
+
+    df0 = pd.read_excel(root + file)
+
+
+    list1 = [400, 500, 600, 700, 800, 900, 1000]
+
+    # 配置 fig
+    fig = plt.figure(figsize=(7, 4), dpi=200)
+    fig_title = f'等长对位-遍历电容间距-散点图'
+
+    fig_path = res_dir + f'\\{fig_title}.png'
+
+    ax_list = []
+
+    freq_zhu_list = [1700, 2000, 2300, 2600]
+    for j, freq_zhu in enumerate(freq_zhu_list):
+        ax = fig.add_subplot(2, 2, j + 1)
+        ax_list.append(ax)
+
+        ax_title = f'主串频率-{freq_zhu}Hz'
+
+        df = df0.loc[df0["主串频率(Hz)"] == freq_zhu].copy()
+
+        for i, sec_length in enumerate(list1):
+
+            df1 = df.loc[df["主串区段长度(m)"] == sec_length].copy()
+
+            x_ticks_labels = df1['主串电容间隔'].tolist()
+            yy1 = (df1['被串最大干扰电流(A)']*1000).tolist()
+
+            print(x_ticks_labels)
+            print(yy1)
+
+            xx1 = list(map(lambda x: int(x[:-1]), x_ticks_labels))
+            label = f"区段{sec_length}m"
+
+            color = cm.rainbow(i / len(list1))
+            ax.scatter(
+                xx1, yy1, marker='x',
+                color=color, label=label,
+                s=20,
+                linewidths=0.25,
+            )
+
+            ax.set_xticks(xx1)
+            ax.set_xticklabels(x_ticks_labels)
+
+            ######################################################################################################
+            # 画线
+
+        ax.set_title(ax_title, pad=3, fontsize=8)
+        # ax.xaxis.grid(True, which='major', linestyle='--')
+        ax.yaxis.grid(True, which='major', linestyle='--')
+        ax.tick_params(labelsize=5, direction='in')
+        row = j // 2
+        col = j % 2
+        if col == 1 and row == 0:
+            ax.legend(
+                bbox_to_anchor=(1.05, 0),
+                loc='center left',
+                fontsize=5,
+                borderaxespad=0.
+            )
+
+        y_ticks = [0, 50, 100, 150, 200]
+        if col == 0:
+            y_ticks_labels = y_ticks
+        else:
+            y_ticks_labels = [''] * len(y_ticks)
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels(y_ticks_labels)
+
+    config_fig(fig, fig_title, x_label='电容间距/m')
 
     #################################################################################################
     # 保存
@@ -2319,6 +2576,99 @@ def draw_image_4_1_9_4col(parent_root):
     fig.savefig(fig_path, transparent=True)
 
 
+# 4-1-9遍历电缆长度-散点图
+def draw_image_4_1_9_scatter(parent_root):
+    sub_dir = '4-1-9遍历电缆长度'
+
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成散点图_%s' % timestamp
+
+    df0 = pd.read_excel(root + file)
+
+
+    list1 = [400, 500, 600, 700, 800, 900, 1000]
+
+    # 配置 fig
+    fig = plt.figure(figsize=(7, 4), dpi=200)
+    fig_title = f'等长对位-遍历电缆长度-散点图'
+
+    fig_path = res_dir + f'\\{fig_title}.png'
+
+    ax_list = []
+
+    freq_zhu_list = [1700, 2000, 2300, 2600]
+    for j, freq_zhu in enumerate(freq_zhu_list):
+        ax = fig.add_subplot(2, 2, j + 1)
+        ax_list.append(ax)
+
+        ax_title = f'主串频率-{freq_zhu}Hz'
+
+        df = df0.loc[df0["主串频率(Hz)"] == freq_zhu].copy()
+
+        for i, sec_length in enumerate(list1):
+
+            df1 = df.loc[df["主串区段长度(m)"] == sec_length].copy()
+
+            xx1 = df1['主串电缆长度(km)'].tolist()
+            x_ticks_labels = xx1
+            yy1 = (df1['被串最大干扰电流(A)']*1000).tolist()
+
+            print(yy1)
+
+            label = f"区段{sec_length}m"
+
+            color = cm.rainbow(i / len(list1))
+            ax.scatter(
+                xx1, yy1, marker='x',
+                color=color, label=label,
+                s=20,
+                linewidths=0.25,
+            )
+
+            ax.set_xticks(xx1)
+            ax.set_xticklabels(x_ticks_labels)
+
+            ######################################################################################################
+            # 画线
+
+        ax.set_title(ax_title, pad=3, fontsize=8)
+        # ax.xaxis.grid(True, which='major', linestyle='--')
+        ax.yaxis.grid(True, which='major', linestyle='--')
+        ax.tick_params(labelsize=5, direction='in')
+        row = j // 2
+        col = j % 2
+        if col == 1 and row == 0:
+            ax.legend(
+                bbox_to_anchor=(1.05, 0),
+                loc='center left',
+                fontsize=5,
+                borderaxespad=0.
+            )
+
+        y_ticks = [0, 50, 100, 150, 200]
+        if col == 0:
+            y_ticks_labels = y_ticks
+        else:
+            y_ticks_labels = [''] * len(y_ticks)
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels(y_ticks_labels)
+
+    config_fig(fig, fig_title, x_label='电缆长度/km')
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path, transparent=True)
+
+
 # 4-1-10遍历被串是否发码
 def draw_image_4_1_10(parent_root):
     sub_dir = '4-1-10遍历被串是否发码'
@@ -2639,6 +2989,99 @@ def draw_image_4_2_1_4col(parent_root):
     fig.savefig(fig_path, transparent=True)
 
 
+# 4-2-1遍历错位-散点图
+def draw_image_4_2_1_scatter(parent_root):
+    sub_dir = '4-2-1遍历错位'
+
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成散点图_%s' % timestamp
+
+    df0 = pd.read_excel(root + file)
+
+
+    list1 = [400, 500, 600, 700, 800, 900, 1000]
+
+    # 配置 fig
+    fig = plt.figure(figsize=(7, 4), dpi=200)
+    fig_title = f'等长错位-遍历错位-散点图'
+
+    fig_path = res_dir + f'\\{fig_title}.png'
+
+    ax_list = []
+
+    x_ticks = list(range(-1000, 1001, 200))
+
+    freq_zhu_list = [1700, 2000, 2300, 2600]
+    for j, freq_zhu in enumerate(freq_zhu_list):
+        ax = fig.add_subplot(2, 2, j + 1)
+        ax_list.append(ax)
+
+        ax_title = f'主串频率-{freq_zhu}Hz'
+
+        df = df0.loc[df0["主串频率(Hz)"] == freq_zhu].copy()
+
+        for i, sec_length in enumerate(list1):
+
+            df1 = df.loc[df["主串区段长度(m)"] == sec_length].copy()
+
+            xx1 = df1['被串相对位置(m)'].tolist()
+            yy1 = (df1['被串最大干扰电流(A)']*1000).tolist()
+
+
+            # xx1 = list(map(lambda x: int(x[:-1]), x_ticks_labels))
+            label = f"区段{sec_length}m"
+
+            color = cm.rainbow(i / len(list1))
+            ax.scatter(
+                xx1, yy1, marker='x',
+                color=color, label=label,
+                s=20,
+                linewidths=0.25,
+            )
+
+            ax.set_xticks(x_ticks)
+            ax.set_xticklabels(x_ticks)
+
+            ######################################################################################################
+            # 画线
+
+        ax.set_title(ax_title, pad=3, fontsize=8)
+        # ax.xaxis.grid(True, which='major', linestyle='--')
+        ax.yaxis.grid(True, which='major', linestyle='--')
+        ax.tick_params(labelsize=5, direction='in')
+        row = j // 2
+        col = j % 2
+        if col == 1 and row == 0:
+            ax.legend(
+                bbox_to_anchor=(1.05, 0),
+                loc='center left',
+                fontsize=5,
+                borderaxespad=0.
+            )
+
+        y_ticks = [0, 50, 100, 150, 200]
+        if col == 0:
+            y_ticks_labels = y_ticks
+        else:
+            y_ticks_labels = [''] * len(y_ticks)
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels(y_ticks_labels)
+
+    config_fig(fig, fig_title, x_label='被串相对位置/m')
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path, transparent=True)
+
 
 # 4-2-3遍历方向
 def draw_image_4_2_3(parent_root):
@@ -2731,6 +3174,102 @@ def draw_image_4_2_3(parent_root):
             fig.savefig(fig_path, transparent=True)
 
 
+# 4-2-3遍历方向-4col
+def draw_image_4_2_3_4col(parent_root):
+    sub_dir = '4-2-3遍历方向'
+    df0, res_dir = config_file_4col(parent_root, sub_dir)
+
+    pre_size = len([col for col in df0.columns if not isinstance(col, (int, float))])
+
+    # list1 = [400, 500, 600, 700, 800, 900, 1000]
+    # list1 = [400, 600, 800, 1000]
+    list1 = [-400, -200, 0, 200, 400]
+    row_titles = {index: f'相对{value}m' for index, value in enumerate(list1)}
+
+    ax_list = []
+
+    ax_rows = len(list1)
+    ax_cols = 4
+    ax_index = 0
+
+    v_height = 0.8
+    fig_height = v_height * (ax_rows+1)
+
+    sec_length = 600
+
+    # 配置 fig
+    fig = plt.figure(figsize=(7, fig_height), dpi=200)
+    fig_title = f'等长错位-{sec_length}m-遍历发送方向'
+    fig_path = res_dir + f'\\{fig_title}.png'
+
+    for row, offset in enumerate(list1):
+
+        df = df0.loc[
+            (df0["主串区段长度(m)"] == sec_length) &
+            (df0["被串相对位置(m)"] == offset)
+            ].copy()
+
+        freq_zhu_list = [1700, 2000, 2300, 2600]
+        for col, freq_zhu in enumerate(freq_zhu_list):
+
+            ax_index = ax_index + 1
+            ax = fig.add_subplot(ax_rows, ax_cols, ax_index)
+            ax_list.append(ax)
+
+            ax_title = f'主串频率-{freq_zhu}Hz'
+
+            ######################################################################################################
+            # 画线
+
+            xx1 = range(sec_length + 1)
+
+            dir_zhu_list = ['右发', '左发']
+
+            dir_table = {
+                '右发': '反向',
+                '左发': '同向',
+            }
+
+            for i, dir_zhu in enumerate(dir_zhu_list):
+
+                df1 = df.loc[
+                    (df["主串频率(Hz)"] == freq_zhu) &
+                    (df["主串方向"] == dir_zhu)
+                    ]
+
+                if len(df1.index) != 1:
+                    raise KeyboardInterrupt('error: len(index) != 1')
+
+                yy1 = (df1.iloc[0, pre_size:].copy().dropna() * 1000).tolist()
+
+                color_list = [
+                    'red',
+                    # 'orange',
+                    'blue',
+                    # 'green',
+                ]
+
+                color = color_list[i]
+                width = 0.5
+                label = dir_table[dir_zhu]
+                ax.plot(xx1, yy1, linestyle='-', color=color, alpha=1, linewidth=width, label=label)
+
+            # ylabel = f'区段长度{sec_length}m'
+
+            config_ax_4col(ax, ax_title, sec_length, row, col, ylim=250, row_titles=row_titles)
+    config_fig_4col(fig, fig_title, ax_rows, ax_cols)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path, transparent=True)
+
+
 # 4-2-4遍历分路模式
 def draw_image_4_2_4(parent_root):
     sub_dir = '4-2-4遍历分路模式'
@@ -2819,6 +3358,7 @@ def draw_image_4_2_4(parent_root):
                 os.makedirs(res_dir)
 
             fig.savefig(fig_path, transparent=True)
+
 
 # 4-2-4遍历分路模式-4col
 def draw_image_4_2_4_4col(parent_root):
@@ -4152,6 +4692,98 @@ def draw_image_4_4_1_4col(parent_root):
     fig.savefig(fig_path, transparent=True)
 
 
+# 4-4-1遍历主串电容容值-散点图
+def draw_image_4_4_1_scatter(parent_root):
+    sub_dir = '4-4-1遍历主串电容容值'
+
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成散点图_%s' % timestamp
+
+    df0 = pd.read_excel(root + file)
+    df0 = df0.loc[df0["被串电容值(μF)"] == 50].copy()
+
+    list1 = [400, 500, 600, 700, 800, 900, 1000]
+
+    # 配置 fig
+    fig = plt.figure(figsize=(7, 4), dpi=200)
+    fig_title = f'等长对位-遍历主串电容容值-散点图'
+
+    fig_path = res_dir + f'\\{fig_title}.png'
+
+    ax_list = []
+
+    freq_zhu_list = [1700, 2000, 2300, 2600]
+    for j, freq_zhu in enumerate(freq_zhu_list):
+        ax = fig.add_subplot(2, 2, j + 1)
+        ax_list.append(ax)
+
+        ax_title = f'主串频率-{freq_zhu}Hz'
+
+        df = df0.loc[df0["主串频率(Hz)"] == freq_zhu].copy()
+
+        for i, sec_length in enumerate(list1):
+
+            df1 = df.loc[df["主串区段长度(m)"] == sec_length].copy()
+
+            xx1 = df1['主串电容值(μF)'].tolist()
+            yy1 = (df1['被串最大干扰电流(A)']*1000).tolist()
+
+
+            # x_ticks_labels = list(map(lambda x: f'{x}μF', xx1))
+            label = f"区段{sec_length}m"
+
+            color = cm.rainbow(i / len(list1))
+            ax.scatter(
+                xx1, yy1, marker='x',
+                color=color, label=label,
+                s=20,
+                linewidths=0.25,
+            )
+
+            ax.set_xticks(xx1)
+            ax.set_xticklabels(xx1)
+
+            ######################################################################################################
+            # 画线
+
+        ax.set_title(ax_title, pad=3, fontsize=8)
+        # ax.xaxis.grid(True, which='major', linestyle='--')
+        ax.yaxis.grid(True, which='major', linestyle='--')
+        ax.tick_params(labelsize=5, direction='in')
+        row = j // 2
+        col = j % 2
+        if col == 1 and row == 0:
+            ax.legend(
+                bbox_to_anchor=(1.05, 0),
+                loc='center left',
+                fontsize=5,
+                borderaxespad=0.
+            )
+
+        y_ticks = [0, 50, 100, 150, 200]
+        if col == 0:
+            y_ticks_labels = y_ticks
+        else:
+            y_ticks_labels = [''] * len(y_ticks)
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels(y_ticks_labels)
+
+    config_fig(fig, fig_title, x_label='电容容值/μF')
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path, transparent=True)
+
+
 # 4-4-2遍历被串电容容值
 def draw_image_4_4_2(parent_root):
     sub_dir = '4-4-2遍历被串电容容值'
@@ -4319,6 +4951,98 @@ def draw_image_4_4_2_4col(parent_root):
     fig.savefig(fig_path, transparent=True)
 
 
+# 4-4-2遍历被串电容容值-散点图
+def draw_image_4_4_2_scatter(parent_root):
+    sub_dir = '4-4-2遍历被串电容容值'
+
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成散点图_%s' % timestamp
+
+    df0 = pd.read_excel(root + file)
+    df0 = df0.loc[df0["主串电容值(μF)"] == 50].copy()
+
+    list1 = [400, 500, 600, 700, 800, 900, 1000]
+
+    # 配置 fig
+    fig = plt.figure(figsize=(7, 4), dpi=200)
+    fig_title = f'等长对位-遍历被串电容容值-散点图'
+
+    fig_path = res_dir + f'\\{fig_title}.png'
+
+    ax_list = []
+
+    freq_zhu_list = [1700, 2000, 2300, 2600]
+    for j, freq_zhu in enumerate(freq_zhu_list):
+        ax = fig.add_subplot(2, 2, j + 1)
+        ax_list.append(ax)
+
+        ax_title = f'主串频率-{freq_zhu}Hz'
+
+        df = df0.loc[df0["主串频率(Hz)"] == freq_zhu].copy()
+
+        for i, sec_length in enumerate(list1):
+
+            df1 = df.loc[df["主串区段长度(m)"] == sec_length].copy()
+
+            xx1 = df1['被串电容值(μF)'].tolist()
+            yy1 = (df1['被串最大干扰电流(A)']*1000).tolist()
+
+
+            # x_ticks_labels = list(map(lambda x: f'{x}μF', xx1))
+            label = f"区段{sec_length}m"
+
+            color = cm.rainbow(i / len(list1))
+            ax.scatter(
+                xx1, yy1, marker='x',
+                color=color, label=label,
+                s=20,
+                linewidths=0.25,
+            )
+
+            ax.set_xticks(xx1)
+            ax.set_xticklabels(xx1)
+
+            ######################################################################################################
+            # 画线
+
+        ax.set_title(ax_title, pad=3, fontsize=8)
+        # ax.xaxis.grid(True, which='major', linestyle='--')
+        ax.yaxis.grid(True, which='major', linestyle='--')
+        ax.tick_params(labelsize=5, direction='in')
+        row = j // 2
+        col = j % 2
+        if col == 1 and row == 0:
+            ax.legend(
+                bbox_to_anchor=(1.05, 0),
+                loc='center left',
+                fontsize=5,
+                borderaxespad=0.
+            )
+
+        y_ticks = [0, 50, 100, 150, 200]
+        if col == 0:
+            y_ticks_labels = y_ticks
+        else:
+            y_ticks_labels = [''] * len(y_ticks)
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels(y_ticks_labels)
+
+    config_fig(fig, fig_title, x_label='电容容值/μF')
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path, transparent=True)
+
+
 # 4-4-3不等长错位600m_800m
 def draw_image_4_4_3(parent_root):
     sub_dir = '4-4-3不等长错位600m_800m'
@@ -4328,9 +5052,17 @@ def draw_image_4_4_3(parent_root):
 
     list1 = [600]
 
-    for length_bei in list1:
+    for length_zhu in list1:
 
-        df = df0.loc[df0["主串区段长度(m)"] == length_bei].copy()
+        length_bei = 800
+        df = df0.loc[
+            (df0["主串区段长度(m)"] == length_zhu) &
+            (df0["主串方向"] == '左发') &
+            (df0["被串方向"] == '左发') &
+            (df0["分路模式"] == '主被串同时分路') &
+            (df0["被串是否发码"] == '是')
+
+        ].copy()
 
         # 配置 fig
         fig = plt.figure(figsize=(7, 4), dpi=200)
@@ -4353,7 +5085,7 @@ def draw_image_4_4_3(parent_root):
             ######################################################################################################
             # 画线
 
-            xx1 = range(sec_length+1)
+            xx1 = range(length_bei+1)
 
             offset_list = df2["被串相对位置(m)"].copy().tolist()
             for i, offset in enumerate(offset_list):
@@ -4377,19 +5109,296 @@ def draw_image_4_4_3(parent_root):
 
             row = j // 2
             col = j % 2
-            config_ax(ax, ax_title, sec_length, row=row, col=col, legend_mode='out-one')
+            config_ax(ax, ax_title, length_bei, row=row, col=col, legend_mode='out-one')
 
         config_fig(fig, fig_title)
 
         #################################################################################################
         # 保存
-        plt.show()
-        raise KeyboardInterrupt()
+        # plt.show()
+        # raise KeyboardInterrupt()
 
         if not os.path.exists(res_dir):
             os.makedirs(res_dir)
 
         fig.savefig(fig_path, transparent=True)
+
+
+# 4-4-4不等长错位600m_800m_200m
+def draw_image_4_4_4(parent_root):
+    sub_dir = '4-4-4不等长错位600m_800m_200m'
+    df0, res_dir = config_file(parent_root, sub_dir)
+
+    pre_size = len([col for col in df0.columns if not isinstance(col, (int, float))])
+
+    list1 = [600]
+
+    for length_zhu in list1:
+
+        length_bei = 800
+        offset = 200
+
+        df = df0.loc[
+            (df0["主串区段长度(m)"] == length_zhu) &
+            (df0["分路模式"] == '主被串同时分路') &
+            (df0["被串相对位置(m)"] == offset)
+
+        ].copy()
+
+        # 配置 fig
+        fig = plt.figure(figsize=(7, 4), dpi=200)
+        fig_title = f'不等长错位-主串600m-被串800m-错位200m'
+
+        fig_path = res_dir + f'\\{fig_title}.png'
+
+        ax_list = []
+
+        freq_zhu_list = [1700, 2000, 2300, 2600]
+        for j, freq_zhu in enumerate(freq_zhu_list):
+
+            ax = fig.add_subplot(2, 2, j + 1)
+            ax_list.append(ax)
+
+            ax_title = f'主串频率-{freq_zhu}Hz'
+
+            df2 = df.loc[df["主串频率(Hz)"] == freq_zhu].copy()
+
+            ######################################################################################################
+            # 画线
+
+            xx1 = range(length_bei+1)
+
+            index_list = df2.index.copy().tolist()
+            for i, index in enumerate(index_list):
+
+                df1 = df2.loc[
+                    (df2.index == index)
+                ]
+
+                if len(df1.index) != 1:
+                    raise KeyboardInterrupt('error: len(index) != 1')
+
+                yy1 = (df1.iloc[0, pre_size:].copy().dropna()*1000).tolist()
+
+                dir_zhu = df1.loc[index, '主串方向']
+                dir_bei = df1.loc[index, '被串方向']
+                sr_mode = df1.loc[index, '被串是否发码']
+
+                sr_table = {
+                    '是': '被串发码',
+                    '不发码': '被串不发码',
+                }
+
+                color = cm.rainbow(i / len(index_list))
+                width = 0.5
+                label = f'{dir_zhu}{dir_bei}\n{sr_table[sr_mode]}'
+                ax.plot(xx1, yy1, linestyle='-', color=color, alpha=1, linewidth=width, label=label)
+
+            row = j // 2
+            col = j % 2
+            config_ax(ax, ax_title, length_bei, row=row, col=col, legend_mode='out-one')
+
+        config_fig(fig, fig_title)
+
+        #################################################################################################
+        # 保存
+        # plt.show()
+        # raise KeyboardInterrupt()
+
+        if not os.path.exists(res_dir):
+            os.makedirs(res_dir)
+
+        fig.savefig(fig_path, transparent=True)
+
+
+# 4-4-5最不利配置-4col
+def draw_image_4_4_5_4col(parent_root):
+    sub_dir = '4-4-5最不利配置'
+    df0, res_dir = config_file_4col(parent_root, sub_dir)
+
+    pre_size = len([col for col in df0.columns if not isinstance(col, (int, float))])
+
+    # list1 = [400, 500, 600, 700, 800, 900, 1000]
+    list1 = [400, 600, 800, 1000]
+
+    ax_list = []
+
+    ax_rows = len(list1)
+    ax_cols = 4
+    ax_index = 0
+
+    v_height = 0.8
+    fig_height = v_height * (ax_rows+1)
+
+    # 配置 fig
+    fig = plt.figure(figsize=(7, fig_height), dpi=200)
+    fig_title = f'等长对位-遍历区段长度'
+    fig_path = res_dir + f'\\{fig_title}.png'
+
+    for row, sec_length in enumerate(list1):
+
+        df = df0.loc[df0["主串区段长度(m)"] == sec_length].copy()
+
+        freq_zhu_list = [1700, 2000, 2300, 2600]
+        for col, freq_zhu in enumerate(freq_zhu_list):
+
+            ax_index = ax_index + 1
+            ax = fig.add_subplot(ax_rows, ax_cols, ax_index)
+            ax_list.append(ax)
+
+            ax_title = f'主串频率-{freq_zhu}Hz'
+
+            ######################################################################################################
+            # 画线
+
+            xx1 = range(sec_length+1)
+            freq_bei_list = [2600]
+            for i, freq_bei in enumerate(freq_bei_list):
+
+                df1 = df.loc[
+                    (df["主串频率(Hz)"] == freq_zhu) &
+                    (df["被串频率(Hz)"] == freq_bei)
+                ]
+
+                if len(df1.index) != 1:
+                    raise KeyboardInterrupt('error: len(index) != 1')
+
+                yy1 = (df1.iloc[0, pre_size:].copy().dropna()*1000).tolist()
+
+                color_list = [
+                    'red',
+                    'orange',
+                    'blue',
+                    'green',
+                ]
+
+                color = color_list[i]
+                width = 0.25
+                label = f'最不利配置'
+                ax.plot(xx1, yy1, linestyle='-', color=color, alpha=1, linewidth=width, label=label)
+
+            # ylabel = f'区段长度{sec_length}m'
+            y_ticks = [0, 100, 200, 300, 400, 500, 600]
+            ylim = 600
+            config_ax_4col(
+                ax, ax_title, sec_length, row, col,
+                ylim=ylim, y_ticks=y_ticks,
+            )
+    config_fig_4col(fig, fig_title, ax_rows, ax_cols)
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path, transparent=True)
+
+
+# 4-4-6容值全遍历-等高线
+def draw_image_4_4_6(parent_root):
+    sub_dir = '4-4-6容值全遍历'
+
+    root = f'{parent_root}\\{sub_dir}\\'
+    file = f'仿真输出_20260813_普速列控_{sub_dir}.xlsx'
+
+    timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+    res_dir = root + '生成等高线图_%s' % timestamp
+
+    df0 = pd.read_excel(root + file, sheet_name='数据输出')
+
+    # 配置 fig
+    fig = plt.figure(figsize=(7, 4), dpi=200)
+    fig_title = f'等长对位-区段长度600m-遍历主被串电容值'
+
+    fig_path = res_dir + f'\\{fig_title}.png'
+
+    ax_list = []
+    cp1 = []
+
+    freq_zhu_list = [1700, 2000, 2300, 2600]
+    for j, freq_zhu in enumerate(freq_zhu_list):
+
+        ax = fig.add_subplot(2, 2, j + 1)
+        ax_list.append(ax)
+
+        ax_title = f'主串频率-{freq_zhu}Hz'
+
+        df2 = df0.loc[df0["主串频率(Hz)"] == freq_zhu].copy()
+
+        ######################################################################################################
+        # 画等高图
+
+        xx = range(20, 81, 5)
+        yy = range(20, 81, 5)
+
+        X, Y = np.meshgrid(xx, yy)
+
+        zz = pd.DataFrame()
+        for c_value_zhu in xx:
+            df = df2.loc[df2["主串电容值(μF)"] == c_value_zhu].copy()
+            s1 = df['被串最大干扰电流(A)'].copy() * 1000
+            s1.name = c_value_zhu
+            s1.index = df['被串电容值(μF)']
+            zz = pd.concat([zz, s1], axis=1)
+
+        Z = zz.values
+        levels = np.linspace(0, 250, 50)
+        # cp1 = ax.contourf(X, Y, Z, levels=levels, cmap="viridis")
+        cp1 = ax.contourf(X, Y, Z, levels=levels, cmap="rainbow")
+
+        ax.set_title(ax_title, pad=3, fontsize=8)
+
+        x_ticks = list(xx)
+        x_ticks_labels = list(map(lambda x: f'{x}', xx))
+
+        ax.set_xticks(x_ticks)
+        ax.set_xticklabels(x_ticks_labels)
+
+        ax.tick_params(
+            labelsize=5,
+            direction='in',
+        )
+
+        # ax.set_xlabel("x")
+        # ax.set_ylabel("y")
+
+        # cbar = fig.colorbar(cp1, ax=ax)  # 注意：colorbar 需要指定对应的 ax1
+        #
+        # cbar.set_label("邻线干扰电流/mA", fontsize=8)
+        #
+        # # 设置 Colorbar 刻度只显示固定几个点，并保留 1 位小数
+        # cbar.set_ticks([0, 50, 100, 150, 200, 250])
+        # cbar.ax.tick_params(labelsize=5)
+        # row = j // 2
+        # col = j % 2
+        # config_ax(ax, ax_title, length_bei, row=row, col=col, legend_mode='out-one')
+
+    cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.7])
+
+    cbar = fig.colorbar(
+        cp1, ax=ax_list, orientation="vertical", cax=cbar_ax
+    )
+
+    cbar.set_label("邻线干扰电流/mA", fontsize=10)
+
+    # 设置 Colorbar 刻度只显示固定几个点，并保留 1 位小数
+    cbar.set_ticks([0, 50, 100, 150, 200, 250])
+    cbar.ax.tick_params(labelsize=5)
+
+    config_fig(fig, fig_title, x_label='主串容值/μF', y_label='被串容值/μF')
+
+    #################################################################################################
+    # 保存
+    # plt.show()
+    # raise KeyboardInterrupt()
+
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
+
+    fig.savefig(fig_path, transparent=True)
 
 
 
@@ -4420,6 +5429,7 @@ def main():
     parent_root = 'C:\\Users\\Delon\\Desktop\\普速列控邻线干扰\\数据汇总'
     # parent_root = 'C:\\Users\\李继隆\\Desktop\\普速铁路新一代列控系统项目\\数据汇总'
 
+    # draw_image_3_1(parent_root)
     # draw_image_4_1_1(parent_root)
     # draw_image_4_1_1_4col(parent_root)
     # draw_image_4_1_2(parent_root)
@@ -4448,6 +5458,7 @@ def main():
     # draw_image_4_2_1(parent_root)
     # draw_image_4_2_1_4col(parent_root)
     # draw_image_4_2_3(parent_root)
+    # draw_image_4_2_3_4col(parent_root)
     # draw_image_4_2_4(parent_root)
     # draw_image_4_2_4_4col(parent_root)
     # draw_image_4_2_5(parent_root)
@@ -4460,14 +5471,24 @@ def main():
     # draw_image_4_3_4(parent_root)
     # draw_image_4_3_5(parent_root)
     # draw_image_4_3_6_1(parent_root)
-    draw_image_4_3_6_1_4col(parent_root)
+    # draw_image_4_3_6_1_4col(parent_root)
     # draw_image_4_3_6_2(parent_root)
-    draw_image_4_3_6_2_4col(parent_root)
+    # draw_image_4_3_6_2_4col(parent_root)
     # draw_image_4_4_1(parent_root)
     # draw_image_4_4_1_4col(parent_root)
     # draw_image_4_4_2(parent_root)
     # draw_image_4_4_2_4col(parent_root)
     # draw_image_4_4_3(parent_root)
+    # draw_image_4_4_4(parent_root)
+    # draw_image_4_4_5_4col(parent_root)
+
+    # draw_image_4_1_5_scatter(parent_root)
+    # draw_image_4_1_9_scatter(parent_root)
+    # draw_image_4_2_1_scatter(parent_root)
+    # draw_image_4_4_1_scatter(parent_root)
+    # draw_image_4_4_2_scatter(parent_root)
+
+    draw_image_4_4_6(parent_root)
 
 
 if __name__ == '__main__':
